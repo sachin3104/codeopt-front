@@ -1,7 +1,8 @@
 // File: src/context/AuthContext.tsx
-// Updated with Google OAuth functionality
+// FINAL OPTIMIZED VERSION - Fixes excessive API requests + automatic logout
 
-import React, { createContext, useState, useEffect, ReactNode, useContext, useRef } from 'react';import {
+import React, { createContext, useState, useEffect, ReactNode, useContext, useRef, useCallback } from 'react';
+import {
   User,
   fetchCurrentUser,
   login as loginApi,
@@ -34,35 +35,77 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Computed property for authentication status
   const isAuthenticated = user !== null;
 
-  // Add a ref to track ongoing requests
-const refreshUserRequestRef = useRef<Promise<void> | null>(null);
+  // Refs for request management
+  const refreshUserRequestRef = useRef<Promise<void> | null>(null);
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const lastRefreshTimeRef = useRef<number>(0);
+  const focusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const isInitializedRef = useRef(false);
 
-// Refresh the current user from the API
-const refreshUser = async () => {
-  // If there's already a request in progress, return that promise
-  if (refreshUserRequestRef.current) {
-    return refreshUserRequestRef.current;
-  }
-
-  const requestPromise = (async () => {
-    try {
-      const response = await fetchCurrentUser();
-      if (response.data.status === 'success') {
-        setUser(response.data.user);
-      } else {
-        setUser(null);
-      }
-    } catch (error) {
-      console.error('Failed to refresh user:', error);
-      setUser(null);
-    } finally {
-      refreshUserRequestRef.current = null;
+  // OPTIMIZED: Stable refreshUser function with better deduplication and logout prevention
+  const refreshUser = useCallback(async (force = false): Promise<void> => {
+    // Prevent rapid successive calls (debounce for 500ms)
+    const now = Date.now();
+    if (!force && now - lastRefreshTimeRef.current < 500) {
+      return refreshUserRequestRef.current || Promise.resolve();
     }
-  })();
 
-  refreshUserRequestRef.current = requestPromise;
-  return requestPromise;
-};
+    // If there's already a request in progress, return that promise
+    if (refreshUserRequestRef.current && !force) {
+      return refreshUserRequestRef.current;
+    }
+
+    // Cancel any existing request
+    if (abortControllerRef.current) {
+      abortControllerRef.current.abort();
+    }
+
+    // Create new abort controller
+    abortControllerRef.current = new AbortController();
+    lastRefreshTimeRef.current = now;
+
+    const requestPromise = (async () => {
+      try {
+        const response = await fetchCurrentUser();
+        
+        // Check if request was aborted
+        if (abortControllerRef.current?.signal.aborted) {
+          return;
+        }
+
+        if (response.data.status === 'success') {
+          setUser(response.data.user);
+        } else {
+          // FIXED: Only log out if it's a 401 (authentication failure)
+          if (response.status === 401) {
+            setUser(null);
+          }
+          // For other response errors, keep user logged in
+        }
+      } catch (error: any) {
+        // Don't log errors for aborted requests
+        if (error.name !== 'AbortError' && !abortControllerRef.current?.signal.aborted) {
+          console.error('Failed to refresh user:', error);
+          
+          // FIXED: Only log out on 401 (authentication failure)
+          // Keep user logged in for network errors, 500s, timeouts, etc.
+          if (error.response?.status === 401) {
+            setUser(null);
+          }
+          // For network errors, server errors, etc. - don't log out
+          // This prevents automatic logout on temporary issues
+        }
+      } finally {
+        refreshUserRequestRef.current = null;
+        if (abortControllerRef.current) {
+          abortControllerRef.current = null;
+        }
+      }
+    })();
+
+    refreshUserRequestRef.current = requestPromise;
+    return requestPromise;
+  }, []);
 
   // Login method for local authentication
   const login = async (username: string, password: string) => {
@@ -104,8 +147,6 @@ const refreshUser = async () => {
 
   // Google OAuth login method
   const loginWithGoogle = () => {
-    // This will redirect the user to the backend OAuth endpoint
-    // The backend will handle the OAuth flow and redirect back to the frontend
     initiateGoogleAuth();
   };
 
@@ -113,6 +154,12 @@ const refreshUser = async () => {
   const logout = async () => {
     try {
       setLoading(true);
+      
+      // Cancel any ongoing refresh requests
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      
       await logoutApi();
       setUser(null);
     } catch (error) {
@@ -124,65 +171,97 @@ const refreshUser = async () => {
     }
   };
 
-  // Check authentication status on mount and periodically
-const checkAuth = async () => {
-  try {
-    // Just call refreshUser - if it fails, user is not authenticated
-    await refreshUser();
-  } catch (error) {
-    console.error('Auth check failed:', error);
-    setUser(null);
-  }
-};
-
-  // On mount, try to fetch the user
+  // OPTIMIZED: Initial auth check on mount
   useEffect(() => {
     const initializeAuth = async () => {
+      if (isInitializedRef.current) return;
+      
       try {
         setLoading(true);
-        await refreshUser();
+        isInitializedRef.current = true;
+        await refreshUser(true); // Force initial refresh
       } catch (error) {
         console.error('Failed to initialize auth:', error);
-        setUser(null);
+        // FIXED: Don't automatically log out on initialization errors
+        // Only log out if it's a 401 error (handled inside refreshUser)
       } finally {
         setLoading(false);
       }
     };
 
     initializeAuth();
+  }, []); // Remove refreshUser from dependencies
+
+  // OPTIMIZED: Focus handler with better debouncing and error handling
+  useEffect(() => {
+    const handleFocus = () => {
+      // Only refresh if:
+      // 1. Not currently loading
+      // 2. User is authenticated
+      // 3. Component is initialized
+      if (!loading && user && isInitializedRef.current) {
+        // Clear any existing timeout
+        if (focusTimeoutRef.current) {
+          clearTimeout(focusTimeoutRef.current);
+        }
+        
+        // Set a longer timeout to avoid rapid refreshes
+        focusTimeoutRef.current = setTimeout(() => {
+          // FIXED: Silently refresh - don't log out on errors
+          refreshUser().catch(() => {
+            // Ignore errors from focus refresh
+            // User stays logged in even if refresh fails
+          });
+        }, 2000); // Increased from 1 second to 2 seconds
+      }
+    };
+
+    const handleBlur = () => {
+      // Clear timeout when window loses focus
+      if (focusTimeoutRef.current) {
+        clearTimeout(focusTimeoutRef.current);
+        focusTimeoutRef.current = null;
+      }
+    };
+
+    window.addEventListener('focus', handleFocus);
+    window.addEventListener('blur', handleBlur);
+    
+    return () => {
+      window.removeEventListener('focus', handleFocus);
+      window.removeEventListener('blur', handleBlur);
+      if (focusTimeoutRef.current) {
+        clearTimeout(focusTimeoutRef.current);
+      }
+    };
+  }, [loading, user, refreshUser]);
+
+  // OPTIMIZED: Periodic auth check with longer interval and error handling
+  useEffect(() => {
+    if (!user || !isInitializedRef.current) return;
+
+    const interval = setInterval(() => {
+      // FIXED: Silently refresh - don't log out on errors
+      refreshUser().catch(() => {
+        // Ignore errors from periodic check
+        // User stays logged in even if refresh fails
+      });
+    }, 30 * 60 * 1000); // Increased from 20 to 30 minutes
+
+    return () => clearInterval(interval);
+  }, [user, refreshUser]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (abortControllerRef.current) {
+        abortControllerRef.current.abort();
+      }
+      if (focusTimeoutRef.current) {
+        clearTimeout(focusTimeoutRef.current);
+      }
+    };
   }, []);
-
-  // Handle focus events to refresh user data when tab becomes active (with debouncing)
-useEffect(() => {
-  let focusTimeout: NodeJS.Timeout;
-  
-  const handleFocus = () => {
-    if (!loading && user) {
-      // Debounce focus events - only refresh if tab was inactive for more than 30 seconds
-      clearTimeout(focusTimeout);
-      focusTimeout = setTimeout(() => {
-        refreshUser();
-      }, 1000); // Wait 1 second after focus to avoid rapid calls
-    }
-  };
-
-  window.addEventListener('focus', handleFocus);
-  return () => {
-    window.removeEventListener('focus', handleFocus);
-    clearTimeout(focusTimeout);
-  };
-}, [loading, user]);
-
-  // Periodic auth check (optional - every 20 minutes)
-useEffect(() => {
-  if (!user) return;
-
-  const interval = setInterval(() => {
-    checkAuth();
-  }, 20 * 60 * 1000); // 20 minutes
-
-  return () => clearInterval(interval);
-}, [user]);
 
   const contextValue: AuthContextType = {
     user,

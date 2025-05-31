@@ -1,11 +1,10 @@
 // src/pages/AuthSuccessPage.tsx
-// OAuth Success Page with glassmorphic design
+// OPTIMIZED VERSION - Removes explicit refreshUser call
 
 import React, { useEffect, useState } from 'react';
 import { useAuth } from '../context/AuthContext';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircle, AlertCircle, Loader2, Home } from 'lucide-react';
-// import BeamsBackground from '@/components/beams-backgruond';
 
 interface LocationState {
   from?: {
@@ -14,7 +13,7 @@ interface LocationState {
 }
 
 const AuthSuccessPage: React.FC = () => {
-  const { refreshUser, user } = useAuth();
+  const { user, loading } = useAuth(); // REMOVED refreshUser to prevent double-trigger
   const navigate = useNavigate();
   const location = useLocation();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -26,25 +25,29 @@ const AuthSuccessPage: React.FC = () => {
         setStatus('loading');
         setMessage('Verifying your authentication...');
 
-        // Wait a moment for the backend to set the cookie
-        await new Promise(resolve => setTimeout(resolve, 1000));
+        // Wait for AuthContext to naturally refresh user data
+        // The OAuth callback should have already set the cookie
+        await new Promise(resolve => setTimeout(resolve, 1500));
 
-        // Refresh user data after OAuth success
-        await refreshUser();
+        // Check if user data is available (AuthContext will handle the refresh)
+        if (user) {
+          setStatus('success');
+          setMessage('Authentication successful! Redirecting...');
 
-        // Small delay to show success state
-        setStatus('success');
-        setMessage('Authentication successful! Redirecting...');
+          // Wait a bit to show success message
+          await new Promise(resolve => setTimeout(resolve, 2000));
 
-        // Wait a bit to show success message
-        await new Promise(resolve => setTimeout(resolve, 2000));
+          // Get the original path the user was trying to access
+          const state = location.state as LocationState;
+          const from = state?.from?.pathname || '/';
 
-        // Get the original path the user was trying to access
-        const state = location.state as LocationState;
-        const from = state?.from?.pathname || '/';
-
-        // Redirect to the original path or home
-        navigate(from, { replace: true });
+          // Redirect to the original path or home
+          navigate(from, { replace: true });
+        } else if (!loading) {
+          // If not loading and no user, there was an error
+          throw new Error('Authentication verification failed');
+        }
+        // If still loading, the effect will run again when loading changes
 
       } catch (error) {
         console.error('OAuth success handling failed:', error);
@@ -59,7 +62,7 @@ const AuthSuccessPage: React.FC = () => {
     };
 
     handleAuthSuccess();
-  }, [refreshUser, navigate, location.state]);
+  }, [user, loading, navigate, location.state]); // FIXED: Removed refreshUser from dependencies
 
   // Manual redirect function for error state
   const handleRedirect = () => {
