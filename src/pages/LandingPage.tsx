@@ -2,10 +2,9 @@ import { motion } from "motion/react";
 import Header from "../components/landing-page/Header";
 import { GlowingEffectGrid } from "../components/landing-page/GlowingEffectGrid";
 import CodeOptimizationSection from "../components/landing-page/CodeOptimizationSection";
-import CodeCompareSection from "../components/landing-page/CodeCompareSection";
-import WaitingListSection from "../components/landing-page/WaitingListSection";
 import Footer from "../components/landing-page/Footer";
 // import BeamsBackground from "@/components/beams-backgruond"; // Import the BeamsBackground component
+import PricingCards from "../components/landing-page/PricingCards";
 
 export default function LandingPage() {
   return (
@@ -48,16 +47,9 @@ export default function LandingPage() {
               <CodeOptimizationSection />
             </div>
             
-            {/* Uncomment when InteractiveWorkflowSection is converted */}
-            {/* <InteractiveWorkflowSection /> */}
+            <PricingCards />
             
-            {/* Code compare section - let background show through */}
-            <CodeCompareSection />
             
-            {/* Waiting list section - let background show through */}
-            <div id="contact">
-              <WaitingListSection />
-            </div>
           </main>
           
           {/* Footer - let background show through */}

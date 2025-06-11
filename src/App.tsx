@@ -25,6 +25,10 @@ import OptimizeResultPage from './pages/results/OptimizeResultPage';
 import ConvertResultPage from './pages/results/ConvertResultPage';
 import DocumentResultPage from './pages/results/DocumentResultPage';
 
+// Admin pages
+import AdminLogin from './pages/admin/AdminLogin';
+import AdminDashboard from './pages/admin/AdminDashboard';
+
 const queryClient = new QueryClient();
 
 // Component to handle conditional home route
@@ -103,6 +107,10 @@ const App: React.FC = () => (
             
             {/* Redirect /home to / for consistency */}
             <Route path="/home" element={<Navigate to="/" replace />} />
+
+            {/* Admin routes */}
+            <Route path="/admin/login" element={<AdminLogin />} />
+            <Route path="/admin/dashboard" element={<AdminDashboard />} />
             
             {/* Catch-all fallback */}
             <Route path="*" element={<NotFound />} />

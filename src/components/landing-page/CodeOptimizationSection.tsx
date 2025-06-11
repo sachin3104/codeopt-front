@@ -1,24 +1,130 @@
-import React from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
+import { AnimatePresence, motion } from "motion/react";
 import { ArrowRight } from "lucide-react";
 import clsx from "clsx";
 
-const optimizedCodeExample = `# Before optimization
-def process_data(df):
- results = []
- for i in range(len(df)):
- if df.iloc[i]['value'] > 100:
- results.append({
- 'id': df.iloc[i]['id'],
- 'value': df.iloc[i]['value'] * 2
- })
- return results
+// You'll need to install @tabler/icons-react: npm install @tabler/icons-react
+import { IconDotsVertical } from "@tabler/icons-react";
 
-# After AgenticAI optimization
-def process_data(df):
- return df[df['value'] > 100].apply(
- lambda row: {'id': row['id'], 'value': row['value'] * 2},
- axis=1
- ).tolist()`;
+// Code examples for comparison
+const beforeCode = `# Original implementation (unoptimized)
+
+library(dplyr)
+calculate_stats <- function(df) {
+  results <- c()
+  # Loop through each row
+  for (i in 1:nrow(df)) {
+    if (df$score[i] > 75) {
+      scaled_score <- df$score[i] * 1.2
+      results <- c(results, scaled_score)
+    }
+  }
+  return(results)
+}
+
+# Usage
+high_scores <- calculate_stats(student_data)
+print(paste("Found", length(high_scores), "high performers"))
+`;
+
+const afterCode = `# optqo AI optimized implementation
+
+library(dplyr)
+
+calculate_stats <- function(df) {
+  # Vectorized filtering and transformation
+  df %>%
+    filter(score > 75) %>%
+    pull(score) * 1.2
+}
+
+# Usage  
+high_scores <- calculate_stats(student_data)
+cat("Found", length(high_scores), "high performers\\n")
+`;
+
+interface CompareProps {
+  firstCode: string;
+  secondCode: string;
+  className?: string;
+  codeClass?: string;
+  initialPct?: number;
+}
+
+function Compare({
+  firstCode,
+  secondCode,
+  className = "",
+  codeClass = "",
+  initialPct = 50,
+}: CompareProps) {
+  const [pct, setPct] = useState(initialPct);
+  const [dragging, setDragging] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  const move = useCallback((x: number) => {
+    if (!ref.current) return;
+    const { left, width } = ref.current.getBoundingClientRect();
+    let newPct = ((x - left) / width) * 100;
+    newPct = Math.max(0, Math.min(100, newPct));
+    setPct(newPct);
+  }, []);
+
+  useEffect(() => {
+    const onMouseMove = (e: MouseEvent) => dragging && move(e.clientX);
+    const onMouseUp = () => setDragging(false);
+    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mouseup', onMouseUp);
+    return () => {
+      window.removeEventListener('mousemove', onMouseMove);
+      window.removeEventListener('mouseup', onMouseUp);
+    };
+  }, [dragging, move]);
+
+  return (
+    <div
+      ref={ref}
+      className={clsx("relative w-full h-full select-none overflow-hidden", className)}
+      onMouseDown={(e) => { setDragging(true); move(e.clientX); }}
+      onMouseMove={(e) => move(e.clientX)}
+    >
+      {/* Slider handle */}
+      <AnimatePresence>
+        <motion.div
+          className="absolute top-0 h-full w-[2px] bg-gradient-to-b from-transparent via-indigo-400 to-transparent z-30 transition-left"
+          style={{ left: `${pct}%`, transition: 'left 0.2s ease-out' }}
+          transition={{ duration: 0 }}
+        >
+          
+        </motion.div>
+      </AnimatePresence>
+
+      {/* First code (clipped) - left side */}
+      <div className="absolute inset-0 z-20 pointer-events-none">
+        <div
+          className={codeClass}
+          style={{ clipPath: `inset(0 ${100 - pct}% 0 0)`, transition: 'clip-path 0.2s ease-out' }}
+        >
+          <pre className="h-full overflow-auto p-6 font-mono text-sm text-white leading-relaxed bg-transparent">
+            <code>{firstCode}</code>
+          </pre>
+        </div>
+      </div>
+
+      {/* Second code (clipped) - right side */}
+      <div className="absolute inset-0 z-10">
+        <div
+          className={codeClass}
+          style={{ clipPath: `inset(0 0 0 ${pct}%)`, transition: 'clip-path 0.2s ease-out' }}
+        >
+          <pre className="h-full overflow-auto p-6 font-mono text-sm text-white leading-relaxed bg-transparent">
+            <code>{secondCode}</code>
+          </pre>
+        </div>
+      </div>
+    </div>
+  );
+}
 
 export default function CodeOptimizationSection() {
   const benefits = [
@@ -58,18 +164,29 @@ export default function CodeOptimizationSection() {
             </button>
           </div>
 
-          {/* Right: Glassmorphic code editor */}
+          {/* Right: Interactive Code Compare Section */}
           <div className="flex justify-center">
-            <div className="w-full max-w-lg bg-[rgba(255,255,255,0.1)] backdrop-blur-[12px] border border-[rgba(255,255,255,0.18)] rounded-2xl p-6">
-              {/* Window controls */}
-              <div className="flex items-center space-x-2 mb-4">
-                <span className="h-3 w-3 bg-red-500 rounded-full"></span>
-                <span className="h-3 w-3 bg-yellow-500 rounded-full"></span>
-                <span className="h-3 w-3 bg-green-500 rounded-full"></span>
+            <div className="w-full h-[500px] bg-[rgba(255,255,255,0.05)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.12)] rounded-3xl overflow-hidden relative">
+              {/* Header with labels */}
+              <div className="absolute top-0 left-0 right-0 z-40 flex">
+                <div className="flex-1 p-4 text-center">
+                  <span className="text-sm font-medium text-white/80">Before</span>
+                </div>
+                <div className="flex-1 p-4 text-center">
+                  <span className="text-sm font-medium text-white/80">After</span>
+                </div>
               </div>
-              <pre className="whitespace-pre-wrap font-mono text-sm text-white">
-                <code>{optimizedCodeExample}</code>
-              </pre>
+              
+              {/* Compare Component */}
+              <div className="pt-12 h-full">
+                <Compare
+                  firstCode={beforeCode}
+                  secondCode={afterCode}
+                  initialPct={50}
+                  className="w-full h-full"
+                  codeClass="rounded-none"
+                />
+              </div>
             </div>
           </div>
         </div>
