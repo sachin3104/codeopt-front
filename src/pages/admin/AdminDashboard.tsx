@@ -4,7 +4,23 @@ import { useNavigate } from 'react-router-dom';
 import AdminLayout from '@/components/admin/AdminLayout';
 import { fetchCurrentAdmin, getUserStats, getAdminDisplayName, formatAdminRole } from '@/api/admin';
 import type { AdminUser, UserStats } from '@/types/admin';
-import { CheckCircle, Users, UserCheck, UserX, Clock, TrendingUp, Shield, Crown } from 'lucide-react';
+import { 
+  CheckCircle, 
+  Users, 
+  UserCheck, 
+  UserX, 
+  Clock, 
+  TrendingUp, 
+  Shield, 
+  Crown,
+  Settings,
+  BarChart3,
+  FileText,
+  ArrowRight,
+  Activity,
+  Globe,
+  AtSign
+} from 'lucide-react';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
@@ -68,6 +84,11 @@ export default function AdminDashboard() {
     setStats(null);
     // Redirect to login
     navigate('/admin/login', { replace: true });
+  };
+
+  // Navigate to user management
+  const handleNavigateToUsers = () => {
+    navigate('/admin/users');
   };
 
   // Show loading state
@@ -151,7 +172,178 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* Admin Info Section */}
+      {/* Quick Actions Section */}
+      <div className="mb-8">
+        <h3 className="text-lg font-semibold text-white mb-4">Quick Actions</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          
+          {/* User Management Card */}
+          <button
+            onClick={handleNavigateToUsers}
+            className="backdrop-blur-sm bg-white/5 border border-white/10 hover:border-white/20 rounded-xl p-6 text-left transition-all duration-300 hover:bg-white/10 group"
+          >
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-blue-500/20 rounded-full flex items-center justify-center group-hover:bg-blue-500/30 transition-colors">
+                <Users size={24} className="text-blue-400" />
+              </div>
+              <ArrowRight size={20} className="text-white/50 group-hover:text-white/80 transition-colors" />
+            </div>
+            <h4 className="text-white font-semibold mb-2">User Management</h4>
+            <p className="text-white/70 text-sm mb-3">
+              Manage user accounts, approvals, and permissions
+            </p>
+            {stats && (
+              <div className="flex items-center gap-4 text-xs">
+                <span className="text-blue-400">{stats.total_users} Total</span>
+                <span className="text-yellow-400">{stats.pending_users} Pending</span>
+              </div>
+            )}
+          </button>
+
+          {/* Analytics Card (Coming Soon) */}
+          <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6 opacity-60">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-purple-500/20 rounded-full flex items-center justify-center">
+                <BarChart3 size={24} className="text-purple-400" />
+              </div>
+              <span className="text-xs text-white/50 bg-white/10 px-2 py-1 rounded-full">Coming Soon</span>
+            </div>
+            <h4 className="text-white font-semibold mb-2">Analytics</h4>
+            <p className="text-white/70 text-sm">
+              View detailed analytics and reports
+            </p>
+          </div>
+
+          {/* System Settings Card (Coming Soon) */}
+          <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6 opacity-60">
+            <div className="flex items-center justify-between mb-4">
+              <div className="w-12 h-12 bg-gray-500/20 rounded-full flex items-center justify-center">
+                <Settings size={24} className="text-gray-400" />
+              </div>
+              <span className="text-xs text-white/50 bg-white/10 px-2 py-1 rounded-full">Coming Soon</span>
+            </div>
+            <h4 className="text-white font-semibold mb-2">System Settings</h4>
+            <p className="text-white/70 text-sm">
+              Configure application settings
+            </p>
+          </div>
+        </div>
+      </div>
+
+      {/* System Overview Section */}
+      {stats && (
+        <div className="mb-8">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-white">System Overview</h3>
+            <button
+              onClick={handleNavigateToUsers}
+              className="text-blue-400 hover:text-blue-300 text-sm font-medium flex items-center gap-1 transition-colors"
+            >
+              View All Users
+              <ArrowRight size={14} />
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            {/* Total Users */}
+            <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6">
+              <div className="flex items-center gap-3 mb-2">
+                <Users size={20} className="text-blue-400" />
+                <span className="text-white/70 text-sm font-medium">Total Users</span>
+              </div>
+              <p className="text-2xl font-bold text-white mb-1">{stats.total_users.toLocaleString()}</p>
+              <div className="flex items-center gap-2 text-xs">
+                <Activity size={12} className="text-green-400" />
+                <span className="text-green-400">{stats.active_users} active</span>
+              </div>
+            </div>
+
+            {/* Approved Users */}
+            <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6">
+              <div className="flex items-center gap-3 mb-2">
+                <UserCheck size={20} className="text-green-400" />
+                <span className="text-white/70 text-sm font-medium">Approved</span>
+              </div>
+              <p className="text-2xl font-bold text-white mb-1">{stats.approved_users.toLocaleString()}</p>
+              <div className="text-xs text-white/60">
+                {((stats.approved_users / stats.total_users) * 100).toFixed(1)}% of total
+              </div>
+            </div>
+
+            {/* Pending Users */}
+            <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6">
+              <div className="flex items-center gap-3 mb-2">
+                <Clock size={20} className="text-yellow-400" />
+                <span className="text-white/70 text-sm font-medium">Pending</span>
+              </div>
+              <p className="text-2xl font-bold text-white mb-1">{stats.pending_users.toLocaleString()}</p>
+              {stats.pending_users > 0 && (
+                <button
+                  onClick={handleNavigateToUsers}
+                  className="text-xs text-yellow-400 hover:text-yellow-300 transition-colors"
+                >
+                  Review pending →
+                </button>
+              )}
+            </div>
+
+            {/* Recent Users */}
+            <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6">
+              <div className="flex items-center gap-3 mb-2">
+                <TrendingUp size={20} className="text-purple-400" />
+                <span className="text-white/70 text-sm font-medium">Recent (7d)</span>
+              </div>
+              <p className="text-2xl font-bold text-white mb-1">{stats.recent_users.toLocaleString()}</p>
+              <div className="text-xs text-white/60">
+                New registrations
+              </div>
+            </div>
+          </div>
+
+          {/* Auth Providers Breakdown */}
+          <div className="mt-6 backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6">
+            <h4 className="text-white font-medium mb-4">Authentication Providers</h4>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              
+              {/* Local Auth */}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-gray-500/20 rounded-full flex items-center justify-center">
+                  <AtSign size={16} className="text-gray-400" />
+                </div>
+                <div>
+                  <p className="text-white font-medium">{stats.auth_providers.local.toLocaleString()}</p>
+                  <p className="text-white/60 text-sm">Local Accounts</p>
+                </div>
+              </div>
+
+              {/* Google Auth */}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-500/20 rounded-full flex items-center justify-center">
+                  <Globe size={16} className="text-blue-400" />
+                </div>
+                <div>
+                  <p className="text-white font-medium">{stats.auth_providers.google.toLocaleString()}</p>
+                  <p className="text-white/60 text-sm">Google</p>
+                </div>
+              </div>
+
+              {/* LinkedIn Auth */}
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-blue-600/20 rounded-full flex items-center justify-center">
+                  <Shield size={16} className="text-blue-500" />
+                </div>
+                <div>
+                  <p className="text-white font-medium">{stats.auth_providers.linkedin.toLocaleString()}</p>
+                  <p className="text-white/60 text-sm">LinkedIn</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Admin Information Section */}
       <div className="mb-8">
         <h3 className="text-lg font-semibold text-white mb-4">Admin Information</h3>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -182,7 +374,7 @@ export default function AdminDashboard() {
             </div>
           </div>
 
-          {/* Login Info Card */}
+          {/* Session Info Card */}
           <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6">
             <h4 className="text-white font-medium mb-4">Session Information</h4>
             <div className="space-y-3">
@@ -216,58 +408,17 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* User Statistics Section */}
-      {stats && (
-        <div className="mb-8">
-          <h3 className="text-lg font-semibold text-white mb-4">System Overview</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            
-            {/* Total Users */}
-            <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <Users size={20} className="text-blue-400" />
-                <span className="text-white/70 text-sm font-medium">Total Users</span>
-              </div>
-              <p className="text-2xl font-bold text-white">{stats.total_users.toLocaleString()}</p>
-            </div>
-
-            {/* Approved Users */}
-            <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <UserCheck size={20} className="text-green-400" />
-                <span className="text-white/70 text-sm font-medium">Approved</span>
-              </div>
-              <p className="text-2xl font-bold text-white">{stats.approved_users.toLocaleString()}</p>
-            </div>
-
-            {/* Pending Users */}
-            <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <Clock size={20} className="text-yellow-400" />
-                <span className="text-white/70 text-sm font-medium">Pending</span>
-              </div>
-              <p className="text-2xl font-bold text-white">{stats.pending_users.toLocaleString()}</p>
-            </div>
-
-            {/* Recent Users */}
-            <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6">
-              <div className="flex items-center gap-3 mb-2">
-                <TrendingUp size={20} className="text-purple-400" />
-                <span className="text-white/70 text-sm font-medium">Recent (7d)</span>
-              </div>
-              <p className="text-2xl font-bold text-white">{stats.recent_users.toLocaleString()}</p>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Coming Soon Section */}
+      {/* Recent Activity Section (Placeholder) */}
       <div className="mb-8">
-        <div className="backdrop-blur-sm bg-gradient-to-r from-blue-500/10 via-purple-500/10 to-blue-500/10 border border-white/10 rounded-xl p-6 text-center">
-          <h3 className="text-xl font-semibold text-white mb-2">More Features Coming Soon</h3>
-          <p className="text-white/70">
-            User management, analytics, system settings, and more administrative features will be added here.
-          </p>
+        <h3 className="text-lg font-semibold text-white mb-4">Recent Activity</h3>
+        <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6">
+          <div className="text-center py-8">
+            <FileText size={48} className="text-white/30 mx-auto mb-4" />
+            <h4 className="text-white font-medium mb-2">Activity Log Coming Soon</h4>
+            <p className="text-white/60">
+              Track admin actions, user registrations, and system events
+            </p>
+          </div>
         </div>
       </div>
     </AdminLayout>

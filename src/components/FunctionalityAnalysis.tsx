@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -101,21 +100,19 @@ const FunctionalityAnalysis: React.FC<FunctionalityAnalysisProps> = ({ content }
   };
 
   return (
-    <Card className="border border-border">
+    <Card className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 rounded-3xl border border-white/20 shadow-2xl">
       <CardContent className="p-6">
-        <div className="space-y-6">
-          {sections.map((section, index) => {
-            const title = getHeaderTitle(section);
-            return (
-              <div key={index} className="pb-4">
-                <h3 className="text-base font-semibold border-b border-border pb-2 mb-3">{title}</h3>
-                <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:mb-2 prose-p:my-2">
-                  {formatContent(section)}
-                </div>
+        {sections.map((section, index) => {
+          const title = getHeaderTitle(section);
+          return (
+            <div key={index} className="pb-4">
+              <h3 className="text-base font-semibold border-b border-white/20 pb-2 mb-3 text-white/90">{title}</h3>
+              <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:mb-2 prose-p:my-2">
+                {formatContent(section)}
               </div>
-            );
-          })}
-        </div>
+            </div>
+          );
+        })}
       </CardContent>
     </Card>
   );

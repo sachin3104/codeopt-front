@@ -1,6 +1,4 @@
-
 import React from 'react';
-import { Card, CardContent } from "@/components/ui/card";
 
 interface OptimizationImprovementSummaryProps {
   content: string;
@@ -33,21 +31,21 @@ const OptimizationImprovementSummary: React.FC<OptimizationImprovementSummaryPro
           
           return (
             <div key={idx} className="overflow-x-auto my-4">
-              <table className="min-w-full divide-y divide-border">
+              <table className="min-w-full divide-y divide-white/10">
                 <thead>
                   <tr>
                     {headers.map((header, i) => (
-                      <th key={i} className="px-4 py-2 text-left text-sm font-medium text-muted-foreground bg-secondary/50">{header}</th>
+                      <th key={i} className="px-4 py-2 text-left text-sm font-medium text-white/70 bg-white/5">{header}</th>
                     ))}
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody className="divide-y divide-white/10">
                   {rows.slice(2).map((row, rowIdx) => {
                     const cells = row.split('|').filter(cell => cell.trim() !== '').map(cell => cell.trim());
                     return (
                       <tr key={rowIdx}>
                         {cells.map((cell, cellIdx) => (
-                          <td key={cellIdx} className="px-4 py-2 text-sm">{cell}</td>
+                          <td key={cellIdx} className="px-4 py-2 text-sm text-white/90">{cell}</td>
                         ))}
                       </tr>
                     );
@@ -64,8 +62,8 @@ const OptimizationImprovementSummary: React.FC<OptimizationImprovementSummaryPro
         const code = paragraph.replace(/^```(\w+)?\n([\s\S]*?)```$/m, '$2');
         const language = paragraph.match(/^```(\w+)?/)?.[1] || '';
         return (
-          <pre key={idx} className="bg-secondary/20 p-4 rounded-md my-4 overflow-x-auto">
-            <code className="text-sm text-primary">{code}</code>
+          <pre key={idx} className="bg-black/20 p-4 rounded-md my-4 overflow-x-auto border border-white/10">
+            <code className="text-sm text-white/90">{code}</code>
           </pre>
         );
       }
@@ -80,7 +78,9 @@ const OptimizationImprovementSummary: React.FC<OptimizationImprovementSummaryPro
         return (
           <ul key={idx} className="list-disc pl-5 my-3 space-y-1">
             {items.map((item, i) => (
-              <li key={i} className="text-sm">{item}</li>
+              <li key={i} className="text-sm text-white/90">
+                {formatMarkdownText(item)}
+              </li>
             ))}
           </ul>
         );
@@ -96,28 +96,21 @@ const OptimizationImprovementSummary: React.FC<OptimizationImprovementSummaryPro
         return (
           <ol key={idx} className="list-decimal pl-5 my-3 space-y-1">
             {items.map((item, i) => (
-              <li key={i} className="text-sm">{item}</li>
+              <li key={i} className="text-sm text-white/90">
+                {formatMarkdownText(item)}
+              </li>
             ))}
           </ol>
         );
       }
       
-      // Format bold text
-      let formatted = paragraph.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      
-      // Format italic text
-      formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-      
-      // Format inline code
-      formatted = formatted.replace(/`(.*?)`/g, '<code>$1</code>');
-      
       // Secondary headers
-      if (formatted.match(/^#+\s+/)) {
-        const level = (formatted.match(/^(#+)/) || ['#'])[0].length;
-        const text = formatted.replace(/^#+\s+/, '');
+      if (paragraph.match(/^#+\s+/)) {
+        const level = (paragraph.match(/^(#+)/) || ['#'])[0].length;
+        const text = paragraph.replace(/^#+\s+/, '');
         return (
           <div key={idx} 
-            className={`font-semibold my-3 ${
+            className={`font-semibold my-3 text-white ${
               level === 2 ? 'text-lg' : 
               level === 3 ? 'text-base' : 
               'text-sm'
@@ -128,31 +121,61 @@ const OptimizationImprovementSummary: React.FC<OptimizationImprovementSummaryPro
       }
       
       return (
-        <p key={idx} 
-           className="my-3 text-sm leading-relaxed" 
-           dangerouslySetInnerHTML={{ __html: formatted }} />
+        <p key={idx} className="my-3 text-sm leading-relaxed text-white/90">
+          {formatMarkdownText(paragraph)}
+        </p>
       );
     });
   };
 
+  // Function to format markdown text with proper styling
+  const formatMarkdownText = (text: string): React.ReactNode => {
+    // Split the text into parts based on markdown syntax
+    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+    
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        // Bold text
+        return (
+          <strong key={index} className="text-white font-semibold">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      } else if (part.startsWith('*') && part.endsWith('*')) {
+        // Italic text
+        return (
+          <em key={index} className="text-white/80">
+            {part.slice(1, -1)}
+          </em>
+        );
+      } else if (part.startsWith('`') && part.endsWith('`')) {
+        // Inline code
+        return (
+          <code key={index} className="bg-black/20 px-1 py-0.5 rounded text-white/90">
+            {part.slice(1, -1)}
+          </code>
+        );
+      }
+      return part;
+    });
+  };
+
   return (
-    <Card className="border border-border">
-      <CardContent className="p-6">
-        <div className="space-y-6">
-          {sections.map((section, index) => {
-            const title = getHeaderTitle(section);
-            return (
-              <div key={index} className="pb-4">
-                <h3 className="text-base font-semibold border-b border-border pb-2 mb-3">{title}</h3>
-                <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:mb-2 prose-p:my-2">
-                  {formatContent(section)}
-                </div>
+    <div className="bg-black/20 backdrop-blur-xl border border-white/10 rounded-lg p-6">
+      <div className="space-y-6">
+        {sections.map((section, index) => {
+          const title = getHeaderTitle(section);
+          return (
+            <div key={index} className="pb-4">
+              <h3 className="text-base font-semibold border-b border-white/10 pb-2 mb-3 text-white">{title}</h3>
+              <div className="prose prose-sm max-w-none dark:prose-invert prose-headings:mb-2 prose-p:my-2">
+                {formatContent(section)}
               </div>
-            );
-          })}
-        </div>
-      </CardContent>
-    </Card>
+            </div>
+          );
+        })}
+      </div>
+    </div>
   );
 };
 

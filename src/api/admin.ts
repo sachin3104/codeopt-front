@@ -12,6 +12,7 @@ import type {
   UserDetailsResponse,
   UserActionResponse,
   BulkApproveResponse,
+  GetUsersParams, // NEW IMPORT
 } from '@/types/admin';
 
 // Re-export types for convenience
@@ -26,6 +27,7 @@ export type {
   UserDetailsResponse,
   UserActionResponse,
   BulkApproveResponse,
+  GetUsersParams, // NEW EXPORT
 };
 
 /**
@@ -69,10 +71,47 @@ export const checkAdminAuth = () =>
  */
 
 /**
- * Get list of all users in the system
+ * Get list of all users in the system with optional filtering and pagination
+ * MODIFIED: Added support for pagination, search, and filtering
+ * @param params - Optional query parameters for filtering, pagination, and sorting
  */
-export const getUsers = () =>
-  api.get<UsersResponse>('/api/admin/users');
+export const getUsers = (params?: GetUsersParams) => {
+  // Build query string from parameters
+  const queryParams = new URLSearchParams();
+  
+  if (params?.page) {
+    queryParams.append('page', params.page.toString());
+  }
+  
+  if (params?.per_page) {
+    queryParams.append('per_page', params.per_page.toString());
+  }
+  
+  if (params?.search && params.search.trim()) {
+    queryParams.append('search', params.search.trim());
+  }
+  
+  if (params?.status && params.status !== 'all') {
+    queryParams.append('status', params.status);
+  }
+  
+  if (params?.auth_provider && params.auth_provider !== 'all') {
+    queryParams.append('auth_provider', params.auth_provider);
+  }
+  
+  if (params?.sort_by) {
+    queryParams.append('sort_by', params.sort_by);
+  }
+  
+  if (params?.sort_order) {
+    queryParams.append('sort_order', params.sort_order);
+  }
+  
+  const queryString = queryParams.toString();
+  const url = queryString ? `/api/admin/users?${queryString}` : '/api/admin/users';
+  
+  return api.get<UsersResponse>(url);
+};
 
 /**
  * Get detailed information about a specific user
@@ -166,6 +205,45 @@ export const createAdmin = (adminData: {
   });
 
 /**
+ * NEW: Additional User Management Functions
+ */
+
+/**
+ * Bulk reject multiple users
+ * @param userIds - Array of user UUIDs to reject
+ */
+export const bulkRejectUsers = (userIds: string[]) =>
+  api.post<BulkApproveResponse>('/api/admin/users/bulk-reject', {
+    user_ids: userIds,
+  });
+
+/**
+ * Bulk activate multiple users
+ * @param userIds - Array of user UUIDs to activate
+ */
+export const bulkActivateUsers = (userIds: string[]) =>
+  api.post<BulkApproveResponse>('/api/admin/users/bulk-activate', {
+    user_ids: userIds,
+  });
+
+/**
+ * Bulk deactivate multiple users
+ * @param userIds - Array of user UUIDs to deactivate
+ */
+export const bulkDeactivateUsers = (userIds: string[]) =>
+  api.post<BulkApproveResponse>('/api/admin/users/bulk-deactivate', {
+    user_ids: userIds,
+  });
+
+/**
+ * Get users with advanced filtering (for search as you type)
+ * @param searchTerm - Search term to filter users
+ * @param limit - Maximum number of results (default: 10)
+ */
+export const searchUsers = (searchTerm: string, limit: number = 10) =>
+  api.get<UsersResponse>(`/api/admin/users/search?q=${encodeURIComponent(searchTerm)}&limit=${limit}`);
+
+/**
  * Utility Functions
  */
 
@@ -192,6 +270,28 @@ export const getAdminDisplayName = (admin: AdminUser): string => {
 };
 
 /**
+ * Get user display name
+ * @param user - Regular user object
+ */
+export const getUserDisplayName = (user: { 
+  username?: string; 
+  first_name?: string; 
+  last_name?: string; 
+  email: string; 
+}): string => {
+  if (user.first_name && user.last_name) {
+    return `${user.first_name} ${user.last_name}`;
+  }
+  if (user.first_name) {
+    return user.first_name;
+  }
+  if (user.username) {
+    return user.username;
+  }
+  return user.email;
+};
+
+/**
  * Format admin role for display
  * @param role - Admin role
  */
@@ -204,4 +304,89 @@ export const formatAdminRole = (role: string): string => {
     default:
       return role;
   }
+};
+
+/**
+ * Format user status for display
+ * @param user - User object
+ */
+export const formatUserStatus = (user: {
+  is_approved: boolean;
+  is_active: boolean;
+}): { status: string; color: string; description: string } => {
+  if (!user.is_approved) {
+    return {
+      status: 'Pending',
+      color: 'yellow',
+      description: 'Waiting for admin approval'
+    };
+  }
+  
+  if (!user.is_active) {
+    return {
+      status: 'Inactive',
+      color: 'red',
+      description: 'Account deactivated'
+    };
+  }
+  
+  return {
+    status: 'Active',
+    color: 'green',
+    description: 'Approved and active'
+  };
+};
+
+/**
+ * Format auth provider for display
+ * @param provider - Auth provider string
+ */
+export const formatAuthProvider = (provider: string): string => {
+  switch (provider.toLowerCase()) {
+    case 'local':
+      return 'Local';
+    case 'google':
+      return 'Google';
+    case 'linkedin':
+      return 'LinkedIn';
+    default:
+      return provider;
+  }
+};
+
+/**
+ * Format date for display
+ * @param dateString - ISO date string
+ */
+export const formatDate = (dateString?: string): string => {
+  if (!dateString) return 'Never';
+  
+  try {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit'
+    });
+  } catch (error) {
+    return 'Invalid date';
+  }
+};
+
+/**
+ * Build query parameters for API calls
+ * @param params - Parameters object
+ */
+export const buildQueryParams = (params: Record<string, any>): string => {
+  const queryParams = new URLSearchParams();
+  
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '' && value !== 'all') {
+      queryParams.append(key, value.toString());
+    }
+  });
+  
+  return queryParams.toString();
 };

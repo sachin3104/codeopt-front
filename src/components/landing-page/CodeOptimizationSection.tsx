@@ -88,22 +88,25 @@ function Compare({
       onMouseDown={(e) => { setDragging(true); move(e.clientX); }}
       onMouseMove={(e) => move(e.clientX)}
     >
-      {/* Slider handle */}
-      <AnimatePresence>
-        <motion.div
-          className="absolute top-0 h-full w-[2px] bg-gradient-to-b from-transparent via-indigo-400 to-transparent z-30 transition-left"
-          style={{ left: `${pct}%`, transition: 'left 0.2s ease-out' }}
-          transition={{ duration: 0 }}
-        >
-          
-        </motion.div>
-      </AnimatePresence>
+      {/* Slider handle - simplified without motion */}
+      <div
+        className="absolute top-0 h-full w-[2px] bg-gradient-to-b from-transparent via-indigo-400 to-transparent z-30"
+        style={{ 
+          left: `${pct}%`,
+          willChange: 'left',
+          transform: 'translateZ(0)'
+        }}
+      />
 
       {/* First code (clipped) - left side */}
       <div className="absolute inset-0 z-20 pointer-events-none">
         <div
           className={codeClass}
-          style={{ clipPath: `inset(0 ${100 - pct}% 0 0)`, transition: 'clip-path 0.2s ease-out' }}
+          style={{ 
+            clipPath: `inset(0 ${100 - pct}% 0 0)`,
+            willChange: 'clip-path',
+            transform: 'translateZ(0)'
+          }}
         >
           <pre className="h-full overflow-auto p-6 font-mono text-sm text-white leading-relaxed bg-transparent">
             <code>{firstCode}</code>
@@ -115,7 +118,11 @@ function Compare({
       <div className="absolute inset-0 z-10">
         <div
           className={codeClass}
-          style={{ clipPath: `inset(0 0 0 ${pct}%)`, transition: 'clip-path 0.2s ease-out' }}
+          style={{ 
+            clipPath: `inset(0 0 0 ${pct}%)`,
+            willChange: 'clip-path',
+            transform: 'translateZ(0)'
+          }}
         >
           <pre className="h-full overflow-auto p-6 font-mono text-sm text-white leading-relaxed bg-transparent">
             <code>{secondCode}</code>
@@ -166,7 +173,7 @@ export default function CodeOptimizationSection() {
 
           {/* Right: Interactive Code Compare Section */}
           <div className="flex justify-center">
-            <div className="w-full h-[500px] bg-[rgba(255,255,255,0.05)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.12)] rounded-3xl overflow-hidden relative">
+            <div className="w-full h-[500px] bg-black/30 backdrop-blur-[16px] border border-[rgba(255,255,255,0.12)] rounded-3xl overflow-hidden relative  ">
               {/* Header with labels */}
               <div className="absolute top-0 left-0 right-0 z-40 flex">
                 <div className="flex-1 p-4 text-center">
