@@ -1,8 +1,8 @@
 import React from 'react';
-import Header from '../header/Header';
+import Header from '../common/header/Header';
 import ActionButtons from './ActionButtons';
-import CodeEditor from '../editor/CodeEditor';
-import { Background } from '@/components/background/background';
+import CodeEditor from '../common/editor/CodeEditor';
+import { Background } from '@/components/common/background';
 
 const Layout: React.FC = () => {
   return (

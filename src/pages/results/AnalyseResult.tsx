@@ -1,7 +1,7 @@
 import React from 'react';
-import Header from '@/components/header/Header';
-import AnalyseLayout from '@/components/analyse-result/AnalyseLayout';
-import { Background } from '@/components/background/background';
+import Header from '@/components/common/header/Header';
+import AnalyseLayout from '@/components/analyze/AnalyseLayout';
+import { Background } from '@/components/common/background';
 
 const AnalyseResult: React.FC = () => {
   return (

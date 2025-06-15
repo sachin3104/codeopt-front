@@ -1,5 +1,5 @@
 import React, { useRef, useEffect } from 'react';
-import CodeEditor from '../common/editor/CodeEditor';
+import CodeEditor from './CodeEditor';
 
 interface SyncCodeEditorsProps {
   originalCode: string;

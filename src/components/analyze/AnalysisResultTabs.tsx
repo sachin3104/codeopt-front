@@ -2,7 +2,7 @@ import React from 'react';
 import { AlertTriangle, Info } from 'lucide-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
-import FunctionalityAnalysis from '../FunctionalityAnalysis';
+import FunctionalityAnalysis from './FunctionalityAnalysis';
 import { useCode } from '@/context/CodeContext';
 
 const AnalysisResultTabs: React.FC = () => {

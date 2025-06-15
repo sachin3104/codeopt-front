@@ -1,9 +1,9 @@
 import React from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import FlowchartVisualization from '@/components/FlowchartVisualization';
-import MetricsDashboard from '@/components/MetricsDashboard';
-import DetailedChanges from '@/components/DetailedChanges';
-import OptimizationImprovementSummary from '@/components/OptimizationImprovementSummary';
+import FlowchartVisualization from '@/components/common/FlowchartVisualization';
+import MetricsDashboard from '@/components/optimize/MetricsDashboard';
+import DetailedChanges from '@/components/optimize/DetailedChanges';
+import OptimizationImprovementSummary from '@/components/optimize/OptimizationImprovementSummary';
 import { type OptimizationResult } from '@/api/service';
 
 interface OptimisationTabsProps {

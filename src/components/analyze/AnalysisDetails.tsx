@@ -1,6 +1,6 @@
 import React from 'react';
 import ScoreCardDisplay from './ScoreCardDisplay';
-import FlowchartVisualization from '../FlowchartVisualization';
+import FlowchartVisualization from '../common/FlowchartVisualization';
 
 interface AnalysisDetailsProps {
   analysisResult: any; // You might want to type this properly based on your data structure

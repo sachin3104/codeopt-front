@@ -6,7 +6,7 @@ import { useAuth } from '@/context/AuthContext';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus, User, Lock, Mail, AlertCircle, ArrowLeft } from 'lucide-react';
 import { IconBrandGoogle } from '@tabler/icons-react';
-import { Background } from '@/components/background/background';
+import { Background } from '@/components/common/background';
 
 const SignupPage: React.FC = () => {
   const { signup, loginWithGoogle } = useAuth();

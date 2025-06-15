@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileCode, FileText, Zap } from 'lucide-react';
-import CodeEditor from '../editor/CodeEditor';
+import CodeEditor from '../common/editor/CodeEditor';
 import { useCode } from '@/context/CodeContext';
 import AnalysisResultTabs from './AnalysisResultTabs';
 import AnalysisDetails from './AnalysisDetails';
-import LanguageSelectModal from '../convert-result/LanguageSelectModal';
+import LanguageSelectModal from '../convert/LanguageSelectModal';
 
 const AnalyseLayout: React.FC = () => {
   const location = useLocation();

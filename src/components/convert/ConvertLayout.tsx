@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { useCode } from '@/context/CodeContext';
 import { useNavigate } from 'react-router-dom';
-import SyncCodeEditors from '../editor/SyncCodeEditors';
+import SyncCodeEditors from '../common/editor/SyncCodeEditors';
 import DocumentButton from './DocumentConvertedButton';
 import { ArrowLeft } from 'lucide-react';
 

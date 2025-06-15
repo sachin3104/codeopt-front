@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileCode, FileText } from 'lucide-react';
-import SyncCodeEditors from '@/components/editor/SyncCodeEditors';
+import SyncCodeEditors from '@/components/common/editor/SyncCodeEditors';
 import OptimisationTabs from './OptimisationTabs';
 import { type OptimizationResult } from '@/api/service';
 import { useCode } from '@/context/CodeContext';
-import LanguageSelectModal from '../convert-result/LanguageSelectModal';
+import LanguageSelectModal from '../convert/LanguageSelectModal';
 
 interface OptimizeResultState {
   optimizationResult: OptimizationResult;

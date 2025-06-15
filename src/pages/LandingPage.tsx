@@ -6,7 +6,7 @@ import Footer from "../components/landing-page/Footer";
 // import BeamsBackground from "@/components/beams-backgruond"; // Import the BeamsBackground component
 import PricingCards from "../components/landing-page/PricingCards";
 import Testimonials from "../components/landing-page/Testimonials";
-import { Background } from "../components/background/background";
+import { Background } from "../components/common/background";
 
 export default function LandingPage() {
   return (

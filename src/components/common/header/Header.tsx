@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User, LogOut, Settings, CreditCard, UserCircle } from 'lucide-react';
 import { useAuth } from '@/context/AuthContext';
+import { useNavigate } from 'react-router-dom';
 import LogoutModal from './LogoutModal';
 
 const Header: React.FC = () => {
@@ -8,6 +9,7 @@ const Header: React.FC = () => {
   const [isLogoutModalOpen, setIsLogoutModalOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { logout } = useAuth();
+  const navigate = useNavigate();
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -23,9 +25,20 @@ const Header: React.FC = () => {
     try {
       await logout();
       setIsLogoutModalOpen(false);
+      navigate('/');
     } catch (error) {
       console.error('Logout failed:', error);
     }
+  };
+
+  const handleSubscriptionClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDropdownOpen(false);
+    navigate('/subscription');
+  };
+
+  const handleLogoClick = () => {
+    navigate('/');
   };
 
   useEffect(() => {
@@ -53,7 +66,12 @@ const Header: React.FC = () => {
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div className="flex-shrink-0">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">optqo</h1>
+              <h1 
+                onClick={handleLogoClick}
+                className="text-2xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent cursor-pointer hover:opacity-80 transition-opacity"
+              >
+                optqo
+              </h1>
             </div>
 
             {/* User Menu */}
@@ -76,13 +94,13 @@ const Header: React.FC = () => {
                       <UserCircle className="w-4 h-4 mr-2" />
                       Profile
                     </a>
-                    <a
-                      href="#subscription"
-                      className="flex items-center px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors"
+                    <button
+                      onClick={handleSubscriptionClick}
+                      className="w-full flex items-center px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors"
                     >
                       <CreditCard className="w-4 h-4 mr-2" />
                       Subscription
-                    </a>
+                    </button>
                     <a
                       href="#settings"
                       className="flex items-center px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors"

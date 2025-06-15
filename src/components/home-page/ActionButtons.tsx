@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { BarChart3, Zap, FileCode, FileText } from 'lucide-react';
 import { useCode } from '@/context/CodeContext';
 import { useNavigate } from 'react-router-dom';
-import LanguageSelectModal from '../convert-result/LanguageSelectModal';
+import LanguageSelectModal from '../convert/LanguageSelectModal';
 
 const ActionButtons: React.FC = () => {
   const navigate = useNavigate();

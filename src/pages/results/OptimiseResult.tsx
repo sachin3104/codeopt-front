@@ -1,7 +1,7 @@
 import React from 'react';
-import Header from '@/components/header/Header';
-import OptimiseLayout from '@/components/optimise-result/OptimiseLayout';
-import { Background } from '@/components/background/background';
+import Header from '@/components/common/header/Header';
+import OptimiseLayout from '@/components/optimize/OptimiseLayout';
+import { Background } from '@/components/common/background';
 
 const OptimiseResult: React.FC = () => {
   return (

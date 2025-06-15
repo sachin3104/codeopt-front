@@ -1,8 +1,8 @@
 import React from 'react';
 import { useCode } from '@/context/CodeContext';
 import { useLocation, useNavigate } from 'react-router-dom';
-import CodeEditor from '../editor/CodeEditor';
-import { Background } from '@/components/background/background';
+import CodeEditor from '../common/editor/CodeEditor';
+import { Background } from '@/components/common/background';
 import { ArrowLeft } from 'lucide-react';
 
 const DocumentResultLayout: React.FC = () => {

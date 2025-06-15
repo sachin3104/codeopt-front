@@ -1,7 +1,7 @@
 import React from 'react';
-import Header from '@/components/header/Header';
-import ConvertLayout from '@/components/convert-result/ConvertLayout';
-import { Background } from '@/components/background/background';
+import Header from '@/components/common/header/Header';
+import ConvertLayout from '@/components/convert/ConvertLayout';
+import { Background } from '@/components/common/background';
 
 const ConvertResult: React.FC = () => {
   return (
