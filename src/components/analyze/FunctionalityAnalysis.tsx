@@ -44,7 +44,9 @@ const FunctionalityAnalysis: React.FC<FunctionalityAnalysisProps> = ({ content }
         return (
           <ul key={idx} className="list-disc pl-5 my-3 space-y-1">
             {items.map((item, i) => (
-              <li key={i} className="text-sm">{item}</li>
+              <li key={i} className="text-sm">
+                {formatMarkdownText(item)}
+              </li>
             ))}
           </ul>
         );
@@ -60,25 +62,18 @@ const FunctionalityAnalysis: React.FC<FunctionalityAnalysisProps> = ({ content }
         return (
           <ol key={idx} className="list-decimal pl-5 my-3 space-y-1">
             {items.map((item, i) => (
-              <li key={i} className="text-sm">{item}</li>
+              <li key={i} className="text-sm">
+                {formatMarkdownText(item)}
+              </li>
             ))}
           </ol>
         );
       }
       
-      // Format bold text
-      let formatted = paragraph.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-      
-      // Format italic text
-      formatted = formatted.replace(/\*(.*?)\*/g, '<em>$1</em>');
-      
-      // Format inline code
-      formatted = formatted.replace(/`(.*?)`/g, '<code>$1</code>');
-      
       // Secondary headers
-      if (formatted.match(/^#+\s+/)) {
-        const level = (formatted.match(/^(#+)/) || ['#'])[0].length;
-        const text = formatted.replace(/^#+\s+/, '');
+      if (paragraph.match(/^#+\s+/)) {
+        const level = (paragraph.match(/^(#+)/) || ['#'])[0].length;
+        const text = paragraph.replace(/^#+\s+/, '');
         return (
           <div key={idx} 
             className={`font-semibold my-3 ${
@@ -92,10 +87,42 @@ const FunctionalityAnalysis: React.FC<FunctionalityAnalysisProps> = ({ content }
       }
       
       return (
-        <p key={idx} 
-           className="my-3 text-sm leading-relaxed" 
-           dangerouslySetInnerHTML={{ __html: formatted }} />
+        <p key={idx} className="my-3 text-sm leading-relaxed">
+          {formatMarkdownText(paragraph)}
+        </p>
       );
+    });
+  };
+
+  // Function to format markdown text with proper styling
+  const formatMarkdownText = (text: string): React.ReactNode => {
+    // Split the text into parts based on markdown syntax
+    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+    
+    return parts.map((part, index) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        // Bold text
+        return (
+          <strong key={index} className="font-semibold">
+            {part.slice(2, -2)}
+          </strong>
+        );
+      } else if (part.startsWith('*') && part.endsWith('*')) {
+        // Italic text
+        return (
+          <em key={index} className="text-white/80">
+            {part.slice(1, -1)}
+          </em>
+        );
+      } else if (part.startsWith('`') && part.endsWith('`')) {
+        // Inline code
+        return (
+          <code key={index} className="bg-secondary/20 px-1 py-0.5 rounded text-primary">
+            {part.slice(1, -1)}
+          </code>
+        );
+      }
+      return part;
     });
   };
 

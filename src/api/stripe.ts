@@ -77,25 +77,6 @@ export const getStripeConfig = async (): Promise<StripeConfig> => {
 };
 
 /**
- * Redirect to Stripe Checkout
- * @param sessionId - Stripe checkout session ID
- */
-export const redirectToCheckout = async (sessionId: string): Promise<void> => {
-  const stripe = await getStripe();
-  
-  if (!stripe) {
-    throw new Error('Stripe not loaded');
-  }
-
-  const { error } = await stripe.redirectToCheckout({ sessionId });
-  
-  if (error) {
-    console.error('Stripe checkout error:', error);
-    throw new Error(error.message || 'Checkout failed');
-  }
-};
-
-/**
  * Create and redirect to checkout in one step
  * @param planType - Plan to subscribe to
  */
@@ -103,23 +84,37 @@ export const createAndRedirectToCheckout = async (
   planType: 'developer' | 'professional'
 ): Promise<void> => {
   try {
-    // First create the checkout session via our API
-    const response = await api.post<{
-      status: string;
-      checkout_url: string;
-    }>('/api/subscription/create-checkout', {
+    console.log('🚀 Creating checkout session for plan:', planType);
+    
+    // Create the checkout session via our API
+    const response = await api.post('/api/subscription/create-checkout', {
       plan_type: planType,
     });
 
-    if (response.data.status !== 'success') {
-      throw new Error('Failed to create checkout session');
-    }
+    console.log('📋 Checkout API response:', response.data);
 
-    // Redirect to Stripe Checkout
-    window.location.href = response.data.checkout_url;
-  } catch (error) {
-    console.error('Checkout creation failed:', error);
-    throw error;
+    if (response.data.status === 'success') {
+      console.log('✅ Checkout session created, redirecting to:', response.data.checkout_url);
+      
+      // Redirect to Stripe Checkout
+      window.location.href = response.data.checkout_url;
+    } else {
+      console.error('❌ Checkout creation failed:', response.data);
+      throw new Error(response.data.message || 'Failed to create checkout session');
+    }
+  } catch (error: any) {
+    console.error('💥 Checkout creation error:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    });
+    
+    // Extract meaningful error message
+    const errorMessage = error.response?.data?.message || 
+                        error.message || 
+                        'Failed to create checkout session';
+    
+    throw new Error(errorMessage);
   }
 };
 
@@ -128,20 +123,33 @@ export const createAndRedirectToCheckout = async (
  */
 export const openBillingPortal = async (): Promise<void> => {
   try {
-    const response = await api.post<{
-      status: string;
-      portal_url: string;
-    }>('/api/subscription/billing-portal');
+    console.log('🏛️ Opening billing portal...');
+    
+    const response = await api.post('/api/subscription/billing-portal');
 
-    if (response.data.status !== 'success') {
-      throw new Error('Failed to create billing portal session');
+    console.log('📋 Billing portal response:', response.data);
+
+    if (response.data.status === 'success') {
+      console.log('✅ Opening billing portal:', response.data.portal_url);
+      
+      // Open billing portal in new tab
+      window.open(response.data.portal_url, '_blank');
+    } else {
+      console.error('❌ Billing portal creation failed:', response.data);
+      throw new Error(response.data.message || 'Failed to create billing portal session');
     }
-
-    // Open billing portal in new tab
-    window.open(response.data.portal_url, '_blank');
-  } catch (error) {
-    console.error('Billing portal failed:', error);
-    throw error;
+  } catch (error: any) {
+    console.error('💥 Billing portal error:', {
+      message: error.message,
+      response: error.response?.data,
+      status: error.response?.status
+    });
+    
+    const errorMessage = error.response?.data?.message || 
+                        error.message || 
+                        'Failed to open billing portal';
+    
+    throw new Error(errorMessage);
   }
 };
 
@@ -159,8 +167,7 @@ export const handlePaymentSuccess = async (sessionId: string): Promise<boolean> 
     }
 
     // Retrieve the session to verify it was successful
-    // Note: This requires the session to be expanded on the backend
-    console.log('Payment successful for session:', sessionId);
+    console.log('✅ Payment successful for session:', sessionId);
     
     // The actual subscription update will happen via webhook
     // We just need to poll for the updated subscription status
@@ -179,8 +186,12 @@ export const pollForSubscriptionUpdate = async (
   maxAttempts: number = 10,
   interval: number = 2000
 ): Promise<boolean> => {
+  console.log('🔄 Starting subscription polling...');
+  
   for (let attempt = 0; attempt < maxAttempts; attempt++) {
     try {
+      console.log(`🔍 Polling attempt ${attempt + 1}/${maxAttempts}`);
+      
       const response = await api.get('/api/subscription/status');
       
       if (response.data.status === 'success' && 
@@ -191,10 +202,11 @@ export const pollForSubscriptionUpdate = async (
       
       // Wait before next attempt
       if (attempt < maxAttempts - 1) {
+        console.log(`⏳ Waiting ${interval}ms before next attempt...`);
         await new Promise(resolve => setTimeout(resolve, interval));
       }
     } catch (error) {
-      console.error(`Polling attempt ${attempt + 1} failed:`, error);
+      console.error(`❌ Polling attempt ${attempt + 1} failed:`, error);
     }
   }
   

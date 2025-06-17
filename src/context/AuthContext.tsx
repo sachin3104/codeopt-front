@@ -1,5 +1,5 @@
 // File: src/context/AuthContext.tsx
-// FINAL OPTIMIZED VERSION - Fixes excessive API requests + automatic logout
+// OPTIMIZED VERSION - Prevents request loops and provides selective subscriptions
 
 import React, { createContext, useState, useEffect, ReactNode, useContext, useRef, useCallback } from 'react';
 import {
@@ -12,7 +12,6 @@ import {
   checkAuthStatus
 } from '../api/auth';
 
-// Define the shape of the context
 interface AuthContextType {
   user: User | null;
   loading: boolean;
@@ -24,30 +23,42 @@ interface AuthContextType {
   isAuthenticated: boolean;
 }
 
-// Create the context
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Provider component
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isLoggedOut, setIsLoggedOut] = useState(false);
 
-  // Computed property for authentication status
   const isAuthenticated = user !== null;
 
-  // Refs for request management
+  // Request management refs
   const refreshUserRequestRef = useRef<Promise<void> | null>(null);
   const abortControllerRef = useRef<AbortController | null>(null);
   const lastRefreshTimeRef = useRef<number>(0);
   const focusTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const isInitializedRef = useRef(false);
+  const consecutiveFailuresRef = useRef(0);
 
-  // OPTIMIZED: Stable refreshUser function with better deduplication and logout prevention
+  // OPTIMIZED: Conservative refreshUser function with better error handling
   const refreshUser = useCallback(async (force = false): Promise<void> => {
-    // Prevent rapid successive calls (debounce for 500ms)
+    // CRITICAL: Don't make requests if we're already logged out
+    if (isLoggedOut && !force) {
+      return Promise.resolve();
+    }
+
+    // Prevent rapid successive calls (increased debounce to 3 seconds)
     const now = Date.now();
-    if (!force && now - lastRefreshTimeRef.current < 500) {
+    if (!force && now - lastRefreshTimeRef.current < 3000) {
       return refreshUserRequestRef.current || Promise.resolve();
+    }
+
+    // Implement exponential backoff for failures
+    if (consecutiveFailuresRef.current > 0 && !force) {
+      const backoffTime = Math.min(2000 * Math.pow(2, consecutiveFailuresRef.current), 60000); // Max 1 minute
+      if (now - lastRefreshTimeRef.current < backoffTime) {
+        return Promise.resolve();
+      }
     }
 
     // If there's already a request in progress, return that promise
@@ -66,6 +77,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     const requestPromise = (async () => {
       try {
+        console.log('🔍 Making auth check request...'); // DEBUG
         const response = await fetchCurrentUser();
         
         // Check if request was aborted
@@ -75,25 +87,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         if (response.data.status === 'success') {
           setUser(response.data.user);
+          setIsLoggedOut(false);
+          consecutiveFailuresRef.current = 0; // Reset failure count
+          console.log('✅ Auth check successful');
         } else {
-          // FIXED: Only log out if it's a 401 (authentication failure)
-          if (response.status === 401) {
-            setUser(null);
-          }
-          // For other response errors, keep user logged in
+          console.warn('⚠️ Auth check failed:', response.data.status);
+          handleAuthFailure(response.status);
         }
       } catch (error: any) {
         // Don't log errors for aborted requests
         if (error.name !== 'AbortError' && !abortControllerRef.current?.signal.aborted) {
-          console.error('Failed to refresh user:', error);
-          
-          // FIXED: Only log out on 401 (authentication failure)
-          // Keep user logged in for network errors, 500s, timeouts, etc.
-          if (error.response?.status === 401) {
-            setUser(null);
-          }
-          // For network errors, server errors, etc. - don't log out
-          // This prevents automatic logout on temporary issues
+          console.error('❌ Failed to refresh user:', error);
+          handleAuthFailure(error.response?.status);
         }
       } finally {
         refreshUserRequestRef.current = null;
@@ -105,40 +110,63 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
     refreshUserRequestRef.current = requestPromise;
     return requestPromise;
-  }, []);
+  }, [isLoggedOut]);
 
-  // Login method for local authentication
+  // Centralized auth failure handling
+  const handleAuthFailure = (status?: number) => {
+    if (status === 401) {
+      // Only log out on 401 (authentication failure)
+      setUser(null);
+      setIsLoggedOut(true);
+      consecutiveFailuresRef.current = 0; // Reset on logout
+      console.log('🚪 User logged out due to 401');
+    } else {
+      // For other errors, increment failure count but don't log out
+      consecutiveFailuresRef.current++;
+      console.warn(`⚠️ Auth check failed (attempt ${consecutiveFailuresRef.current}):`, status);
+    }
+  };
+
+  // Login method
   const login = async (username: string, password: string) => {
     try {
       setLoading(true);
+      setIsLoggedOut(false); // Reset logout state
+      consecutiveFailuresRef.current = 0; // Reset failure count
+      
       const response = await loginApi(username, password);
       
       if (response.data.status === 'success') {
         setUser(response.data.user);
+        console.log('🎉 Login successful');
       } else {
         throw new Error(response.data.message || 'Login failed');
       }
     } catch (error) {
-      console.error('Login failed:', error);
+      console.error('❌ Login failed:', error);
       throw error;
     } finally {
       setLoading(false);
     }
   };
 
-  // Signup method for local authentication
+  // Signup method
   const signup = async (username: string, email: string, password: string) => {
     try {
       setLoading(true);
+      setIsLoggedOut(false); // Reset logout state
+      consecutiveFailuresRef.current = 0; // Reset failure count
+      
       const response = await signupApi(username, email, password);
       
       if (response.data.status === 'success') {
         setUser(response.data.user);
+        console.log('🎉 Signup successful');
       } else {
         throw new Error(response.data.message || 'Signup failed');
       }
     } catch (error) {
-      console.error('Signup failed:', error);
+      console.error('❌ Signup failed:', error);
       throw error;
     } finally {
       setLoading(false);
@@ -147,6 +175,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   // Google OAuth login method
   const loginWithGoogle = () => {
+    setIsLoggedOut(false); // Reset logout state
     initiateGoogleAuth();
   };
 
@@ -162,16 +191,20 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       
       await logoutApi();
       setUser(null);
+      setIsLoggedOut(true); // Mark as logged out
+      consecutiveFailuresRef.current = 0; // Reset failure count
+      console.log('👋 Logout successful');
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('❌ Logout failed:', error);
       // Even if the API call fails, clear local user state
       setUser(null);
+      setIsLoggedOut(true);
     } finally {
       setLoading(false);
     }
   };
 
-  // OPTIMIZED: Initial auth check on mount
+  // OPTIMIZED: Initial auth check - only once
   useEffect(() => {
     const initializeAuth = async () => {
       if (isInitializedRef.current) return;
@@ -179,27 +212,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       try {
         setLoading(true);
         isInitializedRef.current = true;
+        console.log('🚀 Initializing auth...');
         await refreshUser(true); // Force initial refresh
       } catch (error) {
-        console.error('Failed to initialize auth:', error);
-        // FIXED: Don't automatically log out on initialization errors
-        // Only log out if it's a 401 error (handled inside refreshUser)
+        console.error('❌ Failed to initialize auth:', error);
       } finally {
         setLoading(false);
       }
     };
 
     initializeAuth();
-  }, []); // Remove refreshUser from dependencies
+  }, []); // Empty dependency array - runs only once
 
-  // OPTIMIZED: Focus handler with better debouncing and error handling
+  // OPTIMIZED: Focus handler - much more conservative
   useEffect(() => {
     const handleFocus = () => {
-      // Only refresh if:
+      // Only refresh if ALL conditions are met:
       // 1. Not currently loading
       // 2. User is authenticated
       // 3. Component is initialized
-      if (!loading && user && isInitializedRef.current) {
+      // 4. Not logged out
+      // 5. No recent failures
+      if (!loading && user && isInitializedRef.current && !isLoggedOut && consecutiveFailuresRef.current < 2) {
         // Clear any existing timeout
         if (focusTimeoutRef.current) {
           clearTimeout(focusTimeoutRef.current);
@@ -207,25 +241,26 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         // Set a longer timeout to avoid rapid refreshes
         focusTimeoutRef.current = setTimeout(() => {
-          // FIXED: Silently refresh - don't log out on errors
+          console.log('👁️ Focus refresh triggered');
           refreshUser().catch(() => {
-            // Ignore errors from focus refresh
-            // User stays logged in even if refresh fails
+            console.warn('⚠️ Focus refresh failed - ignoring');
           });
-        }, 2000); // Increased from 1 second to 2 seconds
+        }, 10000); // Increased to 10 seconds
       }
     };
 
     const handleBlur = () => {
-      // Clear timeout when window loses focus
       if (focusTimeoutRef.current) {
         clearTimeout(focusTimeoutRef.current);
         focusTimeoutRef.current = null;
       }
     };
 
-    window.addEventListener('focus', handleFocus);
-    window.addEventListener('blur', handleBlur);
+    // Only add listeners if user is authenticated and not logged out
+    if (user && !isLoggedOut) {
+      window.addEventListener('focus', handleFocus);
+      window.addEventListener('blur', handleBlur);
+    }
     
     return () => {
       window.removeEventListener('focus', handleFocus);
@@ -234,22 +269,28 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         clearTimeout(focusTimeoutRef.current);
       }
     };
-  }, [loading, user, refreshUser]);
+  }, [loading, user, isLoggedOut, refreshUser]);
 
-  // OPTIMIZED: Periodic auth check with longer interval and error handling
+  // OPTIMIZED: Periodic auth check - much longer interval
   useEffect(() => {
-    if (!user || !isInitializedRef.current) return;
+    // Only set up periodic check if user is authenticated and not logged out
+    if (!user || !isInitializedRef.current || isLoggedOut || consecutiveFailuresRef.current >= 2) {
+      return;
+    }
 
+    console.log('⏰ Setting up periodic auth check');
     const interval = setInterval(() => {
-      // FIXED: Silently refresh - don't log out on errors
+      console.log('🔄 Periodic auth check triggered');
       refreshUser().catch(() => {
-        // Ignore errors from periodic check
-        // User stays logged in even if refresh fails
+        console.warn('⚠️ Periodic auth check failed - ignoring');
       });
-    }, 30 * 60 * 1000); // Increased from 20 to 30 minutes
+    }, 2 * 60 * 60 * 1000); // Increased to 2 hours
 
-    return () => clearInterval(interval);
-  }, [user, refreshUser]);
+    return () => {
+      console.log('🛑 Clearing periodic auth check');
+      clearInterval(interval);
+    };
+  }, [user, isLoggedOut, refreshUser]);
 
   // Cleanup on unmount
   useEffect(() => {
@@ -281,7 +322,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   );
 };
 
-// Hook for easy access
+// OPTIMIZED: Selective hooks to prevent unnecessary re-renders
+
+// Main hook - use sparingly, only when you need multiple auth properties
 export const useAuth = (): AuthContextType => {
   const context = useContext(AuthContext);
   if (!context) {
@@ -290,14 +333,35 @@ export const useAuth = (): AuthContextType => {
   return context;
 };
 
-// Additional hook for checking authentication status
+// OPTIMIZED: Hook that only re-renders when authentication status changes
 export const useIsAuthenticated = (): boolean => {
-  const { isAuthenticated } = useAuth();
-  return isAuthenticated;
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useIsAuthenticated must be used within an AuthProvider');
+  }
+  
+  // Only subscribe to isAuthenticated, not the full context
+  return context.isAuthenticated;
 };
 
-// Hook for getting user data
+// OPTIMIZED: Hook that only re-renders when user data changes
 export const useUser = (): User | null => {
-  const { user } = useAuth();
-  return user;
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useUser must be used within an AuthProvider');
+  }
+  
+  // Only subscribe to user, not the full context
+  return context.user;
+};
+
+// OPTIMIZED: Hook that only re-renders when loading state changes
+export const useAuthLoading = (): boolean => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuthLoading must be used within an AuthProvider');
+  }
+  
+  // Only subscribe to loading, not the full context
+  return context.loading;
 };

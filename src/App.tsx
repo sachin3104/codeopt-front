@@ -1,5 +1,6 @@
 // File: src/App.tsx
-// Updated to use AppProvider for managed context flow
+// FIXED VERSION - Router context order corrected
+
 import React from 'react';
 import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
@@ -18,17 +19,17 @@ const queryClient = new QueryClient();
 
 const App: React.FC = () => (
   <QueryClientProvider client={queryClient}>
-    <AppProvider>
-      <CodeProvider>
-        <TooltipProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
+    <BrowserRouter>
+      <AppProvider>
+        <CodeProvider>
+          <TooltipProvider>
+            <Toaster />
+            <Sonner />
             <AppRoutes />
-          </BrowserRouter>
-        </TooltipProvider>
-      </CodeProvider>
-    </AppProvider>
+          </TooltipProvider>
+        </CodeProvider>
+      </AppProvider>
+    </BrowserRouter>
   </QueryClientProvider>
 );
 

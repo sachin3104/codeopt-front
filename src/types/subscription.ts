@@ -12,6 +12,7 @@ export interface Plan {
   max_daily_usage: number | null;
   max_monthly_usage: number | null;
   is_active: boolean;
+  stripe_price_id?: string | null; // ✅ ADDED: This field exists in your backend
 }
 
 export interface Subscription {

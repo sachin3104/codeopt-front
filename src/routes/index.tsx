@@ -1,17 +1,14 @@
-// src/routes/index.tsx
+// File: src/routes/index.tsx
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
-import { useAuth } from '@/context/AuthContext';
 import PrivateRoute from '@/components/auth/PrivateRoute';
 
-// Authentication
+// Authentication pages
 import LoginPage from '@/pages/auth/LoginPage';
 import SignupPage from '@/pages/auth/SignupPage';
 import AuthSuccessPage from '@/pages/auth/AuthSuccessPage';
 
 // Main pages
-import HomePage from '@/pages/HomePage';
-import LandingPage from '@/pages/LandingPage';
 import NotFound from '@/pages/NotFound';
 
 // Result pages
@@ -30,22 +27,12 @@ import PaymentSuccess from '@/pages/subscription/PaymentSuccess';
 import PaymentCancel from '@/pages/subscription/PaymentCancel';
 import SubscriptionPage from '@/pages/subscription/SubscriptionPage';
 
-// Component to handle conditional home route
-const ConditionalHomeRoute: React.FC = () => {
-  const { user, loading } = useAuth();
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-900">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-white"></div>
-      </div>
-    );
-  }
-
-  return user ? <HomePage /> : <LandingPage />;
-};
+// OPTIMIZED: Import the optimized ConditionalHomeRoute component
+import ConditionalHomeRoute from '@/routes/ConditionalHomeRoute';
 
 const AppRoutes: React.FC = () => {
+  console.log('🛣️ AppRoutes rendering...');
+  
   return (
     <Routes>
       {/* Public authentication routes */}
@@ -94,7 +81,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/admin/users" element={<UserManagement />} />
       
-      {/* Conditional home route - Landing page or HomePage based on auth */}
+      {/* OPTIMIZED: Conditional home route using external component */}
       <Route path="/" element={<ConditionalHomeRoute />} />
       
       {/* Payment routes */}
@@ -108,4 +95,4 @@ const AppRoutes: React.FC = () => {
   );
 };
 
-export default AppRoutes; 
+export default AppRoutes;

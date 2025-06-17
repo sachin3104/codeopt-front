@@ -1,6 +1,11 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { CreditCard, ArrowUpRight, AlertCircle, CheckCircle2 } from 'lucide-react';
-import { useSubscriptionHook } from '@/hooks/use-subscription';
+import { 
+  useSubscriptionData,
+  useSubscriptionPlans,
+  useUsageData,
+  useSubscription // Only for methods
+} from '@/context/SubscriptionContext';
 import { cn } from '@/lib/utils';
 
 interface SubscriptionWidgetProps {
@@ -12,26 +17,70 @@ const SubscriptionWidget: React.FC<SubscriptionWidgetProps> = ({
   className,
   variant = 'compact',
 }) => {
+  // ✅ FIXED: Use selective hooks instead of full useSubscriptionHook
+  const subscription = useSubscriptionData();
+  const plans = useSubscriptionPlans();
+  const usage = useUsageData();
+
+  // ✅ FIXED: Only get methods from full context (these don't cause re-renders)
   const {
-    currentPlan,
-    usageStats,
-    isActive,
-    isCancelled,
-    canAccessFeature,
+    hasFeatureAccess,
     createCheckoutSession,
     openBillingPortal,
-    getRecommendedPlan,
-  } = useSubscriptionHook();
+    shouldRecommendUpgrade,
+  } = useSubscription();
 
-  const { recommended, reason, suggestedPlan } = getRecommendedPlan();
+  // ✅ FIXED: Memoize derived values to prevent unnecessary recalculations
+  const currentPlan = useMemo(() => subscription?.plan, [subscription?.plan]);
+  
+  const isActive = useMemo(() => subscription?.is_active || false, [subscription?.is_active]);
+  
+  const isCancelled = useMemo(() => subscription?.status === 'cancelled', [subscription?.status]);
 
-  // Calculate usage percentages
-  const dailyPercentage = usageStats?.daily.limit
-    ? (usageStats.daily.used / usageStats.daily.limit) * 100
-    : 0;
-  const monthlyPercentage = usageStats?.monthly.limit
-    ? (usageStats.monthly.used / usageStats.monthly.limit) * 100
-    : 0;
+  const usageStats = useMemo(() => {
+    if (!usage) return null;
+
+    return {
+      daily: {
+        used: usage.daily.usage_count,
+        limit: usage.daily.limit,
+        remaining: usage.daily.remaining,
+        characters: usage.daily.characters_processed,
+      },
+      monthly: {
+        used: usage.monthly.usage_count,
+        limit: usage.monthly.limit,
+        remaining: usage.monthly.remaining,
+        characters: usage.monthly.characters_processed,
+      },
+    };
+  }, [usage]);
+
+  const recommendation = useMemo(() => {
+    const { recommended, reason, suggestedPlan } = shouldRecommendUpgrade();
+    return { recommended, reason, suggestedPlan };
+  }, [shouldRecommendUpgrade]);
+
+  const findPlanByType = useMemo(() => {
+    return (planType: string) => {
+      return plans?.find(plan => plan.plan_type === planType) || null;
+    };
+  }, [plans]);
+
+  // ✅ FIXED: Memoize percentage calculations
+  const dailyPercentage = useMemo(() => 
+    usageStats?.daily.limit 
+      ? (usageStats.daily.used / usageStats.daily.limit) * 100 
+      : 0,
+    [usageStats?.daily.used, usageStats?.daily.limit]
+  );
+
+  const monthlyPercentage = useMemo(() => 
+    usageStats?.monthly.limit 
+      ? (usageStats.monthly.used / usageStats.monthly.limit) * 100 
+      : 0,
+    [usageStats?.monthly.used, usageStats?.monthly.limit]
+  );
 
   // Get status color
   const getStatusColor = () => {
@@ -118,9 +167,14 @@ const SubscriptionWidget: React.FC<SubscriptionWidgetProps> = ({
 
       {/* Actions */}
       <div className="flex flex-col space-y-2">
-        {recommended && (
+        {recommendation.recommended && (
           <button
-            onClick={() => createCheckoutSession(suggestedPlan as 'developer' | 'professional')}
+            onClick={() => {
+              const plan = findPlanByType(recommendation.suggestedPlan);
+              if (plan) {
+                createCheckoutSession(plan);
+              }
+            }}
             className="w-full flex items-center justify-center space-x-2 px-3 py-2 text-sm font-medium text-white bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded-lg transition-colors"
           >
             <ArrowUpRight className="w-4 h-4" />
@@ -146,10 +200,10 @@ const SubscriptionWidget: React.FC<SubscriptionWidgetProps> = ({
                 key={feature}
                 className={cn(
                   'flex items-center space-x-1 text-xs',
-                  canAccessFeature(feature) ? 'text-green-400' : 'text-white/40'
+                  hasFeatureAccess(feature) ? 'text-green-400' : 'text-white/40'
                 )}
               >
-                {canAccessFeature(feature) ? (
+                {hasFeatureAccess(feature) ? (
                   <CheckCircle2 className="w-3 h-3" />
                 ) : (
                   <AlertCircle className="w-3 h-3" />
@@ -164,4 +218,4 @@ const SubscriptionWidget: React.FC<SubscriptionWidgetProps> = ({
   );
 };
 
-export default SubscriptionWidget; 
+export default SubscriptionWidget;

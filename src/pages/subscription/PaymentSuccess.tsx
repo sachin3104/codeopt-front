@@ -1,7 +1,13 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useSubscription } from '@/context/SubscriptionContext';
+import { 
+  useSubscriptionData, 
+  useSubscriptionLoading,
+  useSubscriptionError,
+  useSubscription // Only for refreshSubscription method
+} from '@/context/SubscriptionContext';
 import LoadingSpinner from '@/components/common/LoadingSpinner';
+import { Background } from '@/components/common/background';
 import {
   CheckCircle2,
   AlertCircle,
@@ -29,57 +35,125 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
   redirectUrl = '/',
 }) => {
   const navigate = useNavigate();
-  const {
-    subscription,
-    refreshSubscription,
-    isLoading,
-    error,
-  } = useSubscription();
+  
+  // ✅ FIXED: Use selective hooks instead of full useSubscription
+  const subscription = useSubscriptionData();
+  const isLoading = useSubscriptionLoading();
+  const error = useSubscriptionError();
+  const { refreshSubscription } = useSubscription(); // Only get the method we need
 
   const [status, setStatus] = useState<PaymentStatus>('processing');
   const [pollingAttempts, setPollingAttempts] = useState(0);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [trackingEvent, setTrackingEvent] = useState(false);
 
-  // Poll for subscription updates
-  useEffect(() => {
+  // ✅ FIXED: Use refs to prevent multiple polling loops and store cleanup functions
+  const pollingRef = useRef<boolean>(false); // Prevent multiple polling loops
+  const timeoutRef = useRef<NodeJS.Timeout | null>(null); // Store timeout for cleanup
+  const mountedRef = useRef<boolean>(true); // Track if component is mounted
+
+  // ✅ FIXED: Stable callback that doesn't change on every render
+  const pollSubscription = useCallback(async () => {
+    // Prevent multiple polling loops
+    if (pollingRef.current || !mountedRef.current) {
+      return;
+    }
+
     const maxAttempts = 12; // 1 minute total (5s * 12)
     const pollInterval = 5000; // 5 seconds
 
-    const pollSubscription = async () => {
-      if (pollingAttempts >= maxAttempts) {
-        setStatus('error');
-        setErrorMessage('Payment processing is taking longer than expected. Please check your subscription status.');
+    // Check if we've exceeded max attempts
+    if (pollingAttempts >= maxAttempts) {
+      setStatus('error');
+      setErrorMessage('Payment processing is taking longer than expected. Please check your subscription status.');
+      pollingRef.current = false;
+      return;
+    }
+
+    pollingRef.current = true;
+
+    try {
+      await refreshSubscription();
+      
+      // Only continue if component is still mounted
+      if (!mountedRef.current) {
+        pollingRef.current = false;
         return;
       }
-
-      try {
-        await refreshSubscription();
-        
-        // Check if subscription is active and matches the expected state
-        if (subscription?.status === 'active') {
-          setStatus('success');
-          trackConversion();
-        } else {
-          setPollingAttempts(prev => prev + 1);
-          setTimeout(pollSubscription, pollInterval);
-        }
-      } catch (err) {
-        console.error('Error polling subscription:', err);
-        setPollingAttempts(prev => prev + 1);
-        setTimeout(pollSubscription, pollInterval);
+      
+      // Check if subscription is active and matches the expected state
+      if (subscription?.status === 'active') {
+        setStatus('success');
+        trackConversion();
+        pollingRef.current = false;
+        return;
       }
-    };
+      
+      // Schedule next poll if we haven't reached max attempts
+      const nextAttempt = pollingAttempts + 1;
+      setPollingAttempts(nextAttempt);
+      
+      if (nextAttempt < maxAttempts && mountedRef.current) {
+        timeoutRef.current = setTimeout(() => {
+          pollingRef.current = false;
+          pollSubscription();
+        }, pollInterval);
+      } else {
+        pollingRef.current = false;
+      }
+      
+    } catch (err) {
+      console.error('Error polling subscription:', err);
+      
+      if (!mountedRef.current) {
+        pollingRef.current = false;
+        return;
+      }
+      
+      // Schedule retry on error if we haven't reached max attempts
+      const nextAttempt = pollingAttempts + 1;
+      setPollingAttempts(nextAttempt);
+      
+      if (nextAttempt < maxAttempts && mountedRef.current) {
+        timeoutRef.current = setTimeout(() => {
+          pollingRef.current = false;
+          pollSubscription();
+        }, pollInterval);
+      } else {
+        pollingRef.current = false;
+      }
+    }
+  }, [pollingAttempts, subscription?.status, refreshSubscription]);
 
-    if (status === 'processing') {
+  // ✅ FIXED: Clean useEffect with proper dependencies and cleanup
+  useEffect(() => {
+    // Only start polling if status is processing and not already polling
+    if (status === 'processing' && !pollingRef.current) {
       pollSubscription();
     }
 
+    // ✅ FIXED: Proper cleanup function
     return () => {
-      // Cleanup polling on unmount
-      setPollingAttempts(0);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      pollingRef.current = false;
     };
-  }, [subscription, status, pollingAttempts, refreshSubscription]);
+  }, [status]); // ✅ FIXED: Only depend on status, not functions
+
+  // ✅ FIXED: Cleanup on unmount
+  useEffect(() => {
+    mountedRef.current = true;
+    return () => {
+      mountedRef.current = false;
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      pollingRef.current = false;
+    };
+  }, []);
 
   // Track successful conversion
   const trackConversion = async () => {
@@ -154,126 +228,141 @@ const PaymentSuccess: React.FC<PaymentSuccessProps> = ({
 
   if (isLoading || status === 'processing') {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-6">
-        <div className="text-center">
-          <LoadingSpinner size="lg" state="processing" text="Processing your payment..." />
-          <p className="mt-4 text-gray-400">This may take a few moments...</p>
+      <>
+        <Background />
+        <div className="min-h-screen bg-transparent flex items-center justify-center p-6 relative z-10">
+          <div className="text-center">
+            <LoadingSpinner size="lg" state="processing" text="Processing your payment..." />
+            <p className="mt-4 text-gray-400">This may take a few moments...</p>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   if (status === 'error') {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center p-6">
-        <div className="max-w-md w-full text-center">
-          <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <AlertCircle className="w-8 h-8 text-red-500" />
-          </div>
-          <h1 className="text-2xl font-bold text-white mb-2">Payment Processing Error</h1>
-          <p className="text-gray-400 mb-6">{errorMessage || 'There was an error processing your payment.'}</p>
-          <div className="space-y-3">
-            <button
-              onClick={() => refreshSubscription()}
-              className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-            >
-              Check Status Again
-            </button>
-            <button
-              onClick={() => navigate('/subscription')}
-              className="w-full py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-            >
-              Return to Subscription
-            </button>
+      <>
+        <Background />
+        <div className="min-h-screen bg-transparent flex items-center justify-center p-6 relative z-10">
+          <div className="max-w-md w-full text-center">
+            <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <AlertCircle className="w-8 h-8 text-red-500" />
+            </div>
+            <h1 className="text-2xl font-bold text-white mb-2">Payment Processing Error</h1>
+            <p className="text-gray-400 mb-6">{errorMessage || 'There was an error processing your payment.'}</p>
+            <div className="space-y-3">
+              <button
+                onClick={() => {
+                  // Reset state and retry
+                  setStatus('processing');
+                  setPollingAttempts(0);
+                  setErrorMessage(null);
+                  pollingRef.current = false;
+                }}
+                className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+              >
+                Check Status Again
+              </button>
+              <button
+                onClick={() => navigate('/subscription')}
+                className="w-full py-2 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+              >
+                Return to Subscription
+              </button>
+            </div>
           </div>
         </div>
-      </div>
+      </>
     );
   }
 
   const dates = subscription ? formatSubscriptionDates(subscription) : null;
 
   return (
-    <div className="min-h-screen bg-gray-900 p-6">
-      <div className="max-w-2xl mx-auto">
-        {/* Success Header */}
-        <div className="text-center mb-8">
-          <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-            <CheckCircle2 className="w-10 h-10 text-green-500" />
+    <>
+      <Background />
+      <div className="min-h-screen bg-transparent p-6 relative z-10">
+        <div className="max-w-2xl mx-auto">
+          {/* Success Header */}
+          <div className="text-center mb-8">
+            <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+              <CheckCircle2 className="w-10 h-10 text-green-500" />
+            </div>
+            <h1 className="text-3xl font-bold text-white mb-2">Payment Successful!</h1>
+            <p className="text-gray-400">{getSuccessMessage()}</p>
           </div>
-          <h1 className="text-3xl font-bold text-white mb-2">Payment Successful!</h1>
-          <p className="text-gray-400">{getSuccessMessage()}</p>
-        </div>
 
-        {/* Subscription Details */}
-        {subscription && (
-          <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 mb-8">
-            <h2 className="text-xl font-semibold mb-4">Subscription Details</h2>
+          {/* Subscription Details */}
+          {subscription && (
+            <div className="backdrop-blur-xl bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-xl p-6 mb-8">
+              <h2 className="text-xl font-semibold mb-4">Subscription Details</h2>
+              <div className="space-y-4">
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">Plan</span>
+                  <span className="font-medium">{subscription.plan.name}</span>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span className="text-gray-400">Price</span>
+                  <span className="font-medium">
+                    {formatPrice(subscription.plan.price, subscription.plan.currency)}/month
+                  </span>
+                </div>
+                {dates && (
+                  <>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Start Date</span>
+                      <span className="font-medium">{dates.startDate}</span>
+                    </div>
+                    <div className="flex justify-between items-center">
+                      <span className="text-gray-400">Next Billing</span>
+                      <span className="font-medium">{dates.nextBillingDate}</span>
+                    </div>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+
+          {/* Next Steps */}
+          <div className="backdrop-blur-xl bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-xl p-6 mb-8">
+            <h2 className="text-xl font-semibold mb-4">Next Steps</h2>
             <div className="space-y-4">
-              <div className="flex justify-between items-center">
-                <span className="text-gray-400">Plan</span>
-                <span className="font-medium">{subscription.plan.name}</span>
-              </div>
-              <div className="flex justify-between items-center">
-                <span className="text-gray-400">Price</span>
-                <span className="font-medium">
-                  {formatPrice(subscription.plan.price, subscription.plan.currency)}/month
-                </span>
-              </div>
-              {dates && (
-                <>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Start Date</span>
-                    <span className="font-medium">{dates.startDate}</span>
+              {getNextSteps().map((step, index) => (
+                <div key={index} className="flex items-start space-x-4">
+                  <div className="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0">
+                    {step.icon}
                   </div>
-                  <div className="flex justify-between items-center">
-                    <span className="text-gray-400">Next Billing</span>
-                    <span className="font-medium">{dates.nextBillingDate}</span>
+                  <div>
+                    <h3 className="font-medium text-white">{step.title}</h3>
+                    <p className="text-sm text-gray-400">{step.description}</p>
                   </div>
-                </>
-              )}
+                </div>
+              ))}
             </div>
           </div>
-        )}
 
-        {/* Next Steps */}
-        <div className="bg-gray-800 rounded-xl p-6 border border-gray-700 mb-8">
-          <h2 className="text-xl font-semibold mb-4">Next Steps</h2>
-          <div className="space-y-4">
-            {getNextSteps().map((step, index) => (
-              <div key={index} className="flex items-start space-x-4">
-                <div className="w-8 h-8 rounded-lg bg-gray-700 flex items-center justify-center flex-shrink-0">
-                  {step.icon}
-                </div>
-                <div>
-                  <h3 className="font-medium text-white">{step.title}</h3>
-                  <p className="text-sm text-gray-400">{step.description}</p>
-                </div>
-              </div>
-            ))}
+          {/* Action Buttons */}
+          <div className="space-y-3">
+            <button
+              onClick={handleContinue}
+              className="w-full flex items-center justify-center space-x-2 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
+            >
+              <span>Continue to Home</span>
+              <ArrowRight className="w-5 h-5" />
+            </button>
+            <button
+              onClick={() => navigate('/subscription')}
+              className="w-full flex items-center justify-center space-x-2 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
+            >
+              <CreditCard className="w-5 h-5" />
+              <span>Manage Subscription</span>
+            </button>
           </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="space-y-3">
-          <button
-            onClick={handleContinue}
-            className="w-full flex items-center justify-center space-x-2 py-3 bg-blue-600 hover:bg-blue-700 rounded-lg transition-colors"
-          >
-            <span>Continue to Home</span>
-            <ArrowRight className="w-5 h-5" />
-          </button>
-          <button
-            onClick={() => navigate('/subscription')}
-            className="w-full flex items-center justify-center space-x-2 py-3 bg-gray-700 hover:bg-gray-600 rounded-lg transition-colors"
-          >
-            <CreditCard className="w-5 h-5" />
-            <span>Manage Subscription</span>
-          </button>
-        </div>
       </div>
-    </div>
+    </>
   );
 };
 
-export default PaymentSuccess; 
+export default PaymentSuccess;

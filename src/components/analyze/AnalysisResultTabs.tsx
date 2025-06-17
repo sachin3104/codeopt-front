@@ -1,17 +1,54 @@
 import React from 'react';
 import { AlertTriangle, Info } from 'lucide-react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import FunctionalityAnalysis from './FunctionalityAnalysis';
 import { useCode } from '@/context/CodeContext';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+interface Issue {
+  title: string;
+  location?: string;
+  reason?: string;
+  suggestion?: string;
+  impact?: string;
+}
+
+interface Category {
+  name: string;
+  hasIssues: boolean;
+  issues?: Issue[];
+}
 
 const AnalysisResultTabs: React.FC = () => {
   const { analysisResult } = useCode();
 
   // Safely get categories with fallback
-  const categories = analysisResult?.categories || [];
+  const categories: Category[] = analysisResult?.categories || [];
   const categoriesWithIssues = categories.filter(cat => cat.hasIssues);
   const totalIssues = categoriesWithIssues.reduce((total, cat) => total + (cat.issues?.length || 0), 0);
+
+  // Function to determine priority based on issue impact
+  const getPriority = (impact: string) => {
+    if (impact?.toLowerCase().includes('high')) return 'High';
+    if (impact?.toLowerCase().includes('medium')) return 'Medium';
+    return 'Low';
+  };
+
+  // Get all issues from all categories
+  const allIssues = categoriesWithIssues.flatMap(category => 
+    (category.issues || []).map(issue => ({
+      ...issue,
+      category: category.name,
+      priority: getPriority(issue.impact || '')
+    }))
+  );
 
   return (
     <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 rounded-3xl border border-white/20 shadow-2xl p-6">
@@ -37,77 +74,50 @@ const AnalysisResultTabs: React.FC = () => {
               <p className="text-gray-400">No optimization opportunities found. Your code looks good!</p>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {categories.map((category, idx) => (
-                <Card
-                  key={idx}
-                  className={`bg-gray-800/20 backdrop-blur-sm border border-gray-700 rounded-2xl hover:shadow-lg transition-shadow ${
-                    category.hasIssues ? 'border-amber-700/30 bg-amber-950/10' : ''
-                  }`}
-                >
-                  <CardHeader>
-                    <div className="flex items-center justify-between">
-                      <CardTitle className="text-sm font-medium flex items-center gap-2 text-white">
-                        {category.hasIssues && (
-                          <AlertTriangle size={16} className="text-amber-500" />
-                        )}
-                        {category.name}
-                      </CardTitle>
-                      {category.hasIssues && (
-                        <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded-full">
-                          {category.issues?.length || 0} {(category.issues?.length || 0) === 1 ? 'issue' : 'issues'}
-                        </span>
-                      )}
-                    </div>
-                    <CardDescription className="text-xs text-gray-300">
-                      {category.hasIssues
-                        ? `${category.issues?.length || 0} optimization ${
-                            (category.issues?.length || 0) === 1 ? 'opportunity' : 'opportunities'
-                          } found`
-                        : 'No optimization opportunities found'}
-                    </CardDescription>
-                  </CardHeader>
-
-                  {category.hasIssues && category.issues && category.issues.length > 0 && (
-                    <CardContent>
-                      <Accordion type="single" collapsible className="w-full bg-transparent">
-                        {category.issues.map((issue, i) => (
-                          <AccordionItem key={i} value={`issue-${i}`}>
-                            <AccordionTrigger className="text-sm text-white hover:text-gray-200">
-                              {issue.title || `Issue ${i + 1}`}
-                            </AccordionTrigger>
-                            <AccordionContent>
-                              <div className="space-y-3 text-sm text-gray-200">
-                                {issue.location && (
-                                  <div>
-                                    <div className="font-medium text-xs text-muted-foreground mb-1">CODE LOCATION</div>
-                                    <div className="bg-secondary/50 px-3 py-1 rounded-sm text-white">
-                                      {issue.location}
-                                    </div>
-                                  </div>
-                                )}
-                                {issue.reason && (
-                                  <div>
-                                    <div className="font-medium text-xs text-muted-foreground mb-1">REASON</div>
-                                    <p>{issue.reason}</p>
-                                  </div>
-                                )}
-                                {issue.suggestion && (
-                                  <div>
-                                    <div className="font-medium text-xs text-muted-foreground mb-1">SUGGESTION</div>
-                                    <p className="text-primary">{issue.suggestion}</p>
-                                  </div>
-                                )}
-                              </div>
-                            </AccordionContent>
-                          </AccordionItem>
-                        ))}
-                      </Accordion>
-                    </CardContent>
-                  )}
-                </Card>
-              ))}
-            </div>
+            <Card className="bg-gray-800/20 backdrop-blur-sm border border-gray-700 rounded-2xl">
+              <CardContent className="p-0">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead className="w-[100px]">Priority</TableHead>
+                      <TableHead>Category</TableHead>
+                      <TableHead>Issue Description</TableHead>
+                      <TableHead>Impact</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {allIssues.map((issue, index) => (
+                      <TableRow key={index}>
+                        <TableCell>
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                            issue.priority === 'High' 
+                              ? 'bg-red-500/20 text-red-400' 
+                              : issue.priority === 'Medium'
+                              ? 'bg-yellow-500/20 text-yellow-400'
+                              : 'bg-green-500/20 text-green-400'
+                          }`}>
+                            {issue.priority}
+                          </span>
+                        </TableCell>
+                        <TableCell className="font-medium">{issue.category}</TableCell>
+                        <TableCell>
+                          <div className="space-y-1">
+                            <p className="font-medium">{issue.title}</p>
+                            {issue.reason && (
+                              <p className="text-sm text-gray-400">{issue.reason}</p>
+                            )}
+                            {issue.suggestion && (
+                              <p className="text-sm text-primary">{issue.suggestion}</p>
+                            )}
+                          </div>
+                        </TableCell>
+                        <TableCell>{issue.impact || 'Not specified'}</TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </CardContent>
+            </Card>
           )}
         </div>
 

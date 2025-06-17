@@ -2,7 +2,7 @@ import React from 'react';
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
-import { ScoreData } from '@/api/service';
+import { ScoreData, ScoreCategory } from '@/types/api';
 import { Badge } from '@/components/ui/badge';
 import { CircleHelp } from 'lucide-react';
 
@@ -24,6 +24,23 @@ const ScoreCardDisplay = ({ scores }: ScoreCardDisplayProps) => {
   if (!scores) return null;
 
   const { overall, categories } = scores;
+  
+  // Check if overall score exists and is a valid number
+  if (overall === undefined || overall === null || typeof overall !== 'number') {
+    return (
+      <div className="space-y-6">
+        <Card className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20">
+          <CardContent className="p-6">
+            <div className="flex flex-col items-center">
+              <div className="text-sm text-muted-foreground mb-2">Overall Code Quality</div>
+              <div className="text-lg text-muted-foreground">Score data not available</div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   const overallRating = getRating(overall);
 
   return (
@@ -77,8 +94,33 @@ const ScoreCardDisplay = ({ scores }: ScoreCardDisplayProps) => {
             </tr>
           </thead>
           <tbody className="divide-y divide-white/10">
-            {Object.entries(categories).map(([key, category]) => {
-              const rating = getRating(category.score);
+            {Object.entries(categories || {}).map(([key, category]) => {
+              // Check if category and category.score exist and are valid
+              if (!category || typeof (category as ScoreCategory).score !== 'number') {
+                return (
+                  <tr key={key} className="hover:bg-white/5 transition-colors">
+                    <td className="py-3 px-4 text-sm font-medium text-white/90 capitalize">
+                      {key.replace(/([A-Z])/g, ' $1').trim()}
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <Badge variant="secondary" className="font-mono font-bold text-xs">
+                        N/A
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-4 text-center">
+                      <Badge variant="secondary" className="font-medium text-xs">
+                        N/A
+                      </Badge>
+                    </td>
+                    <td className="py-3 px-4 text-sm text-muted-foreground">
+                      Score not available
+                    </td>
+                  </tr>
+                );
+              }
+              
+              const scoreCategory = category as ScoreCategory;
+              const rating = getRating(scoreCategory.score);
               return (
                 <tr key={key} className="hover:bg-white/5 transition-colors">
                   <td className="py-3 px-4 text-sm font-medium text-white/90 capitalize">
@@ -90,7 +132,7 @@ const ScoreCardDisplay = ({ scores }: ScoreCardDisplayProps) => {
                       className="font-mono font-bold text-xs"
                       style={{ backgroundColor: `${rating.color}20`, color: rating.color }}
                     >
-                      {category.score.toFixed(1)}/10
+                      {scoreCategory.score.toFixed(1)}/10
                     </Badge>
                   </td>
                   <td className="py-3 px-4 text-center">
@@ -103,7 +145,7 @@ const ScoreCardDisplay = ({ scores }: ScoreCardDisplayProps) => {
                     </Badge>
                   </td>
                   <td className="py-3 px-4 text-sm text-muted-foreground">
-                    {category.explanation}
+                    {scoreCategory.explanation}
                   </td>
                 </tr>
               );

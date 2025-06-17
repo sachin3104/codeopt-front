@@ -1,12 +1,15 @@
-import React, { createContext, useContext, useState, useCallback } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import {
   analyzeCode,
   optimizeCode,
   documentCode,
   convertCode,
-  type AnalysisResult,
-  type OptimizationResult,
 } from '@/api/service';
+import type {
+  AnalysisResult,
+  OptimizationResult,
+  ConversionResult
+} from '@/types/api';
 
 interface CodeContextType {
   // Primary State
@@ -23,7 +26,7 @@ interface CodeContextType {
   analysisResult: AnalysisResult | null;
   optimizationResult: OptimizationResult | null;
   documentedCode: string | null;
-  convertedCode: { converted_code: string; notes: string } | null;
+  convertedCode: ConversionResult | null;
 
   // Error Handling
   error: string | null;
@@ -41,7 +44,10 @@ const CodeContext = createContext<CodeContextType | undefined>(undefined);
 
 export const CodeProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Primary State
-  const [code, setCode] = useState<string>('');
+  const [code, setCode] = useState<string>(() => {
+    const savedCode = localStorage.getItem('code');
+    return savedCode || '';
+  });
 
   // Loading States
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -50,13 +56,53 @@ export const CodeProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [isConverting, setIsConverting] = useState(false);
 
   // Result States
-  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
-  const [optimizationResult, setOptimizationResult] = useState<OptimizationResult | null>(null);
-  const [documentedCode, setDocumentedCode] = useState<string | null>(null);
-  const [convertedCode, setConvertedCode] = useState<{ converted_code: string; notes: string } | null>(null);
+  const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(() => {
+    const savedResult = localStorage.getItem('analysisResult');
+    return savedResult ? JSON.parse(savedResult) : null;
+  });
+  const [optimizationResult, setOptimizationResult] = useState<OptimizationResult | null>(() => {
+    const savedResult = localStorage.getItem('optimizationResult');
+    return savedResult ? JSON.parse(savedResult) : null;
+  });
+  const [documentedCode, setDocumentedCode] = useState<string | null>(() => {
+    return localStorage.getItem('documentedCode');
+  });
+  const [convertedCode, setConvertedCode] = useState<ConversionResult | null>(() => {
+    const savedCode = localStorage.getItem('convertedCode');
+    return savedCode ? JSON.parse(savedCode) : null;
+  });
 
   // Error State
   const [error, setError] = useState<string | null>(null);
+
+  // Persist state changes to localStorage
+  useEffect(() => {
+    localStorage.setItem('code', code);
+  }, [code]);
+
+  useEffect(() => {
+    if (analysisResult) {
+      localStorage.setItem('analysisResult', JSON.stringify(analysisResult));
+    }
+  }, [analysisResult]);
+
+  useEffect(() => {
+    if (optimizationResult) {
+      localStorage.setItem('optimizationResult', JSON.stringify(optimizationResult));
+    }
+  }, [optimizationResult]);
+
+  useEffect(() => {
+    if (documentedCode) {
+      localStorage.setItem('documentedCode', documentedCode);
+    }
+  }, [documentedCode]);
+
+  useEffect(() => {
+    if (convertedCode) {
+      localStorage.setItem('convertedCode', JSON.stringify(convertedCode));
+    }
+  }, [convertedCode]);
 
   const clearError = useCallback(() => {
     setError(null);
@@ -73,6 +119,13 @@ export const CodeProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setDocumentedCode(null);
     setConvertedCode(null);
     setError(null);
+    
+    // Clear localStorage
+    localStorage.removeItem('code');
+    localStorage.removeItem('analysisResult');
+    localStorage.removeItem('optimizationResult');
+    localStorage.removeItem('documentedCode');
+    localStorage.removeItem('convertedCode');
   }, []);
 
   // Action Handlers
@@ -140,10 +193,7 @@ export const CodeProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setIsConverting(true);
       clearError();
       const result = await convertCode(code, sourceLanguage, targetLanguage);
-      setConvertedCode({
-        converted_code: result.converted_code,
-        notes: result.conversion_notes,
-      });
+      setConvertedCode(result);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to convert code');
     } finally {

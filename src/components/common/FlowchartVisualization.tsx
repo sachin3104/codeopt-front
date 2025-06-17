@@ -1,10 +1,27 @@
-
-import React, { useEffect, useRef } from 'react';
-import * as go from 'gojs';
+import React, { useCallback, useMemo, useRef, CSSProperties, useState } from 'react';
+import {
+  ReactFlow,
+  MiniMap,
+  Controls,
+  ControlButton,
+  Background,
+  useNodesState,
+  useEdgesState,
+  addEdge,
+  Connection,
+  Edge,
+  Node,
+  MarkerType,
+  BackgroundVariant,
+  Panel,
+  Position,
+  Handle,
+} from '@xyflow/react';
+import '@xyflow/react/dist/style.css';
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Download, Expand } from 'lucide-react';
 import { Tooltip, TooltipProvider, TooltipTrigger, TooltipContent } from "@/components/ui/tooltip";
+import dagre from 'dagre';
 
 // Define the WorkflowData interface based on the API response
 export interface WorkflowData {
@@ -64,441 +81,330 @@ interface FlowchartVisualizationProps {
   workflow: WorkflowData;
 }
 
-const FlowchartVisualization: React.FC<FlowchartVisualizationProps> = ({ workflow }) => {
-  const diagramRef = useRef<HTMLDivElement>(null);
-  const diagramInstance = useRef<go.Diagram | null>(null);
+// Custom node styles with glassmorphic design
+const nodeStyles: Record<string, CSSProperties> = {
+  default: {
+    background: 'rgba(43, 47, 66, 0.8)',
+    border: '1.5px solid #484F6F',
+    borderRadius: '8px',
+    padding: '12px',
+    color: 'white',
+    fontSize: '13px',
+    fontFamily: "'Inter', sans-serif",
+    minWidth: '120px',
+    textAlign: 'center' as const,
+    boxShadow: '2px 2px 7px rgba(0, 0, 0, 0.2)',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
+  },
+  optimizable: {
+    background: 'rgba(234, 56, 76, 0.15)',
+    border: '2px solid #ea384c',
+    borderRadius: '8px',
+    padding: '12px',
+    color: 'white',
+    fontSize: '13px',
+    fontFamily: "'Inter', sans-serif",
+    minWidth: '120px',
+    textAlign: 'center' as const,
+    boxShadow: '2px 2px 7px rgba(0, 0, 0, 0.2)',
+    backdropFilter: 'blur(8px)',
+    WebkitBackdropFilter: 'blur(8px)',
+  }
+};
 
-  // Convert the API data to a standardized format for GoJS
-  const convertWorkflowToGoJSModel = (workflow: WorkflowData) => {
-    // Check if we have a standard workflow or need to adapt from the backend format
-    let nodeArray: go.ObjectData[] = [];
-    let linkArray: go.ObjectData[] = [];
-    
-    // Convert nodes array to GoJS node data
-    if (Array.isArray(workflow.nodes)) {
-      nodeArray = workflow.nodes.map(node => ({
-        key: node.id,
-        text: node.label,
-        type: node.type || 'default',
-        isOptimizable: false,
-        optimizationReason: ''
-      }));
-    } else if (workflow.hasOwnProperty('steps')) {
-      // Handle the backend format
-      const backendData = workflow as unknown as { 
-        steps: FlowchartData['steps'], 
-        dependencies: FlowchartData['dependencies'], 
-        optimizable_steps: FlowchartData['optimizable_steps'] 
-      };
+// Custom Node Component
+const CustomNode = ({ data, selected }: { data: any; selected: boolean }) => {
+  const isOptimizable = data.isOptimizable;
+  
+  return (
+    <div
+      style={{
+        ...nodeStyles[isOptimizable ? 'optimizable' : 'default'],
+        opacity: selected ? 1 : (isOptimizable ? 1 : 0.9),
+      }}
+      title={isOptimizable ? `Optimization: ${data.optimizationReason}` : data.label}
+    >
+      {/* Hidden handles - not visible but needed for connections */}
+      <Handle
+        type="target"
+        position={Position.Top}
+        style={{ opacity: 0, pointerEvents: 'none' }}
+      />
       
-      nodeArray = backendData.steps.map(step => ({
-        key: step.id,
-        text: step.label,
-        type: 'default',
-        isOptimizable: false,
-        optimizationReason: ''
+      {data.type && data.type !== 'default' && (
+        <div
+          style={{
+            background: '#9b87f5',
+            borderRadius: '4px',
+            padding: '2px 8px',
+            fontSize: '10px',
+            marginBottom: '5px',
+            display: 'inline-block',
+          }}
+        >
+          {data.type}
+        </div>
+      )}
+      <div>{data.label}</div>
+      
+      {/* Hidden handles - not visible but needed for connections */}
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        style={{ opacity: 0, pointerEvents: 'none' }}
+      />
+    </div>
+  );
+};
+
+const nodeTypes = {
+  custom: CustomNode,
+};
+
+// Layout function using Dagre
+const getLayoutedElements = (nodes: Node[], edges: Edge[], direction = 'TB') => {
+  const dagreGraph = new dagre.graphlib.Graph();
+  dagreGraph.setDefaultEdgeLabel(() => ({}));
+  
+  const nodeWidth = 150;
+  const nodeHeight = 80;
+  
+  dagreGraph.setGraph({ 
+    rankdir: direction,
+    ranksep: 40,
+    nodesep: 30,
+  });
+
+  nodes.forEach((node) => {
+    dagreGraph.setNode(node.id, { width: nodeWidth, height: nodeHeight });
+  });
+
+  edges.forEach((edge) => {
+    dagreGraph.setEdge(edge.source, edge.target);
+  });
+
+  dagre.layout(dagreGraph);
+
+  nodes.forEach((node) => {
+    const nodeWithPosition = dagreGraph.node(node.id);
+    // Remove these as they're already set in node creation
+    // node.targetPosition = Position.Top;
+    // node.sourcePosition = Position.Bottom;
+    node.position = {
+      x: nodeWithPosition.x - nodeWidth / 2,
+      y: nodeWithPosition.y - nodeHeight / 2,
+    };
+  });
+
+  return { nodes, edges };
+};
+
+const FlowchartVisualization: React.FC<FlowchartVisualizationProps> = ({ workflow }) => {
+  const reactFlowWrapper = useRef<HTMLDivElement>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  const toggleFullscreen = useCallback(() => {
+    if (!document.fullscreenElement) {
+      reactFlowWrapper.current?.requestFullscreen();
+      setIsFullscreen(true);
+    } else {
+      document.exitFullscreen();
+      setIsFullscreen(false);
+    }
+  }, []);
+
+  // Convert the API data to React Flow format
+  const convertWorkflowToReactFlow = useCallback((workflow: WorkflowData) => {
+    console.log('=== FlowchartVisualization Debug ===');
+    console.log('Input workflow data:', workflow);
+    
+    let nodeArray: Node[] = [];
+    let edgeArray: Edge[] = [];
+    
+    // Convert nodes array to React Flow node data
+    if (workflow.steps && Array.isArray(workflow.steps)) {
+      console.log('Converting steps to nodes:', workflow.steps);
+      nodeArray = workflow.steps.map(step => ({
+        id: step.id,
+        type: 'custom',
+        position: { x: 0, y: 0 }, // Will be set by layout
+        data: {
+          label: step.label,
+          type: 'default',
+          isOptimizable: false,
+          optimizationReason: ''
+        },
+        sourcePosition: Position.Bottom,
+        targetPosition: Position.Top,
       }));
+    } else {
+      console.log('No valid steps array found in workflow data');
     }
     
     // Mark optimizable nodes
-    if (Array.isArray(workflow.optimizableSteps)) {
-      // Handle different optimizable steps formats
-      if (typeof workflow.optimizableSteps[0] === 'string') {
-        // Simple string array format
-        const optimizableIds = workflow.optimizableSteps as string[];
-        nodeArray.forEach(node => {
-          if (optimizableIds.includes(node.key as string)) {
-            node.isOptimizable = true;
-            node.optimizationReason = "This step can be optimized";
-          }
-        });
-      } else {
-        // Detailed object format with reasons
-        const optimizableSteps = workflow.optimizableSteps as OptimizableStep[];
-        nodeArray.forEach(node => {
-          const optimizableStep = optimizableSteps.find(step => step.id === node.key);
-          if (optimizableStep) {
-            node.isOptimizable = true;
-            node.optimizationReason = optimizableStep.reason;
-          }
-        });
-      }
-    } else if (workflow.hasOwnProperty('optimizable_steps')) {
-      // Handle the backend format
-      const backendData = workflow as unknown as { optimizable_steps: FlowchartData['optimizable_steps'] };
+    if (workflow.optimizable_steps && Array.isArray(workflow.optimizable_steps)) {
+      console.log('Processing optimizable steps:', workflow.optimizable_steps);
       nodeArray.forEach(node => {
-        const optimizableStep = backendData.optimizable_steps.find(step => step.id === node.key);
+        const optimizableStep = workflow.optimizable_steps?.find(step => step.id === node.id);
         if (optimizableStep) {
-          node.isOptimizable = true;
-          node.optimizationReason = optimizableStep.reason;
+          node.data.isOptimizable = true;
+          node.data.optimizationReason = optimizableStep.reason;
         }
       });
     }
     
-    // Convert edges to GoJS link data
-    if (Array.isArray(workflow.edges)) {
-      linkArray = workflow.edges.map(edge => ({
-        from: edge.source,
-        to: edge.target,
-        text: edge.label || ''
+    // Convert edges to React Flow edge data
+    if (workflow.dependencies && Array.isArray(workflow.dependencies)) {
+      console.log('Converting dependencies to edges:', workflow.dependencies);
+      edgeArray = workflow.dependencies.map((dep, index) => ({
+        id: `edge-${index}`,
+        source: dep.from,
+        target: dep.to,
+        type: 'default',
+        style: { 
+          strokeWidth: 2,
+          stroke: '#8E9196'
+        },
+        markerEnd: {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+          color: '#8E9196',
+        },
       }));
-    } else if (workflow.hasOwnProperty('dependencies')) {
-      // Handle the backend format
-      const backendData = workflow as unknown as { dependencies: FlowchartData['dependencies'] };
-      linkArray = backendData.dependencies.map(dep => ({
-        from: dep.from,
-        to: dep.to,
-        text: ''
-      }));
-    }
-    
-    return { nodeArray, linkArray };
-  };
-
-  // Initialize and render the diagram
-  useEffect(() => {
-    if (!workflow || !diagramRef.current) return;
-
-    // Create a new diagram
-    const $ = go.GraphObject.make;
-    const diagram = new go.Diagram(diagramRef.current, {
-      "undoManager.isEnabled": true,
-      layout: $(go.LayeredDigraphLayout, {
-        direction: 90,
-        layerSpacing: 40,
-        columnSpacing: 30,
-        setsPortSpots: false
-      }),
-      "animationManager.isEnabled": true,
-      "animationManager.initialAnimationStyle": go.AnimationManager.None,
-      model: new go.GraphLinksModel({
-        linkKeyProperty: 'id'
-      })
-    });
-
-    // Define node template
-    diagram.nodeTemplate = $(go.Node, "Auto",
-      {
-        selectionAdorned: false,
-        resizable: false,
-        layoutConditions: go.Part.LayoutStandard & ~go.Part.LayoutNodeSized,
-        // Apply a shadow effect with JavaScript DOM API instead of GoJS Shadow
-        shadowVisible: true,
-        shadowOffset: new go.Point(2, 2),
-        shadowBlur: 7,
-        shadowColor: "rgba(0, 0, 0, 0.2)",
-        // Add tooltip
-        toolTip: $(go.Adornment, "Auto",
-          $(go.Shape, { fill: "#2A2F42", stroke: "#676B79" }),
-          $(go.TextBlock, 
-            { 
-              margin: 8, 
-              font: "11px 'Inter', sans-serif",
-              stroke: "white",
-              wrap: go.TextBlock.WrapFit,
-              alignment: go.Spot.Center
-            },
-            new go.Binding("text", "", data => {
-              return data.isOptimizable ? 
-                `Optimization: ${data.optimizationReason}` : 
-                data.text;
-            })
-          )
-        )
-      },
-      new go.Binding("opacity", "isOptimizable", opt => opt ? 1 : 0.9),
-      // Node shape
-      $(go.Shape, "RoundedRectangle", 
-        { 
-          fill: "rgba(43, 47, 66, 0.8)", 
-          stroke: "#484F6F",
-          strokeWidth: 1.5,
-          spot1: go.Spot.TopLeft, 
-          spot2: go.Spot.BottomRight,
-          parameter1: 8
-        },
-        // Conditional styling for optimizable nodes
-        new go.Binding("fill", "isOptimizable", opt => opt ? "rgba(234, 56, 76, 0.15)" : "rgba(43, 47, 66, 0.8)"),
-        new go.Binding("stroke", "isOptimizable", opt => opt ? "#ea384c" : "#484F6F"),
-        new go.Binding("strokeWidth", "isOptimizable", opt => opt ? 2 : 1.5)
-      ),
-      // Node content
-      $(go.Panel, "Vertical",
-        {
-          margin: 12,
-          alignment: go.Spot.Center
-        },
-        // Type badge
-        $(go.Panel, "Auto",
-          { visible: false },
-          new go.Binding("visible", "type", t => t !== "default"),
-          $(go.Shape, "RoundedRectangle", 
-            { 
-              fill: "#9b87f5", 
-              stroke: null,
-              height: 20,
-              width: 80,
-              alignment: go.Spot.Center
-            }
-          ),
-          $(go.TextBlock, 
-            {
-              alignment: go.Spot.Center,
-              stroke: "white",
-              font: "10px 'Inter', sans-serif"
-            },
-            new go.Binding("text", "type")
-          )
-        ),
-        // Main label
-        $(go.TextBlock, 
-          {
-            margin: new go.Margin(5, 0, 0, 0),
-            alignment: go.Spot.Center,
-            stroke: "white",
-            font: "13px 'Inter', sans-serif",
-            maxSize: new go.Size(150, NaN),
-            wrap: go.TextBlock.WrapFit,
-            textAlign: "center"
-          },
-          new go.Binding("text")
-        )
-      )
-    );
-
-    // Define link template
-    diagram.linkTemplate = $(go.Link,
-      {
-        curve: go.Link.Bezier,
-        reshapable: false,
-        relinkableFrom: false,
-        relinkableTo: false,
-        toEndSegmentLength: 30,
-        fromEndSegmentLength: 30
-      },
-      // Link path
-      $(go.Shape, 
-        { 
-          strokeWidth: 2, 
-          stroke: "#8E9196" 
-        },
-        new go.Binding("stroke", "", function(link) {
-          // Check if either the source or target node is optimizable
-          const diagram = link.part.diagram;
-          if (!diagram) return "#8E9196";
-          
-          const sourceNode = link.fromNode;
-          const targetNode = link.toNode;
-          
-          if (!sourceNode || !targetNode) return "#8E9196";
-          
-          if (sourceNode.data.isOptimizable || targetNode.data.isOptimizable) {
-            return "#ea384c";
-          }
-          
-          return "#8E9196";
-        }).ofObject()
-      ),
-      // Arrowhead
-      $(go.Shape, 
-        { 
-          toArrow: "Triangle", 
-          stroke: "#8E9196", 
-          fill: "#8E9196",
-          scale: 1.2
-        },
-        new go.Binding("stroke", "", function(link) {
-          // Match the arrow color to the path color
-          const diagram = link.part.diagram;
-          if (!diagram) return "#8E9196";
-          
-          const sourceNode = link.fromNode;
-          const targetNode = link.toNode;
-          
-          if (!sourceNode || !targetNode) return "#8E9196";
-          
-          if (sourceNode.data.isOptimizable || targetNode.data.isOptimizable) {
-            return "#ea384c";
-          }
-          
-          return "#8E9196";
-        }).ofObject(),
-        new go.Binding("fill", "", function(link) {
-          // Match the arrow fill to the path color
-          const diagram = link.part.diagram;
-          if (!diagram) return "#8E9196";
-          
-          const sourceNode = link.fromNode;
-          const targetNode = link.toNode;
-          
-          if (!sourceNode || !targetNode) return "#8E9196";
-          
-          if (sourceNode.data.isOptimizable || targetNode.data.isOptimizable) {
-            return "#ea384c";
-          }
-          
-          return "#8E9196";
-        }).ofObject()
-      ),
-      // Link label
-      $(go.TextBlock, 
-        { 
-          segmentOffset: new go.Point(0, -10),
-          font: "10px 'Inter', sans-serif",
-          stroke: "white",
-          background: "rgba(30, 34, 47, 0.7)",
-          // Replace padding with margin which is supported by GoJS TextBlock
-          margin: 2
-        },
-        new go.Binding("text", "text")
-      )
-    );
-
-    // Set model data
-    const { nodeArray, linkArray } = convertWorkflowToGoJSModel(workflow);
-    diagram.model = new go.GraphLinksModel({
-      nodeDataArray: nodeArray,
-      linkDataArray: linkArray
-    });
-
-    // Save the diagram instance for later use
-    diagramInstance.current = diagram;
-
-    // Initial layout and fit to view
-    diagram.layoutDiagram(true);
-    diagram.contentAlignment = go.Spot.Center;
-    diagram.commandHandler.zoomToFit();
-    diagram.contentAlignment = go.Spot.Center;
-
-    // Clean up on unmount
-    return () => {
-      diagram.div = null;
-    };
-  }, [workflow]);
-
-  // Handle diagram download
-  const handleDownload = () => {
-    if (!diagramInstance.current) return;
-    
-    const diagram = diagramInstance.current;
-    
-    // Create a canvas from the diagram
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-    
-    // Set canvas size to diagram bounds
-    const bounds = diagram.documentBounds;
-    const scale = 2; // Higher quality
-    canvas.width = bounds.width * scale;
-    canvas.height = bounds.height * scale;
-    
-    // Draw diagram to canvas with better quality
-    const svgOptions: go.SvgRendererOptions = {
-      document: document,
-      scale: scale,
-      background: diagram.div ? diagram.div.style.backgroundColor : "rgba(0,0,0,0)",
-    };
-    
-    // Fixed: TypeScript error with SVGElement by using proper type handling
-    try {
-      const svg = diagram.makeSvg(svgOptions);
-      
-      // Convert SVG to a data URL
-      const serializer = new XMLSerializer();
-      const svgStr = serializer.serializeToString(svg);
-      const svgBlob = new Blob([svgStr], {type: "image/svg+xml;charset=utf-8"});
-      const url = URL.createObjectURL(svgBlob);
-      
-      // Create image from SVG
-      const img = new Image();
-      img.onload = function() {
-        // Draw the image on the canvas
-        if (ctx) {
-          ctx.fillStyle = "white";
-          ctx.fillRect(0, 0, canvas.width, canvas.height);
-          ctx.drawImage(img, 0, 0);
-          
-          // Convert to PNG and download
-          const imgURI = canvas.toDataURL("image/png");
-          const a = document.createElement("a");
-          a.download = "flowchart.png";
-          a.href = imgURI;
-          document.body.appendChild(a);
-          a.click();
-          document.body.removeChild(a);
-          
-          // Clean up
-          URL.revokeObjectURL(url);
-        }
-      };
-      img.src = url;
-    } catch (error) {
-      console.error("Failed to generate SVG:", error);
-    }
-  };
-
-  // Handle fullscreen mode
-  const handleFullscreen = () => {
-    if (!diagramRef.current) return;
-    
-    if (document.fullscreenElement) {
-      document.exitFullscreen();
     } else {
-      diagramRef.current.requestFullscreen();
+      console.log('No valid dependencies array found in workflow data');
     }
-  };
 
-  if (!workflow) return null;
+    // Update edge colors based on optimizable nodes
+    edgeArray.forEach(edge => {
+      const sourceNode = nodeArray.find(n => n.id === edge.source);
+      const targetNode = nodeArray.find(n => n.id === edge.target);
+      
+      if (sourceNode?.data.isOptimizable || targetNode?.data.isOptimizable) {
+        edge.style = {
+          ...edge.style,
+          stroke: '#ea384c'
+        };
+        edge.markerEnd = {
+          type: MarkerType.ArrowClosed,
+          width: 20,
+          height: 20,
+          color: '#ea384c',
+        };
+      }
+    });
+    
+    console.log('Final converted nodes:', nodeArray);
+    console.log('Final converted edges:', edgeArray);
+    
+    return { nodeArray, edgeArray };
+  }, []);
+
+  // Convert workflow data and apply layout
+  const { initialNodes, initialEdges } = useMemo(() => {
+    if (!workflow) {
+      console.log('No workflow data provided to FlowchartVisualization');
+      return { initialNodes: [], initialEdges: [] };
+    }
+    
+    const { nodeArray, edgeArray } = convertWorkflowToReactFlow(workflow);
+    const { nodes, edges } = getLayoutedElements(nodeArray, edgeArray);
+    
+    console.log('Final layouted nodes:', nodes);
+    console.log('Final layouted edges:', edges);
+    
+    return { initialNodes: nodes, initialEdges: edges };
+  }, [workflow, convertWorkflowToReactFlow]);
+
+  const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
+  const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
+
+  const onConnect = useCallback(
+    (params: Edge | Connection) => setEdges((eds) => addEdge(params, eds)),
+    [setEdges],
+  );
+
+  const CustomControls = useCallback(() => {
+    return (
+      <Controls 
+        showInteractive={false}
+        position="bottom-left"
+        fitViewOptions={{ padding: 0.2 }}
+        className="!bg-white !border-red-500 [&>button]:!w-6 [&>button]:!h-6 [&>button]:!bg-[#ea384c] [&>button]:!border-red-500 [&>button]:!rounded [&>button]:!text-white [&>button]:!m-1 [&>button]:!cursor-pointer [&>button]:!flex [&>button]:!justify-center [&>button]:!items-center [&>button]:!transition-all [&>button]:!duration-200 [&>button]:hover:!bg-[#ff4d63] [&>button]:hover:!scale-105"
+      >
+        <ControlButton
+          onClick={toggleFullscreen}
+          className="custom-control-button"
+        >
+          {isFullscreen ? (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+              <path d="M8 3v3a2 2 0 0 1-2 2H3m18 0h-3a2 2 0 0 1-2-2V3m0 18v-3a2 2 0 0 1 2-2h3M3 16h3a2 2 0 0 1 2 2v3" />
+            </svg>
+          ) : (
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+              <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+            </svg>
+          )}
+        </ControlButton>
+      </Controls>
+    );
+  }, [isFullscreen, toggleFullscreen]);
+
+  if (!workflow) {
+    console.log('No workflow data in FlowchartVisualization render');
+    return null;
+  }
   
   return (
-    <Card className="mb-6 overflow-hidden border border-border bg-card/50">
-      <CardContent className="p-0">
-        <div className="relative">
-          {/* Controls overlay */}
-          <div className="absolute top-2 right-2 z-10 flex gap-2">
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="secondary" size="sm" onClick={handleDownload} className="h-8 px-2">
-                    <Download size={16} className="mr-1" />
-                    <span className="text-xs">Export</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p className="text-xs">Download as PNG</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-            
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="secondary" size="sm" onClick={handleFullscreen} className="h-8 px-2">
-                    <Expand size={16} className="mr-1" />
-                    <span className="text-xs">Fullscreen</span>
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent side="bottom">
-                  <p className="text-xs">View in fullscreen</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </div>
-          
-          {/* GoJS diagram container */}
-          <div 
-            ref={diagramRef} 
-            style={{ 
-              height: 400, 
-              width: '100%',
-              backgroundColor: 'transparent'
-            }} 
-            className="gojs-diagram"
-          />
-        </div>
-      </CardContent>
-    </Card>
+    <div 
+      ref={reactFlowWrapper}
+      className="w-full h-full"
+      style={{ position: 'relative' }}
+    >
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        nodeTypes={nodeTypes}
+        fitView
+        attributionPosition="bottom-left"
+        style={{ backgroundColor: 'transparent' }}
+        nodesDraggable={false}
+        nodesConnectable={false}
+        elementsSelectable={false}
+        draggable={false}
+        panOnDrag={true}
+        zoomOnScroll={true}
+        zoomOnPinch={true}
+        preventScrolling={false}
+        proOptions={{ hideAttribution: true }}
+      >
+        <CustomControls />
+        <MiniMap 
+          style={{
+            background: 'rgba(43, 47, 66, 0.8)',
+            border: '1px solid #484F6F',
+            borderRadius: '8px',
+            backdropFilter: 'blur(8px)',
+            width: 100,
+            height: 100,
+          }}
+          nodeColor={(node) => {
+            return node.data.isOptimizable ? '#ea384c' : '#484F6F';
+          }}
+        />
+        <Background 
+          variant={BackgroundVariant.Dots} 
+          gap={20} 
+          size={1}
+          color="rgba(255, 255, 255, 0.1)"
+        />
+      </ReactFlow>
+    </div>
   );
 };
 

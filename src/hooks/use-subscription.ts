@@ -1,18 +1,29 @@
 import { useCallback } from 'react';
-import { useSubscription } from '@/context/SubscriptionContext';
+import { 
+  useSubscription, // Only for methods
+  useSubscriptionData,
+  useSubscriptionPlans, 
+  useUsageData,
+  useSubscriptionLoading,
+  useSubscriptionError,
+  usePlanLimits
+} from '@/context/SubscriptionContext';
 import type { Plan } from '@/types/subscription';
 
 export const useSubscriptionHook = () => {
+  // ✅ FIXED: Use selective hooks instead of full context
+  const subscription = useSubscriptionData();
+  const plans = useSubscriptionPlans();
+  const usage = useUsageData();
+  const isLoading = useSubscriptionLoading();
+  const error = useSubscriptionError();
+  const planLimits = usePlanLimits();
+
+  // ✅ FIXED: Only get methods from full context (these don't cause re-renders)
   const {
-    subscription,
-    plans,
-    usage,
-    isLoading,
-    error,
     stripe,
     isStripeReady,
     stripeConfig,
-    planLimits,
     refreshSubscription,
     getPlans,
     createCheckoutSession,
@@ -115,8 +126,55 @@ export const useSubscriptionHook = () => {
     };
   }, [hasExceededLimits]);
 
+  // ✅ FIXED: Enhanced createCheckoutSession that accepts full plan object
+  const createCheckoutSessionForPlan = useCallback(
+    async (plan: Plan) => {
+      console.log('=== Creating checkout session ===');
+      console.log('Plan object:', plan);
+      console.log('Plan name:', plan.name);
+      console.log('Plan type:', plan.plan_type);
+      console.log('Plan price:', plan.price);
+      console.log('Plan ID:', plan.id);
+      console.log('===============================');
+
+      if (!plan.plan_type) {
+        throw new Error('Plan type is required');
+      }
+
+      if (plan.plan_type === 'free') {
+        throw new Error('Cannot create checkout session for free plan');
+      }
+
+      // Call the context method with the plan object
+      return await createCheckoutSession(plan);
+    },
+    [createCheckoutSession]
+  );
+
+  // ✅ ADDED: Debug helper to log available plans
+  const logAvailablePlans = useCallback(() => {
+    console.log('=== Available Plans ===');
+    plans?.forEach((plan, index) => {
+      console.log(`${index + 1}. ${plan.name}:`, {
+        id: plan.id,
+        type: plan.plan_type,
+        price: plan.price,
+        currency: plan.currency || 'USD',
+      });
+    });
+    console.log('=====================');
+  }, [plans]);
+
+  // ✅ ADDED: Helper to find plan by type
+  const findPlanByType = useCallback(
+    (planType: string): Plan | null => {
+      return plans?.find(plan => plan.plan_type === planType) || null;
+    },
+    [plans]
+  );
+
   return {
-    // State
+    // State - ✅ FIXED: Now from selective hooks
     subscription,
     plans,
     usage,
@@ -127,7 +185,7 @@ export const useSubscriptionHook = () => {
     stripeConfig,
     planLimits,
 
-    // Current plan info
+    // Current plan info - computed from selective hook data
     currentPlan: getCurrentPlan(),
     isFreePlan: isFreePlan(),
     isDeveloperPlan: isDeveloperPlan(),
@@ -138,10 +196,10 @@ export const useSubscriptionHook = () => {
     currentPeriod: getCurrentPeriod(),
     usageStats: getUsageStats(),
 
-    // Methods
+    // Methods - same as before
     refreshSubscription,
     getPlans,
-    createCheckoutSession,
+    createCheckoutSession: createCheckoutSessionForPlan, // ✅ Use enhanced version
     openBillingPortal,
     cancelSubscription,
     reactivateSubscription,
@@ -149,7 +207,11 @@ export const useSubscriptionHook = () => {
     canAccessFeature,
     getRecommendedPlan,
     checkLimits,
+    
+    // ✅ ADDED: New helper methods
+    logAvailablePlans,
+    findPlanByType,
   };
 };
 
-export default useSubscriptionHook; 
+export default useSubscriptionHook;

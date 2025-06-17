@@ -3,9 +3,9 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft, FileCode, FileText } from 'lucide-react';
 import SyncCodeEditors from '@/components/common/editor/SyncCodeEditors';
 import OptimisationTabs from './OptimisationTabs';
-import { type OptimizationResult } from '@/api/service';
 import { useCode } from '@/context/CodeContext';
 import LanguageSelectModal from '../convert/LanguageSelectModal';
+import { OptimizationResult } from '@/types/api';
 
 interface OptimizeResultState {
   optimizationResult: OptimizationResult;

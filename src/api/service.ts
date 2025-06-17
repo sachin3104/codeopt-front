@@ -1,12 +1,21 @@
-
 // File: src/api/services.ts
-// Centralized API service with auth-protected endpoints, timeout handling, and retry logic
+// Centralized API service with auth-protected endpoints, timeout handling, and enhanced response mapping
 
-// Import types from shared definitions
-import type { AnalysisResult, OptimizationResult, ScoreData } from '@/types/api';
-
-// Re-export types for convenience
-export type { AnalysisResult, OptimizationResult, ScoreData };
+import {
+  ResourceSavings,
+  ConversionQuality,
+  EstimatedBenefits,
+  EnvironmentSetup,
+  FlowchartData,
+  ScoreCategory,
+  ScoreData,
+  DetailedChange,
+  AnalysisCategory,
+  AnalysisResult,
+  OptimizationMetrics,
+  OptimizationResult,
+  ConversionResult
+} from '../types/api';
 
 // Backend URL from Vite env
 const BACKEND_URL = import.meta.env.VITE_API_URL as string;
@@ -104,6 +113,7 @@ const withRetry = async <T>(
     throw error;
   }
 };
+
 /**
  * Analyze code using the backend service
  */
@@ -121,6 +131,9 @@ export const analyzeCode = async (code: string): Promise<AnalysisResult> => {
       await handleApiError(analysisResponse);
       const analysisData = await analysisResponse.json();
       
+      console.log('Analysis Response Data:', analysisData);
+      console.log('Analysis Workflow Data:', analysisData.workflow);
+      
       // Get detailed analysis with issues from the separate analyze endpoint
       let categoriesWithIssues: any[] = [];
       try {
@@ -133,7 +146,7 @@ export const analyzeCode = async (code: string): Promise<AnalysisResult> => {
 
         if (detailedResponse.ok) {
           const detailedData = await detailedResponse.json();
-          console.log('Detailed analysis data:', detailedData);
+          console.log('Detailed Analysis Data:', detailedData);
           
           // Transform the detailed analysis data
           if (detailedData.analysis) {
@@ -145,62 +158,25 @@ export const analyzeCode = async (code: string): Promise<AnalysisResult> => {
           }
         }
       } catch (error) {
-        console.warn('Failed to get detailed analysis:', error);
-        // Don't throw here, continue with basic analysis
+        console.error('Error fetching detailed analysis:', error);
       }
-
-      // Debug logging
-      console.log('Analysis response:', analysisData);
-      console.log('Categories with issues:', categoriesWithIssues);
 
       return {
         categories: categoriesWithIssues,
-        detectedLanguage: {
-          name: analysisData.language || 'unknown',
-          confidence: 1.0,
-          color: analysisData.language === 'r' ? '#1984c8' : '#ccc',
-        },
-        workflow: {
-          steps: analysisData.flowchart?.steps || [],
-          dependencies: analysisData.flowchart?.dependencies || [],
-          optimizable_steps: analysisData.flowchart?.optimizable_steps || [],
-        },
-        scores: {
-          overall: analysisData.scores?.overall_score || 0,
-          categories: {
-            maintainability: {
-              score: analysisData.scores?.scores?.maintainability?.score || 0,
-              explanation: analysisData.scores?.scores?.maintainability?.explanation || 'No data available',
-            },
-            performance: {
-              score: analysisData.scores?.scores?.performance_efficiency?.score || 0,
-              explanation: analysisData.scores?.scores?.performance_efficiency?.explanation || 'No data available',
-            },
-            readability: {
-              score: analysisData.scores?.scores?.readability?.score || 0,
-              explanation: analysisData.scores?.scores?.readability?.explanation || 'No data available',
-            },
-            security: {
-              score: analysisData.scores?.scores?.security_vulnerability?.score || 0,
-              explanation: analysisData.scores?.scores?.security_vulnerability?.explanation || 'No data available',
-            },
-            testCoverage: {
-              score: analysisData.scores?.scores?.test_coverage?.score || 0,
-              explanation: analysisData.scores?.scores?.test_coverage?.explanation || 'No data available',
-            },
-          },
-        },
+        detectedLanguage: analysisData.detected_language || { name: 'Unknown', confidence: 0, color: '#000000' },
+        workflow: analysisData.workflow || null,
+        scores: analysisData.scores || null,
         functionalityAnalysis: analysisData.functionality_analysis || null,
       };
     } catch (error) {
-      console.error('Analysis API Error:', error);
+      console.error('Error in analyzeCode:', error);
       throw error;
     }
   }, 0, 'Code analysis');
 };
 
 /**
- * Optimize code using the backend service - Enhanced with timeout and retry
+ * Optimize code using the backend service - Enhanced with all new backend data
  */
 export const optimizeCode = async (code: string): Promise<OptimizationResult> => {
   return withRetry(async () => {
@@ -210,13 +186,53 @@ export const optimizeCode = async (code: string): Promise<OptimizationResult> =>
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code }),
-    }, API_CONFIG.timeout); // Full 5-minute timeout
+    }, API_CONFIG.timeout);
 
     await handleApiError(response);
     const data = await response.json();
     
+    console.log('Optimization Response Data:', data);
+    console.log('Optimized Code Flowchart:', data.optimized_code_flowchart);
+    console.log('Original Code Flowchart:', data.original_code_flowchart);
+    
+    // Extract resource savings with proper fallbacks
+    const resourceSavings: ResourceSavings = {
+      monthly_server_cost_savings: data.resource_savings?.monthly_server_cost_savings || 0,
+      annual_roi: data.resource_savings?.annual_roi || 0,
+      daily_time_saved_per_execution: data.resource_savings?.daily_time_saved_per_execution || 0,
+      memory_saved_per_run: data.resource_savings?.memory_saved_per_run || 0,
+    };
+
+    // Extract optimized code scores with proper fallbacks
+    const optimizedCodeScores = {
+      scores: {
+        readability: {
+          score: data.optimized_code_scores?.scores?.readability?.score || 0,
+          explanation: data.optimized_code_scores?.scores?.readability?.explanation || 'No data available',
+        },
+        maintainability: {
+          score: data.optimized_code_scores?.scores?.maintainability?.score || 0,
+          explanation: data.optimized_code_scores?.scores?.maintainability?.explanation || 'No data available',
+        },
+        performance_efficiency: {
+          score: data.optimized_code_scores?.scores?.performance_efficiency?.score || 0,
+          explanation: data.optimized_code_scores?.scores?.performance_efficiency?.explanation || 'No data available',
+        },
+        security_vulnerability: {
+          score: data.optimized_code_scores?.scores?.security_vulnerability?.score || 0,
+          explanation: data.optimized_code_scores?.scores?.security_vulnerability?.explanation || 'No data available',
+        },
+        test_coverage: {
+          score: data.optimized_code_scores?.scores?.test_coverage?.score || 0,
+          explanation: data.optimized_code_scores?.scores?.test_coverage?.explanation || 'No data available',
+        },
+      },
+      overall_score: data.optimized_code_scores?.overall_score || 0,
+      summary: data.optimized_code_scores?.summary || 'No summary available',
+    };
+    
     return {
-      optimizedCode: data.optimized_code,
+      optimizedCode: data.optimized_code || '',
       metrics: {
         executionTime: {
           value: data.improvement_percentages?.execution_time || 0,
@@ -234,11 +250,19 @@ export const optimizeCode = async (code: string): Promise<OptimizationResult> =>
           improvement: (data.improvement_percentages?.code_complexity || 0) > 0,
         },
       },
-      changedLines: data.changed_lines ?? [],
+      changedLines: data.changed_lines || [],
       optimized_code_flowchart: data.optimized_code_flowchart || null,
-      detailed_changes: data.detailed_changes ?? [],
-      improvement_summary: data.improvement_summary ?? '',
-      improvement_percentages: data.improvement_percentages || {},
+      original_code_flowchart: data.original_code_flowchart || null,
+      detailed_changes: data.detailed_changes || [],
+      improvement_summary: data.improvement_summary || '',
+      improvement_percentages: data.improvement_percentages || {
+        execution_time: 0,
+        memory_usage: 0,
+        code_complexity: 0,
+      },
+      resource_savings: resourceSavings,
+      future_optimization_suggestions: data.future_optimization_suggestions || [],
+      optimized_code_scores: optimizedCodeScores,
     };
   }, 0, 'Code optimization');
 };
@@ -255,7 +279,7 @@ export const documentCode = async (
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ code }),
-    }, API_CONFIG.timeout); // Documentation can also take time
+    }, API_CONFIG.timeout);
     
     await handleApiError(response);
     const data = await response.json();
@@ -268,19 +292,13 @@ export const documentCode = async (
 };
 
 /**
- * Convert code between languages - Enhanced
+ * Convert code between languages - Enhanced with all new conversion data
  */
 export const convertCode = async (
   code: string,
   sourceLanguage: string,
   targetLanguage: string
-): Promise<{ 
-  original_code: string; 
-  converted_code: string; 
-  source_language: string; 
-  target_language: string; 
-  conversion_notes: string 
-}> => {
+): Promise<ConversionResult> => {
   return withRetry(async () => {
     const response = await fetchWithTimeout(`${BACKEND_URL}/api/convert`, {
       method: 'POST',
@@ -291,10 +309,33 @@ export const convertCode = async (
         source_language: sourceLanguage, 
         target_language: targetLanguage 
       }),
-    }, API_CONFIG.timeout); // Conversion can take time for complex code
+    }, API_CONFIG.timeout);
 
     await handleApiError(response);
     const data = await response.json();
+    
+    console.log('Conversion response data:', data); // Debug logging
+    
+    // Extract conversion quality with proper fallbacks
+    const conversionQuality: ConversionQuality = {
+      success_rate: data.conversion_quality?.success_rate || 0,
+      syntax_conversion_status: data.conversion_quality?.syntax_conversion_status || 'incomplete',
+      logic_preservation_status: data.conversion_quality?.logic_preservation_status || 'not verified',
+    };
+
+    // Extract estimated benefits with proper fallbacks
+    const estimatedBenefits: EstimatedBenefits = {
+      processing_speed_improvement: data.estimated_benefits?.processing_speed_improvement || '0%',
+      memory_usage_reduction: data.estimated_benefits?.memory_usage_reduction || '0%',
+      license_cost_savings: data.estimated_benefits?.license_cost_savings || '$0',
+      cloud_readiness: data.estimated_benefits?.cloud_readiness || '0%',
+    };
+
+    // Extract environment setup with proper fallbacks
+    const environmentSetup: EnvironmentSetup = {
+      installation_commands: data.environment_setup?.installation_commands || '',
+      version_compatibility: data.environment_setup?.version_compatibility || '',
+    };
     
     return {
       original_code: data.original_code || code,
@@ -302,6 +343,9 @@ export const convertCode = async (
       source_language: data.source_language || sourceLanguage,
       target_language: data.target_language || targetLanguage,
       conversion_notes: data.conversion_notes || '',
+      conversion_quality: conversionQuality,
+      estimated_benefits: estimatedBenefits,
+      environment_setup: environmentSetup,
     };
   }, 0, 'Code conversion');
 };
@@ -312,7 +356,7 @@ export const healthCheck = async (): Promise<boolean> => {
     const response = await fetchWithTimeout(`${BACKEND_URL}/health`, {
       method: 'GET',
       credentials: 'include',
-    }, 5000); // 5 second timeout for health check
+    }, 5000);
     
     return response.ok;
   } catch (error) {

@@ -3,6 +3,7 @@ import Header from '../common/header/Header';
 import ActionButtons from './ActionButtons';
 import CodeEditor from '../common/editor/CodeEditor';
 import { Background } from '@/components/common/background';
+import SubscriptionWidget from '../subscription/SubscriptionWidget';
 
 const Layout: React.FC = () => {
   return (
@@ -18,9 +19,17 @@ const Layout: React.FC = () => {
           <ActionButtons />
         </div>
 
-        {/* Code Editor Section */}
-        <div className="w-full h-[600px]">
-          <CodeEditor height="100%" />
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Code Editor Section */}
+          <div className="lg:col-span-4 h-[600px]">
+            <CodeEditor height="100%" />
+          </div>
+
+          {/* Subscription Widget Section */}
+          {/* <div className="lg:col-span-1">
+            <SubscriptionWidget variant="detailed" />
+          </div> */}
         </div>
       </main>
     </div>

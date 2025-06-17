@@ -1,8 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Lock, AlertCircle, ArrowUpRight, X } from 'lucide-react';
-import { useSubscriptionHook } from '@/hooks/use-subscription';
+import { 
+  useSubscriptionData,
+  useUsageData,
+  useSubscription // Only for methods
+} from '@/context/SubscriptionContext';
 import { cn } from '@/lib/utils';
-import PlanUpgrade from './PlanUpgrade';
 
 interface FeatureGateProps {
   children: React.ReactNode;
@@ -67,39 +70,47 @@ const FeatureGate: React.FC<FeatureGateProps> = ({
   warningThreshold = 80,
   className,
 }) => {
-  const {
-    currentPlan,
-    usage,
-    canAccessFeature,
-    checkLimits,
-    getRecommendedPlan,
-  } = useSubscriptionHook();
+  // ✅ FIXED: Use selective hooks instead of full useSubscriptionHook
+  const subscription = useSubscriptionData();
+  const usage = useUsageData();
+  const { 
+    hasFeatureAccess,
+    hasExceededLimits,
+    shouldRecommendUpgrade 
+  } = useSubscription(); // Only get methods
 
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [showWarningBanner, setShowWarningBanner] = useState(false);
   const [warningDismissed, setWarningDismissed] = useState(false);
 
-  const featureConfig = FEATURE_CONFIGS[feature];
-  const hasAccess = canAccessFeature(feature);
-  const { daily, monthly, anyLimit } = checkLimits();
-  const { recommended, suggestedPlan } = getRecommendedPlan();
+  // ✅ FIXED: Memoize derived values to prevent unnecessary recalculations
+  const featureConfig = useMemo(() => FEATURE_CONFIGS[feature], [feature]);
+  const hasAccess = useMemo(() => hasFeatureAccess(feature), [hasFeatureAccess, feature]);
+  const limits = useMemo(() => hasExceededLimits(), [hasExceededLimits]);
+  const recommendation = useMemo(() => shouldRecommendUpgrade(), [shouldRecommendUpgrade]);
 
-  // Check if we should show warnings
-  useEffect(() => {
-    if (!showWarning || !hasAccess || warningDismissed) return;
+  // ✅ FIXED: Memoize warning calculation to prevent excessive recalculations
+  const shouldShowWarning = useMemo(() => {
+    if (!showWarning || !hasAccess || warningDismissed || !featureConfig || !usage) {
+      return false;
+    }
 
-    const usageLimit = featureConfig?.usageLimit;
-    const threshold = featureConfig?.warningThreshold || warningThreshold;
+    const usageLimit = featureConfig.usageLimit;
+    const threshold = featureConfig.warningThreshold || warningThreshold;
 
-    if (usageLimit && usage) {
+    if (usageLimit) {
       const currentUsage = usage.daily.usage_count || 0;
       const usagePercentage = (currentUsage / usageLimit) * 100;
-
-      if (usagePercentage >= threshold) {
-        setShowWarningBanner(true);
-      }
+      return usagePercentage >= threshold;
     }
-  }, [showWarning, hasAccess, warningDismissed, featureConfig, usage, warningThreshold]);
+
+    return false;
+  }, [showWarning, hasAccess, warningDismissed, featureConfig, usage?.daily.usage_count, warningThreshold]);
+
+  // ✅ FIXED: Simplified useEffect with stable dependencies
+  useEffect(() => {
+    setShowWarningBanner(shouldShowWarning);
+  }, [shouldShowWarning]); // Only depend on the memoized boolean
 
   // Handle warning dismissal
   const handleDismissWarning = () => {
@@ -109,9 +120,9 @@ const FeatureGate: React.FC<FeatureGateProps> = ({
 
   // Get upgrade message based on current plan
   const getUpgradeMessage = () => {
-    if (!currentPlan) return 'Upgrade to access this feature';
+    if (!subscription) return 'Upgrade to access this feature';
 
-    switch (currentPlan.plan_type) {
+    switch (subscription.plan.plan_type) {
       case 'free':
         return 'Upgrade to Developer plan to access this feature';
       case 'developer':
@@ -121,8 +132,8 @@ const FeatureGate: React.FC<FeatureGateProps> = ({
     }
   };
 
-  // Get warning message based on usage
-  const getWarningMessage = () => {
+  // ✅ FIXED: Memoize warning message to prevent recalculation
+  const warningMessage = useMemo(() => {
     if (!featureConfig?.usageLimit || !usage) return null;
 
     const currentUsage = usage.daily.usage_count || 0;
@@ -134,14 +145,11 @@ const FeatureGate: React.FC<FeatureGateProps> = ({
     }
 
     return `You've used ${percentage.toFixed(0)}% of your daily ${featureConfig.name} limit. ${remaining} uses remaining.`;
-  };
+  }, [featureConfig, usage?.daily.usage_count]);
 
   // Render warning banner
   const renderWarningBanner = () => {
-    if (!showWarningBanner) return null;
-
-    const message = getWarningMessage();
-    if (!message) return null;
+    if (!showWarningBanner || !warningMessage) return null;
 
     return (
       <div className="mb-4 p-4 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
@@ -149,13 +157,13 @@ const FeatureGate: React.FC<FeatureGateProps> = ({
           <div className="flex items-start space-x-3">
             <AlertCircle className="w-5 h-5 text-yellow-400 mt-0.5" />
             <div>
-              <p className="text-sm text-white/80">{message}</p>
-              {recommended && (
+              <p className="text-sm text-white/80">{warningMessage}</p>
+              {recommendation.recommended && (
                 <button
                   onClick={() => setShowUpgradeModal(true)}
                   className="mt-2 flex items-center space-x-1 text-sm text-yellow-400 hover:text-yellow-300 transition-colors"
                 >
-                  <span>Upgrade to {suggestedPlan} plan</span>
+                  <span>Upgrade to {recommendation.suggestedPlan} plan</span>
                   <ArrowUpRight className="w-4 h-4" />
                 </button>
               )}
@@ -211,14 +219,8 @@ const FeatureGate: React.FC<FeatureGateProps> = ({
           {renderFallback()}
         </div>
       )}
-
-      {/* Upgrade Modal */}
-      <PlanUpgrade
-        isOpen={showUpgradeModal}
-        onClose={() => setShowUpgradeModal(false)}
-      />
     </div>
   );
 };
 
-export default FeatureGate; 
+export default FeatureGate;

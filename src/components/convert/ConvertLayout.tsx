@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import SyncCodeEditors from '../common/editor/SyncCodeEditors';
 import DocumentButton from './DocumentConvertedButton';
 import { ArrowLeft } from 'lucide-react';
+import ConvertTabs from './ConvertTabs';
 
 const ConvertLayout: React.FC = () => {
   const { code, convertedCode, isConverting, clearAllState } = useCode();
@@ -73,14 +74,11 @@ const ConvertLayout: React.FC = () => {
         />
       </div>
 
-      {/* Conversion Notes Section */}
+      
+
+      {/* Convert Tabs Section */}
       <div className="mt-8">
-        <h3 className="text-lg font-semibold text-white mb-4">Conversion Notes</h3>
-        <div className="bg-white/5 rounded-lg p-6 border border-white/10">
-          <pre className="text-white/80 whitespace-pre-wrap font-mono text-sm">
-            {convertedCode.notes}
-          </pre>
-        </div>
+        <ConvertTabs />
       </div>
     </div>
   );
