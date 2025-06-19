@@ -42,7 +42,7 @@ export default function LandingPage() {
           </section>
           
           {/* Features section */}
-          <section id="features" className="py-16 px-4 relative z-10">
+          <section id="features" className="py-16 sm:py-20 relative z-10">
             <GlowingEffectGrid />
           </section>
           
@@ -52,7 +52,7 @@ export default function LandingPage() {
           </div>
           
           <div className="relative z-10">
-            <Testimonials />
+            {/* <Testimonials /> */}
             <PricingCards />
           </div>
         </main>

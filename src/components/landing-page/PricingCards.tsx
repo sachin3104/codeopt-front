@@ -1,124 +1,85 @@
-import React, { useState } from "react";
+import React from "react";
 import { Check, Minus, MoveRight, PhoneCall } from "lucide-react";
 
-const soloPlans = [
+const plans = [
   {
     name: "Free Plan",
     price: 0,
     period: "forever",
-    description: "Perfect for trying out our AI optimization",
-    features: {
-      "Requests per day": "5 requests",
-      "Lines of code per request": "300 lines",
-      "AI optimization": "Basic",
-      "Support": "Email support",
-      "Community access": true,
-      "Code analysis reports": false,
-      "Multi-language support": false,
-      "Performance insights": false,
-      "Team collaboration": false,
-      "Shared workspace": false
-    },
-    buttonText: "Start Free Now",
+    description: "Lightweight plan for initial exploration and basic code optimization",
+    features: [
+      "5 requests/day",
+      "Up to 300 lines per request",
+      "Essential code diagnostics",
+      "Basic optimization guidance",
+      "Email support"
+    ],
+    buttonText: "Start Free",
     buttonIcon: MoveRight
   },
   {
     name: "Beginner Plan",
     price: 9.99,
     period: "per month",
-    description: "Most popular choice for serious developers",
-    features: {
-      "Requests per day": "50 requests",
-      "Lines of code per request": "800 lines",
-      "AI optimization": "Advanced",
-      "Support": "Priority support",
-      "Community access": true,
-      "Code analysis reports": true,
-      "Multi-language support": true,
-      "Performance insights": true,
-      "Team collaboration": false,
-      "Shared workspace": false
-    },
-    buttonText: "Get Beginner Plan",
+    description: "Ideal for analysts and data practitioners regularly improving analytical scripts",
+    features: [
+      "50 requests/day",
+      "Up to 800 lines per request",
+      "Comprehensive code diagnostics",
+      "Interactive workflow visualizations",
+      "Priority support"
+    ],
+    buttonText: "Buy Now",
     buttonIcon: MoveRight
   },
   {
     name: "Professional Plan",
     price: 30,
     period: "per month",
-    description: "For teams and enterprises scaling fast",
-    features: {
-      "Requests per day": "Unlimited",
-      "Lines of code per request": "1000 lines",
-      "AI optimization": "Premium",
-      "Support": "Priority support",
-      "Community access": true,
-      "Code analysis reports": true,
-      "Multi-language support": true,
-      "Performance insights": true,
-      "Team collaboration": true,
-      "Shared workspace": true
-    },
-    buttonText: "Go Professional",
-    buttonIcon: MoveRight
-  }
-];
-
-const teamPlans = [
-  {
-    name: "Enterprise Plan",
-    price: 50,
-    period: "per month",
-    description: "Perfect for growing teams and organizations",
-    features: {
-      "Team members": "Up to 5 members",
-      "Lines of code per request": "1000 lines",
-      "AI optimization": "Premium",
-      "Support": "Priority support",
-      "Community access": true,
-      "Code analysis reports": true,
-      "Multi-language support": true,
-      "Performance insights": true,
-      "Team collaboration": true,
-      "Shared workspace": true,
-      "Team analytics": true
-    },
-    buttonText: "Get Enterprise Plan",
+    description: "Designed for data science professionals optimizing analytical scripts",
+    features: [
+      "Unlimited requests/day",
+      "Up to 1000 lines per request",
+      "Detailed optimization reports",
+      "Priority support"
+    ],
+    buttonText: "Buy Now",
     buttonIcon: MoveRight
   },
   {
-    name: "Call for Expert Plan",
+    name: "Enterprise Plan",
+    price: "Custom",
+    period: "solution",
+    description: "Perfect for organizations with unique or complex needs",
+    features: [
+      "Custom-tailored solutions",
+      "Dedicated consultation team",
+      "Setup and integration support",
+      "Implementation assistance"
+    ],
+    buttonText: "Contact Us",
+    buttonIcon: PhoneCall
+  },
+  {
+    name: "Call an Expert",
     price: 200,
-    period: "per month",
-    description: "Get expert guidance from industry veterans",
-    features: {
-      "Team members": "Unlimited",
-      "Lines of code per request": "Unlimited",
-      "AI optimization": "Premium",
-      "Support": "24/7 Expert Support",
-      "Community access": true,
-      "Code analysis reports": true,
-      "Multi-language support": true,
-      "Performance insights": true,
-      "Team collaboration": true,
-      "Shared workspace": true,
-      "Team analytics": true,
-      "Expert consultation": true,
-      "Weekly strategy sessions": true,
-      "Custom optimization": true
-    },
-    buttonText: "Contact Sales",
+    period: "30 min",
+    description: "Ideal for individual guidance and mentorship",
+    features: [
+      "One-on-one consultation",
+      "Platform usage guidance",
+      "Requirements analysis",
+      "Integration strategy"
+    ],
+    buttonText: "Contact Us",
     buttonIcon: PhoneCall
   }
 ];
 
 export default function PricingCards() {
-  const [activeTab, setActiveTab] = useState<'solo' | 'team'>('solo');
-  const plans = activeTab === 'solo' ? soloPlans : teamPlans;
-
   return (
     <section className="relative py-16 sm:py-20">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6">
+      <div className="max-w-7xl mx-auto px-4">
         <div className="flex text-center justify-center items-center gap-4 flex-col">
           <div className="flex gap-2 flex-col">
             <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">
@@ -129,73 +90,46 @@ export default function PricingCards() {
             </p>
           </div>
 
-          {/* Plan Type Tabs */}
-          <div className="flex justify-center gap-4 mt-8">
-            <button
-              onClick={() => setActiveTab('solo')}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
-                activeTab === 'solo'
-                  ? "bg-white/20 text-white border border-white/30"
-                  : "bg-white/10 text-white/70 hover:bg-white/20"
-              }`}
-            >
-              Solo Plans
-            </button>
-            <button
-              onClick={() => setActiveTab('team')}
-              className={`px-6 py-3 rounded-xl font-semibold transition-all duration-300 ${
-                activeTab === 'team'
-                  ? "bg-white/20 text-white border border-white/30"
-                  : "bg-white/10 text-white/70 hover:bg-white/20"
-              }`}
-            >
-              Team Plans
-            </button>
-          </div>
-
-          <div className={`grid text-left w-full ${activeTab === 'solo' ? 'lg:grid-cols-4' : 'lg:grid-cols-3'} divide-x divide-white/10 pt-20`}>
-            {/* Features Column */}
-            <div className="col-span-1"></div>
-            
-            {/* Plan Columns */}
+          <div className="grid text-left w-full lg:grid-cols-5 gap-6 pt-20">
             {plans.map((plan, index) => (
-              <div key={plan.name} className="px-3 py-1 md:px-6 md:py-4 gap-2 flex flex-col">
-                <p className="text-2xl text-white">{plan.name}</p>
-                <p className="text-sm text-white/60">
-                  {plan.description}
-                </p>
-                <p className="flex flex-col lg:flex-row lg:items-center gap-2 text-xl mt-8">
-                  <span className="text-4xl text-white">${plan.price}</span>
-                  <span className="text-sm text-white/60">/{plan.period}</span>
-                </p>
+              <div key={plan.name} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 flex flex-col">
+                {/* Plan Name and Description */}
+                <div className="min-h-[140px]">
+                  <h3 className="text-2xl font-bold text-white mb-3">{plan.name}</h3>
+                  <p className="text-sm text-white/60">
+                    {plan.description}
+                  </p>
+                </div>
+
+                {/* Pricing */}
+                <div className="flex flex-col items-start mb-8">
+                  <div className="flex items-baseline">
+                    <span className="text-3xl font-bold text-white">
+                      {typeof plan.price === 'number' ? `$${plan.price}` : plan.price}
+                    </span>
+                    <span className="text-sm text-white/60 ml-1">/{plan.period}</span>
+                  </div>
+                </div>
+
+                {/* Features List */}
+                <div className="flex-1 space-y-6 mb-8">
+                  <div className="space-y-4">
+                    {plan.features.map((feature, idx) => (
+                      <div key={idx} className="flex items-center gap-3">
+                        <Check className="h-5 w-5 text-blue-400 flex-shrink-0" />
+                        <span className="text-sm text-white/80">{feature}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* CTA Button */}
                 <button 
-                  className="mt-8 bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl w-full text-white px-6 py-3 flex items-center justify-center gap-2"
+                  className="w-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-6 py-3 flex items-center justify-center gap-2 mt-auto"
                 >
                   {plan.buttonText} <plan.buttonIcon className="w-4 h-4" />
                 </button>
               </div>
-            ))}
-
-            {/* Features List */}
-            {Object.keys(plans[0].features).map((feature, index) => (
-              <React.Fragment key={feature}>
-                <div className="px-3 lg:px-6 col-span-1 py-4 text-white/80">
-                  {feature}
-                </div>
-                {plans.map((plan) => (
-                  <div key={`${plan.name}-${feature}`} className="px-3 py-1 md:px-6 md:py-4 flex justify-center">
-                    {typeof plan.features[feature] === 'boolean' ? (
-                      plan.features[feature] ? (
-                        <Check className="w-4 h-4 text-green-400" />
-                      ) : (
-                        <Minus className="w-4 h-4 text-white/40" />
-                      )
-                    ) : (
-                      <p className="text-white/60 text-sm">{plan.features[feature]}</p>
-                    )}
-                  </div>
-                ))}
-              </React.Fragment>
             ))}
           </div>
         </div>

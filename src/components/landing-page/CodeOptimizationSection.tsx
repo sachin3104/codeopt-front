@@ -141,7 +141,7 @@ export default function CodeOptimizationSection() {
   ];
 
   return (
-    <section className="relative py-20">
+    <section className="relative py-16 sm:py-20">
       <div className="max-w-7xl mx-auto px-4">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
           {/* Left: "What we do" + text */}
