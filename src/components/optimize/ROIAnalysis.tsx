@@ -1,21 +1,41 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Timer, Database, DollarSign, TrendingUp, Calculator } from 'lucide-react';
-import { useCode } from '@/context/CodeContext';
+import { useOptimize } from '@/hooks/use-optimize';
+import { type ResourceSavings, type ImprovementPercentages } from '@/types/api';
 
-const ROIAnalysis: React.FC = () => {
-  const { optimizationResult } = useCode();
+interface ROIAnalysisProps {
+  resourceSavings: ResourceSavings;
+  improvementPercentages: ImprovementPercentages;
+}
+
+const ROIAnalysis: React.FC<ROIAnalysisProps> = ({
+  resourceSavings,
+  improvementPercentages
+}) => {
+  const { result: optimizationResult } = useOptimize();
 
   if (!optimizationResult) {
     return null;
   }
 
-  // Calculate ROI metrics based on optimization results
+  // Helper to get metric values or fallback to 'NA'
+  const getMetric = (path: string[], fallback = 'NA') => {
+    try {
+      return path.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), optimizationResult) ?? fallback;
+    } catch {
+      return fallback;
+    }
+  };
+
+  // ROI metrics from backend only, no calculations or hardcoded labels
   const roiMetrics = [
     {
       icon: Timer,
       iconColor: 'text-blue-400/80',
-      value: `${Math.round(optimizationResult.metrics.executionTime.value * 0.15)}min`,
+      value: getMetric(['resource_savings', 'daily_time_saved_per_execution']) !== 'NA'
+        ? `${getMetric(['resource_savings', 'daily_time_saved_per_execution'])} min`
+        : 'NA',
       label: 'Daily Time Saved',
       sublabel: 'Per execution',
       barColor: 'bg-blue-400/30'
@@ -23,15 +43,19 @@ const ROIAnalysis: React.FC = () => {
     {
       icon: Database,
       iconColor: 'text-emerald-400/80',
-      value: `${Math.round(optimizationResult.metrics.memoryUsage.value * 0.3)}MB`,
-      label: 'Memory Saved',
+      value: getMetric(['resource_savings', 'memory_saved_per_run']) !== 'NA'
+        ? `${getMetric(['resource_savings', 'memory_saved_per_run'])} KB`
+        : 'NA',
+      label:  'Memory Saved',
       sublabel: 'Per run',
       barColor: 'bg-emerald-400/30'
     },
     {
       icon: DollarSign,
       iconColor: 'text-violet-400/80',
-      value: `$${Math.round(optimizationResult.improvement_percentages?.execution_time || 0) * 2}`,
+      value: getMetric(['resource_savings', 'monthly_server_cost_savings']) !== 'NA'
+        ? `$${getMetric(['resource_savings', 'monthly_server_cost_savings'])}`
+        : 'NA',
       label: 'Monthly Savings',
       sublabel: 'Server costs',
       barColor: 'bg-violet-400/30'
@@ -39,12 +63,19 @@ const ROIAnalysis: React.FC = () => {
     {
       icon: TrendingUp,
       iconColor: 'text-amber-400/80',
-      value: `$${Math.round((optimizationResult.improvement_percentages?.execution_time || 0) * 24)}K`,
-      label: 'Annual Value',
+      value: getMetric(['resource_savings', 'annual_roi']) !== 'NA'
+        ? `${getMetric(['resource_savings', 'annual_roi'])}%`
+        : 'NA',
+      label: 'Annual ROI',
       sublabel: 'Total ROI',
       barColor: 'bg-amber-400/30'
     }
   ];
+
+  // Total Value from backend only
+  const totalValue = getMetric(['resource_savings', 'annual_roi']) !== 'NA'
+    ? `${getMetric(['resource_savings', 'annual_roi'])}%`
+    : 'NA';
 
   return (
     <Card className="bg-black/10 backdrop-blur-xl border border-white/10">
@@ -55,29 +86,19 @@ const ROIAnalysis: React.FC = () => {
             Resource Savings & ROI
           </div>
           <div className="text-sm text-white/70">
-            Total Value: <span className="text-emerald-400/90 font-bold">${Math.round((optimizationResult.improvement_percentages?.execution_time || 0) * 24)}K</span>
+            Total Value: <span className="text-emerald-400/90 font-bold">{totalValue}</span>
           </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
         <div className="grid grid-cols-4 gap-6">
           {roiMetrics.map((metric, index) => (
-            <div key={index} className="space-y-3">
-              <div className="text-center">
-                <metric.icon className={`w-6 h-6 ${metric.iconColor} mx-auto mb-2`} />
-                <div className="text-2xl font-bold text-white/90">{metric.value}</div>
-                <div className="text-xs text-white/60">{metric.label}</div>
-                <div className="text-xs text-white/50">{metric.sublabel}</div>
-              </div>
+            <div key={index} className="flex flex-col items-center rounded-lg p-4 ">
+              <metric.icon className={`w-6 h-6 ${metric.iconColor} mb-2`} />
+              <div className="text-2xl font-bold text-white/90 mb-1">{metric.value}</div>
+              <div className="text-xs text-emerald-400/90 font-semibold mb-1">{metric.label}</div>
+              <div className="text-xs text-white/50">{metric.sublabel}</div>
               
-              <div className="mt-4">
-                <div className="w-full bg-white/5 rounded-full h-2">
-                  <div 
-                    className={`${metric.barColor} h-2 rounded-full backdrop-blur-sm`} 
-                    style={{ width: '100%' }}
-                  />
-                </div>
-              </div>
             </div>
           ))}
         </div>

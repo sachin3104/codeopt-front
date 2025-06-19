@@ -1,49 +1,72 @@
 import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileCode, FileText } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowLeft, FileCode, FileText, AlertTriangle } from 'lucide-react';
 import SyncCodeEditors from '@/components/common/editor/SyncCodeEditors';
 import OptimisationTabs from './OptimisationTabs';
-import { useCode } from '@/context/CodeContext';
 import LanguageSelectModal from '../convert/LanguageSelectModal';
-import { OptimizationResult } from '@/types/api';
-
-interface OptimizeResultState {
-  optimizationResult: OptimizationResult;
-  originalCode: string;
-}
+import { useOptimize } from '@/hooks/use-optimize';
+import { useCode } from '@/hooks/use-code';
 
 const OptimiseLayout: React.FC = () => {
-  const location = useLocation();
   const navigate = useNavigate();
-  const { optimizationResult, originalCode } = location.state as OptimizeResultState;
-  const { 
-    handleDocument, 
-    handleConvert, 
-    clearAllState,
-    documentedCode,
-    isDocumenting,
-    convertedCode
-  } = useCode();
+  const { code } = useCode();
+  const {
+    result: optimizationResult,
+    isLoading: isOptimizing,
+    error: optimizeError,
+    clear: clearOptimize,
+    initialized
+  } = useOptimize();
+
   const [showConvertModal, setShowConvertModal] = useState(false);
 
+  // If we landed here without having run optimize yet, go back home
+  useEffect(() => {
+    if (initialized && !isOptimizing && !optimizationResult) {
+      navigate('/', { replace: true });
+    }
+  }, [initialized, isOptimizing, optimizationResult, navigate]);
+
   const handleGoHome = () => {
-    clearAllState();
+    clearOptimize();
     navigate('/', { replace: true });
   };
 
-  // Effect to navigate to document page when documentation is ready
-  useEffect(() => {
-    if (documentedCode && !isDocumenting) {
-      navigate('/results/document', { state: { documentedCode } });
-    }
-  }, [documentedCode, isDocumenting, navigate]);
+  // Loading state
+  if (isOptimizing) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4" />
+          <p className="text-white/80">Optimizing your code…</p>
+        </div>
+      </div>
+    );
+  }
 
-  // Effect to navigate to convert page when conversion is complete
-  useEffect(() => {
-    if (convertedCode) {
-      navigate('/results/convert', { state: { convertedCode } });
-    }
-  }, [convertedCode, navigate]);
+  // Error state
+  if (optimizeError) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <div className="text-center max-w-md">
+          <AlertTriangle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-white mb-2">Optimization Failed</h3>
+          <p className="text-gray-400 mb-4">{optimizeError}</p>
+          <button
+            onClick={handleGoHome}
+            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // Guard against undefined/null result
+  if (!optimizationResult) {
+    return null;
+  }
 
   return (
     <div className="flex flex-col min-h-screen p-6 space-y-6">
@@ -58,16 +81,6 @@ const OptimiseLayout: React.FC = () => {
             <FileCode className="w-4 h-4" />
             <span>Convert</span>
           </button>
-
-          <button
-            onClick={handleDocument}
-            disabled={isDocumenting}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            <FileText className="w-4 h-4" />
-            <span>{isDocumenting ? 'Documenting...' : 'Document'}</span>
-          </button>
-
           <button 
             onClick={handleGoHome}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
@@ -81,8 +94,8 @@ const OptimiseLayout: React.FC = () => {
       {/* Code Editors Section */}
       <div className="w-full h-[600px] overflow-hidden">
         <SyncCodeEditors
-          originalCode={originalCode}
-          convertedCode={optimizationResult.optimizedCode}
+          originalCode={code}
+          convertedCode={optimizationResult.optimized_code}
           isReadOnly={true}
         />
       </div>
@@ -91,14 +104,22 @@ const OptimiseLayout: React.FC = () => {
       <div className="w-full">
         <OptimisationTabs
           optimizationResult={optimizationResult}
-          originalCode={originalCode}
+          originalCode={code}
         />
       </div>
 
       <LanguageSelectModal 
         isOpen={showConvertModal} 
         onClose={() => setShowConvertModal(false)} 
+        onConvert={async () => {}} 
       />
+
+      {/* Error toast */}
+      {optimizeError && (
+        <div className="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded shadow-lg">
+          <span>{optimizeError}</span>
+        </div>
+      )}
     </div>
   );
 };

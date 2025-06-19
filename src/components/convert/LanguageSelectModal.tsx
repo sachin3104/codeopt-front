@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { useCode } from '@/context/CodeContext';
-import { useNavigate } from 'react-router-dom';
+import { useCode } from '@/hooks/use-code';
+import { useConvert } from '@/hooks/use-convert';
 
 // Define supported languages
 const SUPPORTED_LANGUAGES = [
@@ -14,26 +14,29 @@ const SUPPORTED_LANGUAGES = [
 interface LanguageSelectModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onConvert: (from: string, to: string) => Promise<void>;
 }
 
-const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({ isOpen, onClose }) => {
-  const navigate = useNavigate();
-  const { code, handleConvert, isConverting, convertedCode, error } = useCode();
+const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({ isOpen, onClose, onConvert }) => {
+  const { code } = useCode();
+  const { isLoading: isConverting, error: convertError, clear: clearConvert } = useConvert();
   const [sourceLanguage, setSourceLanguage] = useState('python');
   const [targetLanguage, setTargetLanguage] = useState('r');
   const [errorState, setErrorState] = useState('');
 
-  // Debug log when modal opens
+  // Debug log when modal opens and reset errors
   useEffect(() => {
     if (isOpen) {
       console.log('Modal opened. Current state:', {
         hasCode: !!code,
         codeLength: code?.length,
-        hasConvertedCode: !!convertedCode,
         isConverting
       });
+      // Reset both errors when modal opens
+      setErrorState('');
+      clearConvert();
     }
-  }, [isOpen, code, convertedCode, isConverting]);
+  }, [isOpen, code, isConverting, clearConvert]);
 
   const handleConvertClick = async () => {
     console.log('Starting conversion...', {
@@ -44,11 +47,10 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({ isOpen, onClo
     });
 
     try {
-      // Wait for conversion to complete
-      await handleConvert(sourceLanguage, targetLanguage);
+      // Call the parent's onConvert function
+      await onConvert(sourceLanguage, targetLanguage);
       
       // Close the modal after successful conversion
-      // Navigation will be handled by the useEffect in ActionButtons
       console.log('Conversion completed successfully');
       onClose();
       
@@ -113,9 +115,9 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({ isOpen, onClo
             </select>
           </div>
 
-          {errorState && (
+          {(convertError || errorState) && (
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm backdrop-blur-sm">
-              {errorState}
+              {convertError || errorState}
             </div>
           )}
         </div>

@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { FileText } from 'lucide-react';
-import { useCode } from '@/context/CodeContext';
+import { useDocument } from '@/hooks/use-document';
 import { useNavigate } from 'react-router-dom';
 
 interface DocumentButtonProps {
@@ -9,7 +9,7 @@ interface DocumentButtonProps {
 
 const DocumentButton: React.FC<DocumentButtonProps> = ({ convertedCode }) => {
   const navigate = useNavigate();
-  const { handleDocument, isDocumenting, error, clearError, documentedCode } = useCode();
+  const { run: handleDocument, isLoading: isDocumenting, result: documentedCode, error, clear } = useDocument();
 
   // Effect to handle navigation when documentation is complete
   useEffect(() => {
@@ -45,7 +45,7 @@ const DocumentButton: React.FC<DocumentButtonProps> = ({ convertedCode }) => {
         <div className="fixed bottom-4 right-4 bg-red-500 text-white px-6 py-3 rounded-lg shadow-lg flex items-center gap-2">
           <span>{error}</span>
           <button
-            onClick={clearError}
+            onClick={clear}
             className="ml-2 hover:text-white/80"
           >
             ×

@@ -6,7 +6,34 @@ interface AnalysisDetailsProps {
   analysisResult: any; // You might want to type this properly based on your data structure
 }
 
+const normalizeScores = (scores: any) => {
+  if (!scores || !scores.scores) return null;
+  const raw = scores.scores;
+  return {
+    overall: scores.overall_score || scores.overall || null,
+    categories: {
+      maintainability: raw.maintainability || null,
+      performance: raw.performance_efficiency || raw.performance || null,
+      readability: raw.readability || null,
+      security: raw.security_vulnerability || raw.security || null,
+      testCoverage: raw.test_coverage || raw.testCoverage || null,
+    }
+  };
+};
+
+const normalizeFlowchart = (data: any) => {
+  if (!data) return { steps: [], dependencies: [], optimizable_steps: [] };
+  return {
+    steps: data.steps || [],
+    dependencies: data.dependencies || [],
+    optimizable_steps: data.optimizable_steps || []
+  };
+};
+
 const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({ analysisResult }) => {
+  const normalizedScores = normalizeScores(analysisResult?.scores);
+  const normalizedFlowchart = normalizeFlowchart(analysisResult?.flowchart);
+
   return (
     <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 rounded-3xl border border-white/20 shadow-2xl p-6 h-full flex flex-col">
       <h2 className="text-lg font-semibold text-white/90 mb-4">Analysis Details</h2>
@@ -16,14 +43,14 @@ const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({ analysisResult }) => 
             {/* Code Quality Scores */}
             <div>
               <h3 className="text-base font-medium text-white/90 mb-4">Code Quality Analysis</h3>
-              <ScoreCardDisplay scores={analysisResult.scores} />
+              <ScoreCardDisplay scores={normalizedScores} />
             </div>
 
             {/* Code Flow Visualization */}
             <div>
               <h3 className="text-base font-medium text-white/90 mb-4">Code Flow Analysis</h3>
-              <div className="rounded-lg">
-                <FlowchartVisualization workflow={analysisResult.workflow} />
+              <div className="rounded-lg h-[400px]">
+                <FlowchartVisualization workflow={normalizedFlowchart} />
               </div>
             </div>
           </>

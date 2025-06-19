@@ -1,6 +1,4 @@
 import React from 'react';
-import FlowchartVisualization from '@/components/common/FlowchartVisualization';
-import OptimizationImprovementSummary from '@/components/optimize/OptimizationImprovementSummary';
 import PerformanceAnalysis from '@/components/optimize/PerformanceAnalysis';
 import ROIAnalysis from './ROIAnalysis';
 import FlowchartComparison from './FlowchartComparison';
@@ -9,7 +7,9 @@ import OptimizationDetails from './OptimizationDetails';
 import ExecutiveSummary from './ExecutiveSummary';
 import NextSteps from './NextSteps';
 import { type OptimizationResult } from '@/types/api';
-import { MemoryStick, Activity, Zap, Cpu, HardDrive, Database, TrendingUp } from 'lucide-react';
+import { type MetricsData } from '@/types/metrics';
+import { Activity } from 'lucide-react';
+import IssuesResolvedTable from './IssuesResolvedTable';
 
 interface OptimisationTabsProps {
   optimizationResult: OptimizationResult;
@@ -21,116 +21,93 @@ const OptimisationTabs: React.FC<OptimisationTabsProps> = ({
   originalCode
 }) => {
   // Prepare metrics data for the dashboard
-  const metricsData = {
+  const metricsData: MetricsData = {
     executionTime: {
-      value: optimizationResult.metrics.executionTime.value,
-      label: optimizationResult.metrics.executionTime.label,
-      improvement: optimizationResult.metrics.executionTime.improvement
+      value: optimizationResult.execution_time?.optimized ?? 'NA',
+      original: optimizationResult.execution_time?.original ?? 'NA',
+      improvement: optimizationResult.improvement_percentages?.execution_time ?? 'NA'
     },
     memoryUsage: {
-      value: optimizationResult.metrics.memoryUsage.value,
-      label: optimizationResult.metrics.memoryUsage.label,
-      improvement: optimizationResult.metrics.memoryUsage.improvement
+      value: optimizationResult.memory_usage?.optimized ?? 'NA',
+      original: optimizationResult.memory_usage?.original ?? 'NA',
+      improvement: optimizationResult.improvement_percentages?.memory_usage ?? 'NA'
     },
     codeComplexity: {
-      value: optimizationResult.metrics.codeComplexity.value,
-      label: optimizationResult.metrics.codeComplexity.label,
-      improvement: optimizationResult.metrics.codeComplexity.improvement
+      value: optimizationResult.code_complexity?.optimized ?? 'NA',
+      original: optimizationResult.code_complexity?.original ?? 'NA',
+      improvement: optimizationResult.improvement_percentages?.code_complexity ?? 'NA'
     }
   };
 
-  // Sample data for OptimizationDetails
+  // Prepare optimization details data
+  const issuesResolved = optimizationResult.detailed_changes?.map(change => ({
+    priority: 'NA' as const,
+    category: change.metric ?? 'NA',
+    issue: change.issue ?? 'NA',
+    improvement: change.improvement ?? 'NA',
+    status: 'NA' as const,
+    location: change.location ?? 'NA',
+    costSaving: 'NA'
+  })) ?? [];
+
   const optimizationDetailsData = {
-    issuesResolved: [
-      {
-        priority: 'High' as const,
-        category: 'Memory Usage',
-        issue: 'Optimized dataset operations',
-        status: 'Resolved' as const,
-        savings: '$50/mo'
-      },
-      {
-        priority: 'High' as const,
-        category: 'Data Throughput',
-        issue: 'Implemented parallel processing',
-        status: 'Resolved' as const,
-        savings: '$40/mo'
-      },
-      {
-        priority: 'High' as const,
-        category: 'Query Optimization',
-        issue: 'Added indexes to key columns',
-        status: 'Resolved' as const,
-        savings: '$30/mo'
-      },
-      {
-        priority: 'Medium' as const,
-        category: 'CPU Utilization',
-        issue: 'Optimized loop structures',
-        status: 'Resolved' as const,
-        savings: '$30/mo'
-      }
-    ],
-    highPriorityDetails: [
-      {
-        title: 'Memory Usage',
-        description: 'Reduced from 120MB to 90MB',
-        icon: <MemoryStick className="w-5 h-5 text-red-500 mt-0.5" />
-      },
-      {
-        title: 'Data Throughput',
-        description: '40% faster processing',
-        icon: <HardDrive className="w-5 h-5 text-orange-500 mt-0.5" />
-      },
-      {
-        title: 'Query Optimization',
-        description: 'Added indexes and optimized joins',
-        icon: <Database className="w-5 h-5 text-yellow-500 mt-0.5" />
-      },
-      {
-        title: 'SQL Optimization',
-        description: 'Replaced data steps with PROC SQL',
-        icon: <Database className="w-5 h-5 text-yellow-500 mt-0.5" />
-      },
-      {
-        title: 'Scalability',
-        description: 'Now handles 10x larger datasets',
-        icon: <TrendingUp className="w-5 h-5 text-red-500 mt-0.5" />
-      }
-    ],
-    mediumPriorityDetails: [
-      'CPU Utilization optimized',
-      'Data Step Efficiency improved',
-      'I/O Operations reduced',
-      'WHERE vs IF optimized',
-      'Error Handling added',
-      'Macro Efficiency improved',
-      'Proc Efficiency enhanced',
-      'Reporting Latency reduced',
-      'SAS Memory optimized'
-    ],
-    totalHighPrioritySavings: '$120/mo saved',
-    totalMediumPrioritySavings: '$80/mo saved'
+    highPriorityDetails: optimizationResult.detailed_changes?.map(change => ({
+      title: change.metric ?? 'NA',
+      description: change.improvement !== 'N/A' ? (change.improvement ?? 'NA') : (change.issue ?? 'NA'),
+      icon: <Activity className="w-5 h-5 text-blue-500 mt-0.5" />
+    })) ?? [],
+    mediumPriorityDetails: (optimizationResult.future_optimization_suggestions ?? []).map(suggestion => ({
+      title: suggestion,
+      description: '',
+      icon: <Activity className="w-5 h-5 text-orange-400/80 mt-0.5" />
+    })),
+    resourceSavings: optimizationResult.resource_savings ?? 'NA'
   };
 
   return (
     <div className="space-y-8">
+
+      
+
       <PerformanceAnalysis
         scores={optimizationResult.optimized_code_scores.scores}
         overall_score={optimizationResult.optimized_code_scores.overall_score}
       />
 
-      <CodeQualityAnalysis />
+      <FlowchartComparison 
+        originalFlowchart={optimizationResult.original_code_flowchart}
+        optimizedFlowchart={optimizationResult.optimized_code_flowchart}
+      />
 
-      <ROIAnalysis />
+      <CodeQualityAnalysis 
+        scores={optimizationResult.optimized_code_scores}
+        metricsData={metricsData}
+      />
 
-      <FlowchartComparison />
+      <ROIAnalysis 
+        resourceSavings={optimizationResult.resource_savings}
+        improvementPercentages={optimizationResult.improvement_percentages}
+      />
 
-      <ExecutiveSummary />
-      <OptimizationDetails />
+      <IssuesResolvedTable 
+        issuesResolved={issuesResolved}
+      />
 
+      
 
-      <NextSteps />
+      <ExecutiveSummary 
+        metricsData={metricsData}
+      />
+
+      <OptimizationDetails 
+        detailsData={optimizationDetailsData}
+      />
+
+      
+
+      <NextSteps 
+        suggestions={optimizationResult.future_optimization_suggestions}
+      />
     </div>
   );
 };

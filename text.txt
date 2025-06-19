@@ -1,0 +1,60 @@
+Beyond the three you’ve called out (navigation “lock-in,” result persistence, and hook-vs-prop data flow), here are some additional pain points lurking in these components and layouts:
+
+---
+
+## 1. **Tight coupling of navigation to side-effects**
+
+* **Multiple `useEffect → navigate(...)` chains**
+  Each result type (analyze, optimize, document, convert) fires its own effect, so if two results ever overlap you could trigger back-to-back navigations (race conditions).
+* **Hard to “go back”**
+  You’re always pushing new entries; better might be a single results route with parameterized tabs to let the user switch without history bloat.
+* **No cleanup or abort**
+  If the user navigates away mid-request, these effects still fire. You’ll want to cancel pending requests or guard effects with an “isMounted” ref.
+
+## 2. **Repetitive, unabstracted UI blocks**
+
+* **ActionButtons**
+  Four nearly identical `<button>` definitions. Any styling tweak must be applied in four places.
+* **AnalysisLayout header buttons**
+  Same pattern repeated for optimize/convert/document/go-home. You could map over a config array to DRY this up.
+
+## 3. **Excessive console logging in production**
+
+* Both `ActionButtons` and `CodeEditor` dump debug logs on every state change.
+* You’ll want a debug flag or remove them entirely to avoid performance costs and polluting the console.
+
+## 4. **CodeEditor theme re-definition on every mount**
+
+* You call `loader.init().then(…)` on every render of the editor. That means each mount re-registers the theme rules, leaking memory/tokens.
+* Better: register your custom theme once outside the component (or in module scope), not inside a `useEffect`.
+
+## 5. **Clipboard API without fallback**
+
+* `navigator.clipboard` may not be available (older browsers, insecure contexts). You need a fallback (e.g. textarea + `execCommand`) and error UI if copy fails.
+
+## 6. **Uncontrolled vs. controlled input ambiguity**
+
+* `CodeEditor` uses both `value` and context’s `code`/`documentedCode`. That “fallback chain” can confuse React (controlled → uncontrolled switches), leading to warnings or stale displays.
+* Better: pick one single source of truth for the editor’s content.
+
+## 7. **No loading states in modal flows**
+
+* Opening the Convert modal is decoupled from the actual conversion request. The modal’s “Confirm” action presumably triggers the convert — but there’s no `isConverting` state passed in, so no spinner or “disabled” state inside the modal.
+
+## 8. **Error toast is global and one-off**
+
+* You only render a single toast for the first error. If two different flows error in quick succession, the second error may overwrite or be swallowed before the user sees it.
+
+## 9. **Lack of type safety around `location.state`**
+
+* In `AnalyseLayout`, you do `const { analysisResult } = location.state || {}` without checking. A user hitting the URL directly might see `undefined`. You need runtime guards or route validation.
+
+## 10. **No accessibility (A11y) considerations**
+
+* Buttons lack `aria-label`s (especially icon-only or loading buttons).
+* The error toast has no role (should be `role="alert"`).
+* Modals need focus trapping and `aria-modal`.
+
+---
+
+Each of these will only get more complex to refactor once you split into four contexts—so it’s worth addressing them now as part of your overall rearchitecting.

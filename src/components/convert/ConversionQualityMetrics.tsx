@@ -1,7 +1,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, AlertTriangle } from 'lucide-react';
-import { useCode } from '@/context/CodeContext';
+import { useCode } from '@/hooks/use-code';
 import type { ConversionQuality } from '@/types/api';
 
 interface ConversionQualityMetricsProps {

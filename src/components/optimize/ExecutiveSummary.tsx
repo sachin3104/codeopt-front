@@ -1,60 +1,67 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useCode } from '@/context/CodeContext';
+import { useOptimize } from '@/hooks/use-optimize';
 import { 
   CheckCircle, 
   Zap, 
   DollarSign, 
   Calendar 
 } from 'lucide-react';
+import { type MetricsData } from '@/types/metrics';
 
-const ExecutiveSummary: React.FC = () => {
-  const { optimizationResult } = useCode();
+interface ExecutiveSummaryProps {
+  metricsData: MetricsData;
+}
+
+const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({
+  metricsData
+}) => {
+  const { result: optimizationResult } = useOptimize();
 
   if (!optimizationResult) {
     return null;
   }
 
-  // Calculate total issues resolved
-  const totalIssues = optimizationResult.detailed_changes?.length || 0;
-  
-  // Calculate performance gain from execution time improvement
-  const performanceGain = Math.round(
-    Number(optimizationResult.metrics.executionTime.improvement) * 100
-  );
+  // Use backend values directly, fallback to 'NA' if not present
+  const totalIssues = Array.isArray(optimizationResult.detailed_changes)
+    ? optimizationResult.detailed_changes.length
+    : 'NA';
 
-  // Calculate monthly savings
-  const monthlySavings = Math.round(
-    (Number(optimizationResult.metrics.executionTime.improvement) +
-    Number(optimizationResult.metrics.memoryUsage.improvement) +
-    Number(optimizationResult.metrics.codeComplexity.improvement)) * 100
-  );
+  const performanceGain =
+    optimizationResult.improvement_percentages?.execution_time ?? 'NA';
 
-  // Calculate ROI timeline (assuming $200 monthly savings)
-  const roiTimeline = (200 / monthlySavings).toFixed(1);
+  const monthlySavings =
+    optimizationResult.resource_savings?.monthly_server_cost_savings !== undefined
+      ? `$${optimizationResult.resource_savings.monthly_server_cost_savings}`
+      : 'NA';
+
+  const roiTimeline =
+    optimizationResult.resource_savings?.annual_roi !== undefined
+      ? `${optimizationResult.resource_savings.annual_roi}%`
+      : 'NA';
 
   const summaryMetrics = [
     {
-      value: `${totalIssues}/${totalIssues}`,
+      value: totalIssues !== 'NA' ? `${totalIssues}` : 'NA',
       label: 'Issues Resolved',
       icon: <CheckCircle className="w-5 h-5 text-emerald-400/80" />,
       color: 'text-emerald-400/90'
     },
     {
-      value: `${performanceGain}%`,
+      value: performanceGain !== 'NA' ? `${performanceGain}%` : 'NA',
       label: 'Performance Gain',
       icon: <Zap className="w-5 h-5 text-blue-400/80" />,
       color: 'text-blue-400/90'
     },
     {
-      value: `$${monthlySavings}`,
+      value: monthlySavings,
       label: 'Monthly Savings',
       icon: <DollarSign className="w-5 h-5 text-violet-400/80" />,
       color: 'text-violet-400/90'
     },
     {
-      value: `${roiTimeline}mo`,
-      label: 'ROI Timeline',
+      value: roiTimeline,
+      label: 'Annual ROI',
       icon: <Calendar className="w-5 h-5 text-orange-400/80" />,
       color: 'text-orange-400/90'
     }
@@ -67,13 +74,6 @@ const ExecutiveSummary: React.FC = () => {
       </CardHeader>
       <CardContent>
         <div className="space-y-6">
-          <p className="text-white/80">
-            The optimization process successfully addressed all {totalIssues} issues identified in the code analysis, 
-            resulting in a {performanceGain}% overall improvement in code quality. The optimized code runs {performanceGain}% faster 
-            while using {Math.round(Number(optimizationResult.metrics.memoryUsage.improvement) * 100)}% less memory, 
-            providing significant cost savings and improved reliability.
-          </p>
-
           <div className="grid grid-cols-4 gap-6">
             {summaryMetrics.map((metric, index) => (
               <div 

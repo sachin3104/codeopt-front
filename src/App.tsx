@@ -14,6 +14,10 @@ import { CodeProvider } from '@/context/CodeContext';
 
 // Routes
 import AppRoutes from '@/routes';
+import { AnalyzeProvider } from './context/AnalyzeContext';
+import { OptimizeProvider } from './context/OptimizeContext';
+import { DocumentProvider } from './context/DocumentContext';
+import { ConvertProvider } from './context/ConvertContext';
 
 const queryClient = new QueryClient();
 
@@ -22,11 +26,19 @@ const App: React.FC = () => (
     <BrowserRouter>
       <AppProvider>
         <CodeProvider>
-          <TooltipProvider>
-            <Toaster />
-            <Sonner />
-            <AppRoutes />
-          </TooltipProvider>
+          <AnalyzeProvider>
+            <OptimizeProvider>
+              <ConvertProvider>
+                <DocumentProvider>
+                  <TooltipProvider>
+                    <Toaster />
+                    <Sonner />
+                    <AppRoutes />
+                  </TooltipProvider>
+                </DocumentProvider>
+              </ConvertProvider>
+            </OptimizeProvider>
+          </AnalyzeProvider>
         </CodeProvider>
       </AppProvider>
     </BrowserRouter>

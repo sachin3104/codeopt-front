@@ -1,48 +1,41 @@
 // src/api/client.ts
-import axios from 'axios';
+import axios from 'axios'
+// import { logoutAndRedirect } from '@/services/auth'
+// import { showError } from '@/services/ui'
 
-// Ensure you have a `.env` at your project root with:
-// VITE_API_URL=http://localhost:5000
+
+const BASE = (import.meta.env.VITE_API_URL as string || '').replace(/\/+$/, '')
+if (!BASE) {
+  throw new Error('VITE_API_URL environment variable must be defined')
+}
 
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL as string,
-  withCredentials: true, // Send/receive HttpOnly cookies
+  baseURL: BASE,
+  timeout: 480_000,      // 8 minutes = 8 * 60 * 1000 ms
+  withCredentials: true, 
   headers: {
     'Content-Type': 'application/json',
   },
-});
+})
 
-// Request interceptor - can be used for adding auth headers if needed
-api.interceptors.request.use(
-  (config) => {
-    // You can add any request modifications here if needed
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
-);
 
-// Response interceptor - handle common response scenarios
 api.interceptors.response.use(
-  (response) => {
-    return response;
-  },
-  (error) => {
-    // Handle common error scenarios
-    if (error.response?.status === 401) {
-      // Unauthorized - could redirect to login or handle globally
-      console.warn('Unauthorized request:', error.response.data?.message);
-    } else if (error.response?.status === 403) {
-      // Forbidden
-      console.warn('Forbidden request:', error.response.data?.message);
-    } else if (error.response?.status >= 500) {
-      // Server errors
-      console.error('Server error:', error.response.data?.message);
-    }
-    
-    return Promise.reject(error);
-  }
-);
+  response => response,
+  error => {
+    const status = error.response?.status
 
-export default api;
+    if (status === 403) {
+      // TODO: once UI service exists, call showError(...)
+      // e.g. showError('Access denied...')
+      alert('Access denied: you do not have permission to perform this action.')
+    } else if (status === 404) {
+      alert('Requested resource not found.')
+    } else if (status >= 500) {
+      alert('Server error occurred. Please try again later.')
+    }
+
+    return Promise.reject(error)
+  }
+)
+
+export default api

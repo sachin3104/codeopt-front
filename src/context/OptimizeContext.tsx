@@ -1,0 +1,74 @@
+// src/context/OptimizeContext.tsx
+import React, {
+    createContext,
+    useContext,
+    useState,
+    useEffect,
+    ReactNode
+  } from 'react'
+  import { optimizeCode } from '@/api/service'
+  import { useCode } from '@/hooks/use-code'
+  import type { OptimizationResult } from '@/types/api'
+  
+  export interface OptimizeContextType {
+    isLoading: boolean
+    result: OptimizationResult | null
+    error: string | null
+    run: () => Promise<void>
+    clear: () => void
+    initialized: boolean
+  }
+  
+   export const OptimizeContext = createContext<OptimizeContextType | undefined>(undefined)
+  
+  export const OptimizeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+    const { code } = useCode()
+    const [isLoading, setLoading] = useState(false)
+    const [result, setResult]     = useState<OptimizationResult | null>(null)
+    const [error, setError]       = useState<string | null>(null)
+    const [initialized, setInitialized] = useState(false)
+  
+    useEffect(() => {
+      const saved = sessionStorage.getItem('optimizationResult')
+      if (saved) {
+        setResult(JSON.parse(saved))
+      }
+      setInitialized(true)
+    }, [])
+  
+    useEffect(() => {
+      if (result) sessionStorage.setItem('optimizationResult', JSON.stringify(result))
+      else        sessionStorage.removeItem('optimizationResult')
+    }, [result])
+  
+    const run = async () => {
+      if (!code) {
+        setError('Please enter code to optimize.')
+        return
+      }
+      setLoading(true)
+      setError(null)
+      try {
+        const data = await optimizeCode(code)
+        setResult(data)
+      } catch (e: any) {
+        setError(e.message || 'Optimization failed.')
+      } finally {
+        setLoading(false)
+      }
+    }
+  
+    const clear = () => {
+      setResult(null)
+      setError(null)
+    }
+  
+    return (
+      <OptimizeContext.Provider value={{ isLoading, result, error, run, clear, initialized }}>
+        {children}
+      </OptimizeContext.Provider>
+    )
+  }
+  
+  
+  

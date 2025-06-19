@@ -1,5 +1,5 @@
 import React from 'react';
-import { useCode } from '@/context/CodeContext';
+import { useConvert } from '@/hooks/use-convert';
 import ConversionQualityMetrics from './ConversionQualityMetrics';
 import ConversionAdvantages from './ConversionAdvantages';
 import EstimatedBenefitsGrid from './EstimatedBenefitsGrid';
@@ -7,7 +7,7 @@ import ConversionDetails from './ConversionDetails';
 import ConversionNotes from './ConversionNotes';
 
 const ConvertTabs: React.FC = () => {
-  const { convertedCode } = useCode();
+  const { result: convertedCode } = useConvert();
 
   if (!convertedCode) {
     return null;

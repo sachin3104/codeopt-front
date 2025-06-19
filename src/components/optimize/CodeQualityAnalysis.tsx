@@ -1,16 +1,26 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Code2, Zap, Eye, TestTube2 } from 'lucide-react';
-import { useCode } from '@/context/CodeContext';
+import { useOptimize } from '@/hooks/use-optimize';
+import { type OptimizedCodeScores } from '@/types/api';
+import { type MetricsData } from '@/types/metrics';
 
-const CodeQualityAnalysis: React.FC = () => {
-  const { optimizationResult } = useCode();
+interface CodeQualityAnalysisProps {
+  scores: OptimizedCodeScores;
+  metricsData: MetricsData;
+}
+
+const CodeQualityAnalysis: React.FC<CodeQualityAnalysisProps> = ({
+  scores,
+  metricsData
+}) => {
+  const { result: optimizationResult } = useOptimize();
 
   if (!optimizationResult) {
     return null;
   }
 
-  const { scores } = optimizationResult.optimized_code_scores;
+  const { scores: optimizedScores } = optimizationResult.optimized_code_scores;
   const overallScore = optimizationResult.optimized_code_scores.overall_score;
 
   // Calculate before scores based on improvement percentages
@@ -23,37 +33,37 @@ const CodeQualityAnalysis: React.FC = () => {
       name: 'Maintainability',
       icon: Code2,
       color: 'bg-blue-400/80',
-      before: calculateBeforeScore(scores.maintainability.score, 70),
-      after: scores.maintainability.score,
-      improvement: 70,
-      costSavings: Math.round(70 * 0.5) * 10
+      before: typeof scores.scores.maintainability.score === 'number' ? calculateBeforeScore(scores.scores.maintainability.score, 70) : 'NA',
+      after: typeof scores.scores.maintainability.score === 'number' ? scores.scores.maintainability.score : 'NA',
+      improvement: 'NA',
+      costSavings: 'NA'
     },
     {
       name: 'Performance',
       icon: Zap,
       color: 'bg-emerald-400/80',
-      before: calculateBeforeScore(scores.performance_efficiency.score, 31),
-      after: scores.performance_efficiency.score,
-      improvement: 31,
-      costSavings: Math.round(31 * 0.4) * 10
+      before: typeof scores.scores.performance_efficiency.score === 'number' ? calculateBeforeScore(scores.scores.performance_efficiency.score, 31) : 'NA',
+      after: typeof scores.scores.performance_efficiency.score === 'number' ? scores.scores.performance_efficiency.score : 'NA',
+      improvement: 'NA',
+      costSavings: 'NA'
     },
     {
       name: 'Readability',
       icon: Eye,
       color: 'bg-violet-400/80',
-      before: calculateBeforeScore(scores.readability.score, 35),
-      after: scores.readability.score,
-      improvement: 35,
-      costSavings: Math.round(35 * 0.3) * 10
+      before: typeof scores.scores.readability.score === 'number' ? calculateBeforeScore(scores.scores.readability.score, 35) : 'NA',
+      after: typeof scores.scores.readability.score === 'number' ? scores.scores.readability.score : 'NA',
+      improvement: 'NA',
+      costSavings: 'NA'
     },
     {
       name: 'Test Coverage',
       icon: TestTube2,
       color: 'bg-amber-400/80',
-      before: calculateBeforeScore(scores.test_coverage.score, 117),
-      after: scores.test_coverage.score,
-      improvement: 117,
-      costSavings: Math.round(117 * 0.6) * 10
+      before: typeof scores.scores.test_coverage.score === 'number' ? calculateBeforeScore(scores.scores.test_coverage.score, 117) : 'NA',
+      after: typeof scores.scores.test_coverage.score === 'number' ? scores.scores.test_coverage.score : 'NA',
+      improvement: 'NA',
+      costSavings: 'NA'
     }
   ];
 
@@ -92,34 +102,32 @@ const CodeQualityAnalysis: React.FC = () => {
             </thead>
             <tbody>
               {qualityMetrics.map((metric, index) => {
-                const beforeLabel = getScoreLabel(metric.before);
-                const afterLabel = getScoreLabel(metric.after);
+                const beforeLabel = typeof metric.before === 'number' ? getScoreLabel(metric.before) : { text: 'N/A', bg: 'bg-gray-100/20', textColor: 'text-gray-400' };
+                const afterLabel = typeof metric.after === 'number' ? getScoreLabel(metric.after) : { text: 'N/A', bg: 'bg-gray-100/20', textColor: 'text-gray-400' };
                 
                 return (
                   <tr key={index} className="border-t border-white/10">
-                    <td className="py-2">
+                    <td className="py-3">
                       <div className="flex items-center">
                         <div className={`w-2 h-2 ${metric.color} rounded-full mr-2`}></div>
-                        <span className="text-white/90">{metric.name}</span>
+                        <span className="text-white/90 font-medium">{metric.name}</span>
                       </div>
                     </td>
-                    <td className="text-center py-2">
-                      <span className={beforeLabel.textColor}>{metric.before.toFixed(1)}/10</span>
-                      <span className={`ml-1 px-2 py-0.5 ${beforeLabel.bg} ${beforeLabel.textColor} text-xs rounded`}>
-                        {beforeLabel.text}
-                      </span>
+                    <td className="text-center py-3 align-middle">
+                      <div className="flex flex-col items-center justify-center gap-1">
+                        <span className={`text-lg font-semibold ${beforeLabel.textColor}`}>{typeof metric.before === 'number' ? metric.before.toFixed(1) + '/10' : 'NA'}</span>
+                      </div>
                     </td>
-                    <td className="text-center py-2">
-                      <span className={afterLabel.textColor}>{metric.after.toFixed(1)}/10</span>
-                      <span className={`ml-1 px-2 py-0.5 ${afterLabel.bg} ${afterLabel.textColor} text-xs rounded`}>
-                        {afterLabel.text}
-                      </span>
+                    <td className="text-center py-3 align-middle">
+                      <div className="flex flex-col items-center justify-center gap-1">
+                        <span className={`text-lg font-semibold ${afterLabel.textColor}`}>{typeof metric.after === 'number' ? metric.after.toFixed(1) + '/10' : 'NA'}</span>
+                      </div>
                     </td>
-                    <td className="text-center py-2 text-emerald-400/90 font-medium">
-                      +{metric.improvement}%
+                    <td className="text-center py-3 text-emerald-400/90 font-medium align-middle">
+                      +{metric.improvement}
                     </td>
-                    <td className="text-right py-2 text-emerald-400/90 font-medium">
-                      ${metric.costSavings}/mo
+                    <td className="text-right py-3 text-emerald-400/90 font-medium align-middle">
+                      {metric.costSavings !== 'NA' ? `$${metric.costSavings}/mo` : 'NA'}
                     </td>
                   </tr>
                 );

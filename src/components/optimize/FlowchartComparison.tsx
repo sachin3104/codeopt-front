@@ -2,11 +2,19 @@ import React, { useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { GitCompare } from 'lucide-react';
 import FlowchartVisualization from '@/components/common/FlowchartVisualization';
-import { useCode } from '@/context/CodeContext';
-import { type WorkflowData } from '@/types/api';
+import { useOptimize } from '@/hooks/use-optimize';
+import { type WorkflowData, type CodeFlowchart } from '@/types/api';
 
-const FlowchartComparison: React.FC = () => {
-  const { optimizationResult } = useCode();
+interface FlowchartComparisonProps {
+  originalFlowchart: CodeFlowchart;
+  optimizedFlowchart: CodeFlowchart;
+}
+
+const FlowchartComparison: React.FC<FlowchartComparisonProps> = ({
+  originalFlowchart,
+  optimizedFlowchart
+}) => {
+  const { result: optimizationResult } = useOptimize();
 
   useEffect(() => {
     console.log('=== FlowchartComparison Debug ===');

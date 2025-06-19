@@ -1,74 +1,161 @@
-import React, { useState, useEffect } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileCode, FileText, Zap } from 'lucide-react';
-import CodeEditor from '../common/editor/CodeEditor';
-import { useCode } from '@/context/CodeContext';
-import AnalysisResultTabs from './AnalysisResultTabs';
-import AnalysisDetails from './AnalysisDetails';
-import LanguageSelectModal from '../convert/LanguageSelectModal';
+// src/components/analysis/AnalyseLayout.tsx
+import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
+import { ArrowLeft, FileCode, FileText, Zap, AlertTriangle } from 'lucide-react'
+
+import CodeEditor from '../common/editor/CodeEditor'
+import AnalysisDetails from './AnalysisDetails'
+import AnalysisResultTabs from './AnalysisResultTabs'
+import LanguageSelectModal from '../convert/LanguageSelectModal'
+
+import { useCode } from '@/hooks/use-code'
+import { useAnalyze } from '@/hooks/use-analyze'
+import { useOptimize } from '@/hooks/use-optimize'
+import { useConvert } from '@/hooks/use-convert'
+import { useDocument } from '@/hooks/use-document'
 
 const AnalyseLayout: React.FC = () => {
-  const location = useLocation();
-  const navigate = useNavigate();
-  const { code } = useCode();
-  const { analysisResult } = location.state || {};
-  const { 
-    handleOptimize,
-    handleDocument,
-    handleConvert,
-    clearAllState,
-    isOptimizing,
-    isDocumenting,
-    documentedCode,
-    convertedCode,
-    optimizationResult
-  } = useCode();
-  const [showConvertModal, setShowConvertModal] = useState(false);
+  const navigate = useNavigate()
+  const { code } = useCode()
+
+  // --- Analysis context ---
+  const {
+    result: analysisResult,
+    isLoading: isAnalyzing,
+    error: analyzeError,
+    clear: clearAnalyze,
+    run: runAnalyze,
+    initialized
+  } = useAnalyze()
+
+  // --- Optimization context ---
+  const {
+    isLoading: isOptimizing,
+    error: optimizeError,
+    clear: clearOptimize,
+    run: runOptimize
+  } = useOptimize()
+
+  // --- Conversion context ---
+  const {
+    isLoading: isConverting,
+    error: convertError,
+    clear: clearConvert,
+    run: runConvert
+  } = useConvert()
+
+  // --- Documentation context ---
+  const {
+    isLoading: isDocumenting,
+    error: documentError,
+    clear: clearDocument,
+    run: runDocument
+  } = useDocument()
+
+  // Combined error
+  const error = analyzeError || optimizeError || convertError || documentError
+
+  // Convert modal
+  const [showConvertModal, setShowConvertModal] = useState(false)
+
+  // If we landed here without having run analyze yet, kick it off
+  useEffect(() => {
+    if (initialized && !isAnalyzing && !analysisResult && code) {
+      runAnalyze()
+    }
+  }, [initialized, code, isAnalyzing, analysisResult, runAnalyze])
+
+  // Redirect home if not analyzing and still no result
+  useEffect(() => {
+    if (initialized && !isAnalyzing && !analysisResult) {
+      navigate('/', { replace: true })
+    }
+  }, [initialized, isAnalyzing, analysisResult, navigate])
+
+  // Loading state
+  if (isAnalyzing) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4" />
+          <p className="text-white/80">Analyzing your code…</p>
+        </div>
+      </div>
+    )
+  }
+
+  // Error state
+  if (analyzeError) {
+    return (
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
+        <div className="text-center max-w-md">
+          <AlertTriangle className="h-12 w-12 text-red-400 mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-white mb-2">Analysis Failed</h3>
+          <p className="text-gray-400 mb-4">{analyzeError}</p>
+          <button
+            onClick={() => navigate('/', { replace: true })}
+            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
+          >
+            Back to Home
+          </button>
+        </div>
+      </div>
+    )
+  }
+
+  // Shouldn't happen—guard above handles it
+  if (!analysisResult) {
+    return null
+  }
+
+  // Handlers
+  const handleOptimize = async () => {
+    try {
+      await runOptimize()
+      navigate('/results/optimize')
+    } catch {/* error will show via optimizeError */}
+  }
+
+  const handleConvert = async (from: string, to: string) => {
+    try {
+      await runConvert(from, to)
+      navigate('/results/convert')
+    } catch {/* error will show via convertError */}
+  }
+
+  const handleDocument = async () => {
+    try {
+      await runDocument()
+      navigate('/results/document')
+    } catch {/* error will show via documentError */}
+  }
 
   const handleGoHome = () => {
-    clearAllState();
-    navigate('/', { replace: true });
-  };
-
-  // Effect to navigate to document page when documentation is ready
-  useEffect(() => {
-    if (documentedCode && !isDocumenting) {
-      navigate('/results/document', { state: { documentedCode } });
-    }
-  }, [documentedCode, isDocumenting, navigate]);
-
-  // Effect to navigate to convert page when conversion is complete
-  useEffect(() => {
-    if (convertedCode) {
-      navigate('/results/convert', { state: { convertedCode } });
-    }
-  }, [convertedCode, navigate]);
-
-  // Effect to navigate to optimize page when optimization is complete
-  useEffect(() => {
-    if (optimizationResult && !isOptimizing) {
-      navigate('/results/optimize', { state: { optimizationResult, originalCode: code } });
-    }
-  }, [optimizationResult, isOptimizing, navigate, code]);
+    clearAnalyze()
+    clearOptimize()
+    clearConvert()
+    clearDocument()
+    navigate('/', { replace: true })
+  }
 
   return (
     <div className="space-y-6 h-full flex flex-col">
-      {/* Header with Action Buttons */}
+      {/* Header */}
       <div className="flex items-center justify-between w-full">
         <h2 className="text-xl font-semibold text-white">Code Analysis Results</h2>
         <div className="flex items-center gap-4">
           <button
             onClick={handleOptimize}
             disabled={isOptimizing}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white disabled:opacity-50"
           >
             <Zap className="w-4 h-4" />
-            <span>{isOptimizing ? 'Optimizing...' : 'Optimize'}</span>
+            <span>{isOptimizing ? 'Optimizing…' : 'Optimize'}</span>
           </button>
 
           <button
             onClick={() => setShowConvertModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
           >
             <FileCode className="w-4 h-4" />
             <span>Convert</span>
@@ -77,15 +164,15 @@ const AnalyseLayout: React.FC = () => {
           <button
             onClick={handleDocument}
             disabled={isDocumenting}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white disabled:opacity-50"
           >
             <FileText className="w-4 h-4" />
-            <span>{isDocumenting ? 'Documenting...' : 'Document'}</span>
+            <span>{isDocumenting ? 'Documenting…' : 'Document'}</span>
           </button>
 
-          <button 
+          <button
             onClick={handleGoHome}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
+            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
           >
             <ArrowLeft className="w-4 h-4" />
             <span>Back to Home</span>
@@ -93,33 +180,35 @@ const AnalyseLayout: React.FC = () => {
         </div>
       </div>
 
-      {/* Main content area - Two column layout */}
+      {/* Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
-        {/* Left side - Code Editor */}
-        <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 rounded-3xl border border-white/20 shadow-2xl p-6 flex flex-col h-full">
+        <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 rounded-3xl border border-white/20 shadow-2xl p-6 flex flex-col">
           <h2 className="text-lg font-semibold text-white/90 mb-4">Original Code</h2>
           <div className="flex-1 min-h-0">
-            <CodeEditor
-              value={code}
-              isReadOnly={true}
-              height="100%"
-            />
+            <CodeEditor value={code} isReadOnly height="100%" />
           </div>
         </div>
-
-        {/* Right side - Analysis Details */}
         <AnalysisDetails analysisResult={analysisResult} />
       </div>
 
-      {/* Bottom section - Analysis Results Tabs */}
+      {/* Tabs */}
       <AnalysisResultTabs />
 
-      <LanguageSelectModal 
-        isOpen={showConvertModal} 
-        onClose={() => setShowConvertModal(false)} 
+      {/* Convert Modal */}
+      <LanguageSelectModal
+        isOpen={showConvertModal}
+        onClose={() => setShowConvertModal(false)}
+        onConvert={handleConvert}
       />
-    </div>
-  );
-};
 
-export default AnalyseLayout;
+      {/* Combined toast */}
+      {error && (
+        <div className="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded shadow-lg">
+          <span>{error}</span>
+        </div>
+      )}
+    </div>
+  )
+}
+
+export default AnalyseLayout

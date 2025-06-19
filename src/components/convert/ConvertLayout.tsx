@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { useCode } from '@/context/CodeContext';
+import { useConvert } from '@/hooks/use-convert';
 import { useNavigate } from 'react-router-dom';
 import SyncCodeEditors from '../common/editor/SyncCodeEditors';
 import DocumentButton from './DocumentConvertedButton';
@@ -7,26 +7,39 @@ import { ArrowLeft } from 'lucide-react';
 import ConvertTabs from './ConvertTabs';
 
 const ConvertLayout: React.FC = () => {
-  const { code, convertedCode, isConverting, clearAllState } = useCode();
+  const {
+    result: convertedCode,
+    isLoading: isConverting,
+    error: convertError,
+    clear: clearConvert,
+    run: runConvert,
+    initialized
+  } = useConvert();
   const navigate = useNavigate();
 
+  // Redirect home if not converting and still no result
+  useEffect(() => {
+    if (initialized && !isConverting && !convertedCode) {
+      navigate('/', { replace: true });
+    }
+  }, [initialized, isConverting, convertedCode, navigate]);
+
   const handleGoHome = () => {
-    // Clear all state before navigation
-    clearAllState();
-    // Navigate to home with replace to prevent back navigation
+    clearConvert();
     navigate('/', { replace: true });
   };
 
   // Debug log for component state
   useEffect(() => {
     console.log('ConvertLayout mounted/updated:', {
-      hasCode: !!code,
-      hasConvertedCode: !!convertedCode,
+      hasCode: !!convertedCode,
       isConverting,
-      convertedCodeValue: convertedCode
+      convertedCodeValue: convertedCode,
+      convertError
     });
-  }, [code, convertedCode, isConverting]);
+  }, [convertedCode, isConverting, convertError]);
 
+  // Loading state
   if (isConverting) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
@@ -38,14 +51,30 @@ const ConvertLayout: React.FC = () => {
     );
   }
 
-  if (!convertedCode) {
+  // Error state
+  if (convertError) {
     return (
       <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <div className="text-center">
-          <p className="text-white/80">No converted code available. Use the Convert button to convert your code.</p>
+        <div className="text-center max-w-md">
+          <div className="h-12 w-12 text-red-400 mx-auto mb-4">
+            {/* You can use an error icon here if desired */}
+          </div>
+          <h3 className="text-lg font-medium text-white mb-2">Conversion Failed</h3>
+          <p className="text-gray-400 mb-4">{convertError}</p>
+          <button
+            onClick={handleGoHome}
+            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
+          >
+            Back to Home
+          </button>
         </div>
       </div>
     );
+  }
+
+  // Shouldn't happen—guard above handles it
+  if (!convertedCode) {
+    return null;
   }
 
   return (
@@ -68,18 +97,23 @@ const ConvertLayout: React.FC = () => {
       {/* Code Editors Section - Full Width */}
       <div className="w-full h-[600px] overflow-hidden">
         <SyncCodeEditors
-          originalCode={code}
+          originalCode={convertedCode.original_code}
           convertedCode={convertedCode.converted_code}
           isReadOnly={true}
         />
       </div>
 
-      
-
       {/* Convert Tabs Section */}
       <div className="mt-8">
         <ConvertTabs />
       </div>
+
+      {/* Error toast (if needed) */}
+      {convertError && (
+        <div className="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded shadow-lg">
+          <span>{convertError}</span>
+        </div>
+      )}
     </div>
   );
 };

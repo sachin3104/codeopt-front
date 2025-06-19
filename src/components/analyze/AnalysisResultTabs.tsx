@@ -1,8 +1,8 @@
 import React from 'react';
-import { AlertTriangle, Info } from 'lucide-react';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import {  Info } from 'lucide-react';
+import { Card,  CardContent } from "@/components/ui/card";
 import FunctionalityAnalysis from './FunctionalityAnalysis';
-import { useCode } from '@/context/CodeContext';
+import { useAnalyze } from '@/hooks/use-analyze';
 import {
   Table,
   TableBody,
@@ -12,41 +12,73 @@ import {
   TableRow,
 } from "@/components/ui/table";
 
-interface Issue {
-  title: string;
-  location?: string;
-  reason?: string;
-  suggestion?: string;
-  impact?: string;
-}
 
-interface Category {
+
+// Local type for the new API/context shape
+interface AnalysisIssue {
+  title: string;
+  location: string;
+  reason: string;
+  suggestion: string;
+}
+interface AnalysisCategory {
   name: string;
   hasIssues: boolean;
-  issues?: Issue[];
+  issues: AnalysisIssue[];
+}
+interface AnalysisResultWithCategories {
+  categories: AnalysisCategory[];
+  functionalityAnalysis?: string | null;
+}
+
+// Type guard to check if result matches the new shape
+function isAnalysisResultWithCategories(result: any): result is AnalysisResultWithCategories {
+  return (
+    result &&
+    Array.isArray(result.categories) &&
+    (typeof result.functionalityAnalysis === 'string' || result.functionalityAnalysis === null || result.functionalityAnalysis === undefined)
+  );
 }
 
 const AnalysisResultTabs: React.FC = () => {
-  const { analysisResult } = useCode();
+  const { result } = useAnalyze();
 
-  // Safely get categories with fallback
-  const categories: Category[] = analysisResult?.categories || [];
+  // Normalize backend data to expected format
+  let categories: AnalysisCategory[] = [];
+  let functionalityAnalysis: string | null = null;
+
+  if (result && result.analysis) {
+    categories = Object.entries(result.analysis).map(([key, value]: [string, any]) => ({
+      name: value.name || key,
+      hasIssues: Array.isArray(value.issues) && value.issues.some((issue: any) => issue.issue && issue.issue !== 'No significant data throughput issues' && issue.issue !== 'No machine learning models present' && issue.issue !== 'No database queries present' && issue.issue !== 'No reporting or visualization present'),
+      issues: (value.issues || []).map((issue: any) => ({
+        title: issue.issue,
+        location: issue.code_location,
+        reason: issue.reason,
+        suggestion: issue.suggestion,
+      })),
+    }));
+  }
+  if (result && typeof result.functionality_analysis === 'string') {
+    functionalityAnalysis = result.functionality_analysis;
+  }
+
   const categoriesWithIssues = categories.filter(cat => cat.hasIssues);
   const totalIssues = categoriesWithIssues.reduce((total, cat) => total + (cat.issues?.length || 0), 0);
 
-  // Function to determine priority based on issue impact
-  const getPriority = (impact: string) => {
-    if (impact?.toLowerCase().includes('high')) return 'High';
-    if (impact?.toLowerCase().includes('medium')) return 'Medium';
+  // Function to determine priority based on issue reason
+  const getPriority = (reason: string) => {
+    if (reason?.toLowerCase().includes('high')) return 'High';
+    if (reason?.toLowerCase().includes('medium')) return 'Medium';
     return 'Low';
   };
 
   // Get all issues from all categories
-  const allIssues = categoriesWithIssues.flatMap(category => 
+  const allIssues = categoriesWithIssues.flatMap(category =>
     (category.issues || []).map(issue => ({
       ...issue,
       category: category.name,
-      priority: getPriority(issue.impact || '')
+      priority: getPriority(issue.reason || '')
     }))
   );
 
@@ -82,38 +114,43 @@ const AnalysisResultTabs: React.FC = () => {
                       <TableHead className="w-[100px]">Priority</TableHead>
                       <TableHead>Category</TableHead>
                       <TableHead>Issue Description</TableHead>
-                      <TableHead>Impact</TableHead>
+                      <TableHead>Location</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {allIssues.map((issue, index) => (
-                      <TableRow key={index}>
-                        <TableCell>
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                            issue.priority === 'High' 
-                              ? 'bg-red-500/20 text-red-400' 
-                              : issue.priority === 'Medium'
-                              ? 'bg-yellow-500/20 text-yellow-400'
-                              : 'bg-green-500/20 text-green-400'
-                          }`}>
-                            {issue.priority}
-                          </span>
-                        </TableCell>
-                        <TableCell className="font-medium">{issue.category}</TableCell>
-                        <TableCell>
-                          <div className="space-y-1">
-                            <p className="font-medium">{issue.title}</p>
-                            {issue.reason && (
-                              <p className="text-sm text-gray-400">{issue.reason}</p>
-                            )}
-                            {issue.suggestion && (
-                              <p className="text-sm text-primary">{issue.suggestion}</p>
-                            )}
-                          </div>
-                        </TableCell>
-                        <TableCell>{issue.impact || 'Not specified'}</TableCell>
-                      </TableRow>
-                    ))}
+                    {categoriesWithIssues.flatMap(category =>
+                      (category.issues || []).map((issue, index) => {
+                        const priority = getPriority(issue.reason || '');
+                        return (
+                          <TableRow key={category.name + '-' + index}>
+                            <TableCell>
+                              <span className={`px-2 py-1 rounded-full text-xs font-medium ${
+                                priority === 'High' 
+                                  ? 'bg-red-500/20 text-red-400' 
+                                  : priority === 'Medium'
+                                  ? 'bg-yellow-500/20 text-yellow-400'
+                                  : 'bg-green-500/20 text-green-400'
+                              }`}>
+                                {priority}
+                              </span>
+                            </TableCell>
+                            <TableCell className="font-medium">{category.name}</TableCell>
+                            <TableCell>
+                              <div className="space-y-1">
+                                <p className="font-medium">{issue.title}</p>
+                                {issue.reason && (
+                                  <p className="text-sm text-gray-400">{issue.reason}</p>
+                                )}
+                                {issue.suggestion && (
+                                  <p className="text-sm text-primary">{issue.suggestion}</p>
+                                )}
+                              </div>
+                            </TableCell>
+                            <TableCell>{issue.location || 'Not specified'}</TableCell>
+                          </TableRow>
+                        );
+                      })
+                    )}
                   </TableBody>
                 </Table>
               </CardContent>
@@ -124,8 +161,8 @@ const AnalysisResultTabs: React.FC = () => {
         {/* Functionality Analysis Section */}
         <h2 className="text-lg font-medium text-white mb-4">Functionality Analysis</h2>
         <div>
-          {analysisResult?.functionalityAnalysis ? (
-            <FunctionalityAnalysis content={analysisResult.functionalityAnalysis} />
+          {functionalityAnalysis ? (
+            <FunctionalityAnalysis content={functionalityAnalysis} />
           ) : (
             <div className="text-center py-8">
               <Info className="mx-auto h-12 w-12 text-gray-400 mb-4" />
