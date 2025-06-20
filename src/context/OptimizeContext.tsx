@@ -9,6 +9,7 @@ import React, {
   import { optimizeCode } from '@/api/service'
   import { useCode } from '@/hooks/use-code'
   import type { OptimizationResult } from '@/types/api'
+  import { useLoading } from '@/context/LoadingContext'
   
   export interface OptimizeContextType {
     isLoading: boolean
@@ -23,6 +24,7 @@ import React, {
   
   export const OptimizeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const { code } = useCode()
+    const { show, hide } = useLoading()
     const [isLoading, setLoading] = useState(false)
     const [result, setResult]     = useState<OptimizationResult | null>(null)
     const [error, setError]       = useState<string | null>(null)
@@ -46,8 +48,9 @@ import React, {
         setError('Please enter code to optimize.')
         return
       }
-      setLoading(true)
       setError(null)
+      setLoading(true)
+      show('optimize')
       try {
         const data = await optimizeCode(code)
         setResult(data)
@@ -55,6 +58,7 @@ import React, {
         setError(e.message || 'Optimization failed.')
       } finally {
         setLoading(false)
+        hide()
       }
     }
   

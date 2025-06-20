@@ -18,6 +18,8 @@ import { AnalyzeProvider } from './context/AnalyzeContext';
 import { OptimizeProvider } from './context/OptimizeContext';
 import { DocumentProvider } from './context/DocumentContext';
 import { ConvertProvider } from './context/ConvertContext';
+import LoadingOverlay from './components/common/LoadingOverlay';
+import { LoadingProvider } from './context/LoadingContext';
 
 const queryClient = new QueryClient();
 
@@ -25,21 +27,24 @@ const App: React.FC = () => (
   <QueryClientProvider client={queryClient}>
     <BrowserRouter>
       <AppProvider>
-        <CodeProvider>
-          <AnalyzeProvider>
-            <OptimizeProvider>
-              <ConvertProvider>
-                <DocumentProvider>
-                  <TooltipProvider>
-                    <Toaster />
-                    <Sonner />
-                    <AppRoutes />
-                  </TooltipProvider>
-                </DocumentProvider>
-              </ConvertProvider>
-            </OptimizeProvider>
-          </AnalyzeProvider>
-        </CodeProvider>
+        <LoadingProvider> 
+          <CodeProvider>
+            <AnalyzeProvider>
+              <OptimizeProvider>
+                <ConvertProvider>
+                  <DocumentProvider>
+                    <TooltipProvider>
+                      <Toaster />
+                      <Sonner />
+                      <AppRoutes />
+                      <LoadingOverlay />
+                    </TooltipProvider>
+                  </DocumentProvider>
+                </ConvertProvider>
+              </OptimizeProvider>
+            </AnalyzeProvider>
+          </CodeProvider>
+        </LoadingProvider>
       </AppProvider>
     </BrowserRouter>
   </QueryClientProvider>

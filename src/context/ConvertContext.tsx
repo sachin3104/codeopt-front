@@ -9,6 +9,7 @@ import React, {
   import { convertCode } from '@/api/service'
   import { useCode } from '@/hooks/use-code'
   import type { ConversionResult } from '@/types/api'
+  import { useLoading } from '@/context/LoadingContext'
   
   export interface ConvertContextType {
     isLoading: boolean
@@ -23,6 +24,7 @@ import React, {
   
   export const ConvertProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const { code } = useCode()
+    const { show, hide } = useLoading()
     const [isLoading, setLoading] = useState(false)
     const [result, setResult]     = useState<ConversionResult | null>(null)
     const [error, setError]       = useState<string | null>(null)
@@ -50,8 +52,9 @@ import React, {
         setError('Please specify source and target languages.')
         return
       }
-      setLoading(true)
       setError(null)
+      setLoading(true)
+      show('convert')
       try {
         const data = await convertCode(code, from, to)
         setResult(data)
@@ -59,6 +62,7 @@ import React, {
         setError(e.message || 'Code conversion failed.')
       } finally {
         setLoading(false)
+        hide()
       }
     }
   

@@ -9,6 +9,7 @@ import React, {
   import { documentCode } from '@/api/service'
   import { useCode } from '@/hooks/use-code'
   import type { DocumentResult } from '@/types/api'
+  import { useLoading } from '@/context/LoadingContext'
   
   export interface DocumentContextType {
     isLoading: boolean
@@ -23,6 +24,7 @@ import React, {
   
   export const DocumentProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const { code } = useCode()
+    const { show, hide } = useLoading()
     const [isLoading, setLoading] = useState(false)
     const [result, setResult]     = useState<DocumentResult | null>(null)
     const [error, setError]       = useState<string | null>(null)
@@ -46,8 +48,9 @@ import React, {
         setError('Please enter code to document.')
         return
       }
-      setLoading(true)
       setError(null)
+      setLoading(true)
+      show('document')
       try {
         const data = await documentCode(code)
         setResult(data)
@@ -55,6 +58,7 @@ import React, {
         setError(e.message || 'Documentation generation failed.')
       } finally {
         setLoading(false)
+        hide()
       }
     }
   

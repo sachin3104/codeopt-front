@@ -9,6 +9,7 @@ import React, {
 import { analyzeCode } from '@/api/service'
 import { useCode }     from '@/hooks/use-code'
 import type { AnalysisResponse } from '@/types/api'
+import { useLoading } from '@/context/LoadingContext'
 
 export interface AnalyzeContextType {
   isLoading: boolean
@@ -19,10 +20,13 @@ export interface AnalyzeContextType {
   initialized: boolean
 }
 
-export const AnalyzeContext = createContext<AnalyzeContextType | undefined>(undefined)
+export const AnalyzeContext = createContext<AnalyzeContextType | undefined>(
+  undefined
+)
 
 export const AnalyzeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { code } = useCode()
+  const { show, hide } = useLoading()
   const [isLoading, setLoading] = useState(false)
   const [result, setResult]     = useState<AnalysisResponse | null>(null)
   const [error, setError]       = useState<string | null>(null)
@@ -56,8 +60,9 @@ export const AnalyzeProvider: React.FC<{ children: ReactNode }> = ({ children })
       return
     }
 
-    setLoading(true)
     setError(null)
+    setLoading(true)
+    show('analyze')
 
     try {
       const data = await analyzeCode(code)
@@ -67,6 +72,7 @@ export const AnalyzeProvider: React.FC<{ children: ReactNode }> = ({ children })
       setResult(null)
     } finally {
       setLoading(false)
+      hide()
     }
   }
 
