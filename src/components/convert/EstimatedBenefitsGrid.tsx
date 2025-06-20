@@ -10,28 +10,28 @@ interface EstimatedBenefitsGridProps {
 const EstimatedBenefitsGrid: React.FC<EstimatedBenefitsGridProps> = ({ benefits }) => {
   const metrics = [
     {
-      value: benefits.processing_speed_improvement,
+      value: benefits?.processing_speed_improvement || 'N/A',
       label: "Faster Processing",
       color: "text-green-400",
       bgColor: "bg-green-400/10",
       icon: <Cpu className="w-5 h-5 text-green-400" />
     },
     {
-      value: benefits.memory_usage_reduction,
+      value: benefits?.memory_usage_reduction || 'N/A',
       label: "Less Memory",
       color: "text-green-400",
       bgColor: "bg-green-400/10",
       icon: <HardDrive className="w-5 h-5 text-green-400" />
     },
     {
-      value: benefits.license_cost_savings,
+      value: benefits?.license_cost_savings || 'N/A',
       label: "License Cost",
       color: "text-blue-400",
       bgColor: "bg-blue-400/10",
       icon: <DollarSign className="w-5 h-5 text-blue-400" />
     },
     {
-      value: benefits.cloud_readiness,
+      value: benefits?.cloud_readiness || 'N/A',
       label: "Cloud Ready",
       color: "text-purple-400",
       bgColor: "bg-purple-400/10",

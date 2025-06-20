@@ -2,6 +2,7 @@ import React, { useRef, useState } from 'react';
 import Editor, { loader, OnMount } from '@monaco-editor/react';
 import { Copy } from 'lucide-react';
 import { useCode } from '@/hooks/use-code';
+// import { useDetectedLanguage } from '@/hooks/use-detected-language';
 
 // 1) Move this to module scope so it only ever runs once
 loader.init().then(monaco => {
@@ -59,6 +60,7 @@ export interface CodeEditorProps {
   height?: string;
   isReadOnly?: boolean;
   onEditorMount?: (editor: any) => void;
+  title?: string;
 }
 
 const CodeEditor: React.FC<CodeEditorProps> = ({
@@ -67,6 +69,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   height = '500px',
   isReadOnly = false,
   onEditorMount,
+  title,
 }) => {
   const editorRef = useRef<any>(null);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -76,6 +79,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
   // If a `value` prop is passed, use it; otherwise the shared `code`
   const displayCode = value !== undefined ? value : code;
+
+  // detect lang on every code change
+  // const detectedLang = useDetectedLanguage(displayCode);
 
   const handleChange = (val?: string) => {
     const newText = val ?? ''
@@ -110,7 +116,23 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       style={{ height }}
     >
       {/* Editor header with copy button */}
-      <div className="flex items-center justify-end p-2 border-b border-white/20">
+      <div className="flex items-center justify-between p-2 border-b border-white/20">
+        {/* show the title on the left, if provided */}
+        <div className="flex-1">
+          {title && (
+            <span className="text-sm font-medium text-white/90">
+              {title}
+            </span>
+          )}
+        </div>
+        {/* show the detected language in center, if any */}
+        <div className="flex-1 flex justify-center">
+          {/* detectedLang && (
+            <span className="text-sm font-medium text-white/80">
+              {detectedLang.toUpperCase()}
+            </span>
+          ) */}
+        </div>
         <button
           onClick={handleCopyCode}
           className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20

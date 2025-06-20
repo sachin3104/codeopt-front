@@ -14,7 +14,7 @@ const plans = [
       "Basic optimization guidance",
       "Email support"
     ],
-    buttonText: "Start Free",
+    buttonText: "Get Started",
     buttonIcon: MoveRight
   },
   {
@@ -29,7 +29,7 @@ const plans = [
       "Interactive workflow visualizations",
       "Priority support"
     ],
-    buttonText: "Buy Now",
+    buttonText: "Subscribe Now",
     buttonIcon: MoveRight
   },
   {
@@ -43,7 +43,7 @@ const plans = [
       "Detailed optimization reports",
       "Priority support"
     ],
-    buttonText: "Buy Now",
+    buttonText: "Upgrade to OptiFlow",
     buttonIcon: MoveRight
   },
   {
@@ -71,7 +71,7 @@ const plans = [
       "Requirements analysis",
       "Integration strategy"
     ],
-    buttonText: "Contact Us",
+    buttonText: "Schedule a Call",
     buttonIcon: PhoneCall
   }
 ];

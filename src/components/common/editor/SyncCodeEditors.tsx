@@ -5,12 +5,16 @@ interface SyncCodeEditorsProps {
   originalCode: string;
   convertedCode: string;
   isReadOnly?: boolean;
+  originalTitle?: string;
+  convertedTitle?: string;
 }
 
 const SyncCodeEditors: React.FC<SyncCodeEditorsProps> = ({
   originalCode,
   convertedCode,
   isReadOnly = true,
+  originalTitle,
+  convertedTitle,
 }) => {
   const leftEditorRef = useRef<any>(null);
   const rightEditorRef = useRef<any>(null);
@@ -53,14 +57,13 @@ const SyncCodeEditors: React.FC<SyncCodeEditorsProps> = ({
   return (
     <div className="grid grid-cols-2 gap-4 h-full">
       <div className="h-full flex flex-col">
-        <div className="mb-2">
-          <h3 className="text-lg font-medium text-white">Original Code</h3>
-        </div>
+        
         <div className="flex-1 min-h-0">
           <CodeEditor
             value={originalCode}
             isReadOnly={isReadOnly}
             height="100%"
+            title={originalTitle}
             onEditorMount={(editor) => {
               leftEditorRef.current = editor;
             }}
@@ -68,14 +71,13 @@ const SyncCodeEditors: React.FC<SyncCodeEditorsProps> = ({
         </div>
       </div>
       <div className="h-full flex flex-col">
-        <div className="mb-2">
-          <h3 className="text-lg font-medium text-white">Converted Code</h3>
-        </div>
+        
         <div className="flex-1 min-h-0">
           <CodeEditor
             value={convertedCode}
             isReadOnly={isReadOnly}
             height="100%"
+            title={convertedTitle}
             onEditorMount={(editor) => {
               rightEditorRef.current = editor;
             }}
