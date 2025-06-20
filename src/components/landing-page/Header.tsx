@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import clsx from "clsx";
+import { Link } from "react-router-dom";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -37,9 +38,12 @@ export default function Header() {
       )}
     >
       <div className="flex items-center justify-between h-8">
-        <div className="text-white text-xl font-bold">
+        <Link 
+          to="/" 
+          className="text-white text-xl font-bold hover:text-blue-200 transition-colors cursor-pointer"
+        >
           optqo
-        </div>
+        </Link>
         
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}

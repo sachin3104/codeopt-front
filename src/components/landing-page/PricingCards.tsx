@@ -3,73 +3,76 @@ import { Check, Minus, MoveRight, PhoneCall } from "lucide-react";
 
 const plans = [
   {
-    name: "Free Plan",
+    name: "optqo Free",
     price: 0,
     period: "forever",
-    description: "Lightweight plan for initial exploration and basic code optimization",
+    description: "Perfect for exploration and small projects.",
     features: [
-      "5 requests/day",
+      "5 AI optimization requests per day",
       "Up to 300 lines per request",
       "Essential code diagnostics",
-      "Basic optimization guidance",
-      "Email support"
+      "Basic optimization insights",
+      "Email-based support"
     ],
     buttonText: "Get Started",
     buttonIcon: MoveRight
   },
   {
-    name: "Beginner Plan",
+    name: "optqo Pro",
     price: 9.99,
     period: "per month",
-    description: "Ideal for analysts and data practitioners regularly improving analytical scripts",
+    description: "For analysts seeking deeper diagnostics and more insights.",
     features: [
-      "50 requests/day",
+      "50 AI optimization requests per day",
       "Up to 800 lines per request",
-      "Comprehensive code diagnostics",
-      "Interactive workflow visualizations",
+      "Comprehensive diagnostics",
+      "Visual workflow mapping",
       "Priority support"
     ],
     buttonText: "Subscribe Now",
     buttonIcon: MoveRight
   },
   {
-    name: "Professional Plan",
+    name: "optqo OptiFlow",
     price: 30,
     period: "per month",
-    description: "Designed for data science professionals optimizing analytical scripts",
+    description: "For professionals focused on ML and analytics.",
     features: [
-      "Unlimited requests/day",
+      "Unlimited AI requests",
       "Up to 1000 lines per request",
-      "Detailed optimization reports",
-      "Priority support"
+      "Refactoring with Optimus",
+      "Real-time  analytics",
+      "Documentation reports with Scribe"
     ],
     buttonText: "Upgrade to OptiFlow",
     buttonIcon: MoveRight
   },
   {
-    name: "Enterprise Plan",
+    name: "optqo Enterprise",
     price: "Custom",
     period: "solution",
-    description: "Perfect for organizations with unique or complex needs",
+    description: "Custom AI solutions for enterprise-scale optimization.",
     features: [
-      "Custom-tailored solutions",
-      "Dedicated consultation team",
-      "Setup and integration support",
-      "Implementation assistance"
+      "Tailored platform with workflows",
+      "Legacy system modernization",
+      "Custom AI models with core agents",
+      "Dedicated consulting team",
+      "Expert-led delivery"
     ],
     buttonText: "Contact Us",
     buttonIcon: PhoneCall
   },
   {
-    name: "Call an Expert",
+    name: "optqo Expert",
     price: 200,
     period: "30 min",
-    description: "Ideal for individual guidance and mentorship",
+    description: "One-on-one mentoring with a senior analytics leader.",
     features: [
-      "One-on-one consultation",
-      "Platform usage guidance",
-      "Requirements analysis",
-      "Integration strategy"
+      "$200 per 30-minute session",
+      "Personalized platform guidance",
+      "Help defining optimization needs",
+      "Toolchain advisory",
+      "Third-party solutions support"
     ],
     buttonText: "Schedule a Call",
     buttonIcon: PhoneCall
@@ -94,17 +97,17 @@ export default function PricingCards() {
             {plans.map((plan, index) => (
               <div key={plan.name} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 flex flex-col">
                 {/* Plan Name and Description */}
-                <div className="min-h-[140px]">
-                  <h3 className="text-2xl font-bold text-white mb-3">{plan.name}</h3>
-                  <p className="text-sm text-white/60">
+                <div className="min-h-[120px]">
+                  <h3 className="text-xl font-bold text-white mb-3 leading-tight">{plan.name}</h3>
+                  <p className="text-sm text-white/60 leading-relaxed">
                     {plan.description}
                   </p>
                 </div>
 
                 {/* Pricing */}
-                <div className="flex flex-col items-start mb-8">
+                <div className="flex flex-col items-start mb-6">
                   <div className="flex items-baseline">
-                    <span className="text-3xl font-bold text-white">
+                    <span className="text-xl font-bold text-white">
                       {typeof plan.price === 'number' ? `$${plan.price}` : plan.price}
                     </span>
                     <span className="text-sm text-white/60 ml-1">/{plan.period}</span>
@@ -112,12 +115,12 @@ export default function PricingCards() {
                 </div>
 
                 {/* Features List */}
-                <div className="flex-1 space-y-6 mb-8">
-                  <div className="space-y-4">
+                <div className="flex-1 space-y-4 mb-6">
+                  <div className="space-y-3">
                     {plan.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-center gap-3">
-                        <Check className="h-5 w-5 text-blue-400 flex-shrink-0" />
-                        <span className="text-sm text-white/80">{feature}</span>
+                      <div key={idx} className="flex items-start gap-3">
+                        <Check className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                        <span className="text-sm text-white/80 leading-relaxed">{feature}</span>
                       </div>
                     ))}
                   </div>

@@ -1,5 +1,6 @@
 import { Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 
 // Custom Discord Icon
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -30,15 +31,15 @@ export default function Footer() {
     <footer className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border-t border-white/20 pb-6 pt-16 lg:pb-8 lg:pt-24">
       <div className="max-w-7xl mx-auto px-4">
         <div className="md:flex md:items-start md:justify-between">
-          <a
-            href="/"
+          <Link
+            to="/"
             className="flex items-center gap-x-2"
             aria-label="optqo"
           >
             <span className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">
               optqo
             </span>
-          </a>
+          </Link>
           <ul className="flex list-none mt-6 md:mt-0 space-x-3">
             <li>
               <Button
@@ -98,48 +99,48 @@ export default function Footer() {
           <nav className="lg:mt-0 lg:col-[4/11]">
             <ul className="list-none flex flex-wrap -my-1 -mx-2 lg:justify-end">
               <li className="my-1 mx-2 shrink-0">
-                <a
-                  href="#pricing"
+                <Link
+                  to="/pricing"
                   className="text-lg text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block py-2"
                 >
                   Pricing
-                </a>
+                </Link>
               </li>
               <li className="my-1 mx-2 shrink-0">
-                <a
-                  href="#contact"
+                <Link
+                  to="/contact"
                   className="text-lg text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block py-2"
                 >
                   Contact
-                </a>
+                </Link>
               </li>
             </ul>
           </nav>
           <div className="mt-6 lg:mt-0 lg:col-[4/11]">
             <ul className="list-none flex flex-wrap -my-1 -mx-3 lg:justify-end">
               <li className="my-1 mx-3 shrink-0">
-                <a
-                  href="#privacy"
+                <Link
+                  to="/privacy"
                   className="text-lg text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block py-2"
                 >
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li className="my-1 mx-3 shrink-0">
-                <a
-                  href="#terms"
+                <Link
+                  to="/terms"
                   className="text-lg text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block py-2"
                 >
                   Terms of Service
-                </a>
+                </Link>
               </li>
               <li className="my-1 mx-3 shrink-0">
-                <a
-                  href="#cookies"
+                <Link
+                  to="/cookies"
                   className="text-lg text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block py-2"
                 >
                   Cookie Policy
-                </a>
+                </Link>
               </li>
             </ul>
           </div>

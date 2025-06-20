@@ -27,6 +27,13 @@ import PaymentSuccess from '@/pages/subscription/PaymentSuccess';
 import PaymentCancel from '@/pages/subscription/PaymentCancel';
 import SubscriptionPage from '@/pages/subscription/SubscriptionPage';
 
+// Footer pages
+import PricingPage from '@/pages/footer/PricingPage';
+import ContactPage from '@/pages/footer/ContactPage';
+import PrivacyPolicyPage from '@/pages/footer/PrivacyPolicyPage';
+import TermsOfServicePage from '@/pages/footer/TermsOfServicePage';
+import CookiePolicyPage from '@/pages/footer/CookiePolicyPage';
+
 // OPTIMIZED: Import the optimized ConditionalHomeRoute component
 import ConditionalHomeRoute from '@/routes/ConditionalHomeRoute';
 
@@ -41,6 +48,13 @@ const AppRoutes: React.FC = () => {
       
       {/* OAuth callback route - public but handles authentication */}
       <Route path="/auth/success" element={<AuthSuccessPage />} />
+      
+      {/* Public footer pages */}
+      <Route path="/pricing" element={<PricingPage />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/privacy" element={<PrivacyPolicyPage />} />
+      <Route path="/terms" element={<TermsOfServicePage />} />
+      <Route path="/cookies" element={<CookiePolicyPage />} />
       
       {/* Protected result routes */}
       <Route
