@@ -1,4 +1,4 @@
-// src/api/services.ts
+// src/api/service.ts
 import api from './client'
 import type {
   AnalysisResponse,

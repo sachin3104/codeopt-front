@@ -1,8 +1,9 @@
 import React, { useEffect } from 'react';
 import { useConvert } from '@/hooks/use-convert';
+import { useDocument } from '@/hooks/use-document';
 import { useNavigate } from 'react-router-dom';
 import SyncCodeEditors from '../common/editor/SyncCodeEditors';
-import DocumentButton from './DocumentConvertedButton';
+import { ActionMenu } from '../common/actions/CommonActionButtons';
 import { ArrowLeft } from 'lucide-react';
 import ConvertTabs from './ConvertTabs';
 
@@ -15,7 +16,19 @@ const ConvertLayout: React.FC = () => {
     run: runConvert,
     initialized
   } = useConvert();
+
+  // --- Documentation context ---
+  const {
+    isLoading: isDocumenting,
+    error: documentError,
+    clear: clearDocument,
+    run: runDocument
+  } = useDocument();
+
   const navigate = useNavigate();
+
+  // Combined error
+  const error = convertError || documentError;
 
   // Redirect home if not converting and still no result
   useEffect(() => {
@@ -26,6 +39,7 @@ const ConvertLayout: React.FC = () => {
 
   const handleGoHome = () => {
     clearConvert();
+    clearDocument();
     navigate('/', { replace: true });
   };
 
@@ -79,12 +93,18 @@ const ConvertLayout: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      {/* Header Section */}
+      {/* Header Section with ActionMenu */}
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold text-white">Conversion Results</h2>
         <div className="flex items-center gap-4">
-          <DocumentButton convertedCode={convertedCode.converted_code} />
-          <button 
+          {/* Use ActionMenu for document button only */}
+          <ActionMenu
+            actions={['document']}
+            variant="layout"
+          />
+          
+          {/* Back to Home button */}
+          <button
             onClick={handleGoHome}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
           >
@@ -100,8 +120,8 @@ const ConvertLayout: React.FC = () => {
           originalCode={convertedCode.original_code || 'N/A'}
           convertedCode={convertedCode.converted_code || 'N/A'}
           isReadOnly={true}
-          originalTitle={`Original Code `}
-          convertedTitle={`Converted Code `}
+          originalTitle={`Original Code`}
+          convertedTitle={`Converted Code`}
         />
       </div>
 
@@ -110,10 +130,10 @@ const ConvertLayout: React.FC = () => {
         <ConvertTabs />
       </div>
 
-      {/* Error toast (if needed) */}
-      {convertError && (
+      {/* Combined error toast */}
+      {error && (
         <div className="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded shadow-lg">
-          <span>{convertError}</span>
+          <span>{error}</span>
         </div>
       )}
     </div>

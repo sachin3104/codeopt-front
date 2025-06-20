@@ -1,12 +1,13 @@
 // src/components/analysis/AnalyseLayout.tsx
 import React, { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, FileCode, FileText, Zap, AlertTriangle } from 'lucide-react'
+import { ArrowLeft, AlertTriangle } from 'lucide-react'
 
 import CodeEditor from '../common/editor/CodeEditor'
 import AnalysisDetails from './AnalysisDetails'
 import AnalysisResultTabs from './AnalysisResultTabs'
-import LanguageSelectModal from '../convert/LanguageSelectModal'
+import { ActionMenu } from '../common/actions/CommonActionButtons'
+import LanguageSelectModal from '../common/actions/LanguageSelectModal'
 
 import { useCode } from '@/hooks/use-code'
 import { useAnalyze } from '@/hooks/use-analyze'
@@ -72,6 +73,22 @@ const AnalyseLayout: React.FC = () => {
     }
   }, [initialized, isAnalyzing, analysisResult, navigate])
 
+  // Handler for convert modal
+  const handleConvert = async (from: string, to: string) => {
+    try {
+      await runConvert(from, to)
+      navigate('/results/convert')
+    } catch {/* error will show via convertError */}
+  }
+
+  const handleGoHome = () => {
+    clearAnalyze()
+    clearOptimize()
+    clearConvert()
+    clearDocument()
+    navigate('/', { replace: true })
+  }
+
   // Loading state
   if (isAnalyzing) {
     return (
@@ -108,68 +125,22 @@ const AnalyseLayout: React.FC = () => {
     return null
   }
 
-  // Handlers
-  const handleOptimize = async () => {
-    try {
-      await runOptimize()
-      navigate('/results/optimize')
-    } catch {/* error will show via optimizeError */}
-  }
-
-  const handleConvert = async (from: string, to: string) => {
-    try {
-      await runConvert(from, to)
-      navigate('/results/convert')
-    } catch {/* error will show via convertError */}
-  }
-
-  const handleDocument = async () => {
-    try {
-      await runDocument()
-      navigate('/results/document')
-    } catch {/* error will show via documentError */}
-  }
-
-  const handleGoHome = () => {
-    clearAnalyze()
-    clearOptimize()
-    clearConvert()
-    clearDocument()
-    navigate('/', { replace: true })
-  }
-
   return (
     <div className="space-y-6 h-full flex flex-col">
-      {/* Header */}
+      {/* Header with ActionMenu */}
       <div className="flex items-center justify-between w-full">
         <h2 className="text-xl font-semibold text-white">Code Analysis Results</h2>
         <div className="flex items-center gap-4">
-          <button
-            onClick={handleOptimize}
-            disabled={isOptimizing}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white disabled:opacity-50"
-          >
-            <Zap className="w-4 h-4" />
-            <span>{isOptimizing ? 'Optimizing…' : 'Optimize'}</span>
-          </button>
-
-          <button
-            onClick={() => setShowConvertModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
-          >
-            <FileCode className="w-4 h-4" />
-            <span>Convert</span>
-          </button>
-
-          <button
-            onClick={handleDocument}
-            disabled={isDocumenting}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white disabled:opacity-50"
-          >
-            <FileText className="w-4 h-4" />
-            <span>{isDocumenting ? 'Documenting…' : 'Document'}</span>
-          </button>
-
+          {/* Use ActionMenu for the three actions */}
+          <ActionMenu
+            actions={['optimize', 'convert', 'document']}
+            variant="layout"
+            onOverrides={{
+              convert: async () => setShowConvertModal(true),
+            }}
+          />
+          
+          {/* Back to Home button */}
           <button
             onClick={handleGoHome}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
@@ -182,8 +153,7 @@ const AnalyseLayout: React.FC = () => {
 
       {/* Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
-        <div className="   flex flex-col">
-          
+        <div className="flex flex-col">
           <div className="flex-1 min-h-0">
             <CodeEditor value={code} isReadOnly height="100%" />
           </div>

@@ -1,15 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, FileCode, FileText, AlertTriangle } from 'lucide-react';
+import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import SyncCodeEditors from '@/components/common/editor/SyncCodeEditors';
 import OptimisationTabs from './OptimisationTabs';
-import LanguageSelectModal from '../convert/LanguageSelectModal';
+import { ActionMenu } from '../common/actions/CommonActionButtons';
+import LanguageSelectModal from '../common/actions/LanguageSelectModal';
+
 import { useOptimize } from '@/hooks/use-optimize';
 import { useCode } from '@/hooks/use-code';
+import { useConvert } from '@/hooks/use-convert';
+import { useDocument } from '@/hooks/use-document';
 
 const OptimiseLayout: React.FC = () => {
   const navigate = useNavigate();
   const { code } = useCode();
+  
   const {
     result: optimizationResult,
     isLoading: isOptimizing,
@@ -17,6 +22,25 @@ const OptimiseLayout: React.FC = () => {
     clear: clearOptimize,
     initialized
   } = useOptimize();
+
+  // --- Conversion context ---
+  const {
+    isLoading: isConverting,
+    error: convertError,
+    clear: clearConvert,
+    run: runConvert
+  } = useConvert();
+
+  // --- Documentation context ---
+  const {
+    isLoading: isDocumenting,
+    error: documentError,
+    clear: clearDocument,
+    run: runDocument
+  } = useDocument();
+
+  // Combined error
+  const error = optimizeError || convertError || documentError;
 
   const [showConvertModal, setShowConvertModal] = useState(false);
 
@@ -27,8 +51,18 @@ const OptimiseLayout: React.FC = () => {
     }
   }, [initialized, isOptimizing, optimizationResult, navigate]);
 
+  // Handler for convert modal
+  const handleConvert = async (from: string, to: string) => {
+    try {
+      await runConvert(from, to);
+      navigate('/results/convert');
+    } catch {/* error will show via convertError */}
+  };
+
   const handleGoHome = () => {
     clearOptimize();
+    clearConvert();
+    clearDocument();
     navigate('/', { replace: true });
   };
 
@@ -69,18 +103,21 @@ const OptimiseLayout: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen  space-y-6">
-      {/* Header Section */}
+    <div className="flex flex-col min-h-screen space-y-6">
+      {/* Header Section with ActionMenu */}
       <div className="flex items-center justify-between w-full">
         <h2 className="text-xl font-semibold text-white">Code Optimization Results</h2>
         <div className="flex items-center gap-4">
-          <button
-            onClick={() => setShowConvertModal(true)}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
-          >
-            <FileCode className="w-4 h-4" />
-            <span>Convert</span>
-          </button>
+          {/* Use ActionMenu for convert and document */}
+          <ActionMenu
+            actions={['convert', 'document']}
+            variant="layout"
+            onOverrides={{
+              convert: async () => setShowConvertModal(true),
+            }}
+          />
+          
+          {/* Back to Home button */}
           <button 
             onClick={handleGoHome}
             className="flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-colors"
@@ -110,16 +147,17 @@ const OptimiseLayout: React.FC = () => {
         />
       </div>
 
+      {/* Convert Modal */}
       <LanguageSelectModal 
         isOpen={showConvertModal} 
         onClose={() => setShowConvertModal(false)} 
-        onConvert={async () => {}} 
+        onConvert={handleConvert}
       />
 
-      {/* Error toast */}
-      {optimizeError && (
+      {/* Combined error toast */}
+      {error && (
         <div className="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded shadow-lg">
-          <span>{optimizeError}</span>
+          <span>{error}</span>
         </div>
       )}
     </div>

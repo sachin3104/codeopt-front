@@ -128,8 +128,8 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
           )}
           {/* show the detected language with enhanced styling */}
           {detectedLang && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-400/30 backdrop-blur-sm">
-              <span className="text-xs font-medium text-blue-300/80 uppercase tracking-wider">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg  border border-blue-400/30 backdrop-blur-sm">
+              <span className="text-xs font-medium text-blue-500 uppercase tracking-wider">
                 Language
               </span>
               <span className="text-sm font-semibold text-blue-200 uppercase tracking-wide">
