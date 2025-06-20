@@ -6,8 +6,8 @@ import { useOptimize } from '@/hooks/use-optimize';
 import { type WorkflowData, type CodeFlowchart } from '@/types/api';
 
 interface FlowchartComparisonProps {
-  originalFlowchart: CodeFlowchart;
-  optimizedFlowchart: CodeFlowchart;
+  originalFlowchart: CodeFlowchart | undefined;
+  optimizedFlowchart: CodeFlowchart | undefined;
 }
 
 const FlowchartComparison: React.FC<FlowchartComparisonProps> = ({
@@ -19,8 +19,8 @@ const FlowchartComparison: React.FC<FlowchartComparisonProps> = ({
   useEffect(() => {
     console.log('=== FlowchartComparison Debug ===');
     console.log('Optimization Result:', optimizationResult);
-    console.log('Optimized Code Flowchart:', optimizationResult?.optimized_code_flowchart);
-    console.log('Original Code Flowchart:', optimizationResult?.original_code_flowchart);
+    console.log('Optimized Code Flowchart:', optimizationResult?.code_flowcharts?.optimized_code_flowchart);
+    console.log('Original Code Flowchart:', optimizationResult?.code_flowcharts?.original_code_flowchart);
   }, [optimizationResult]);
 
   if (!optimizationResult) {
@@ -29,26 +29,32 @@ const FlowchartComparison: React.FC<FlowchartComparisonProps> = ({
   }
 
   // Transform the workflow data to match the expected format
-  const transformWorkflowData = (data: WorkflowData | null) => {
+  const transformWorkflowData = (data: CodeFlowchart | undefined) => {
     if (!data) {
       console.log('No workflow data provided');
-      return { steps: [], dependencies: [] };
+      return { steps: [], dependencies: [], optimizable_steps: [] };
     }
     
     console.log('Transforming workflow data:', data);
     
+    // Transform optimizable_steps from string array to object array
+    const transformedOptimizableSteps = (data.optimizable_steps || []).map(stepId => ({
+      id: stepId,
+      reason: 'Optimization opportunity identified'
+    }));
+    
     const transformed = {
       steps: data.steps || [],
       dependencies: data.dependencies || [],
-      optimizable_steps: data.optimizable_steps || []
+      optimizable_steps: transformedOptimizableSteps
     };
     
     console.log('Transformed workflow data:', transformed);
     return transformed;
   };
 
-  const originalWorkflow = transformWorkflowData(optimizationResult.original_code_flowchart);
-  const optimizedWorkflow = transformWorkflowData(optimizationResult.optimized_code_flowchart);
+  const originalWorkflow = transformWorkflowData(originalFlowchart);
+  const optimizedWorkflow = transformWorkflowData(optimizedFlowchart);
 
   console.log('=== Final Workflow Data ===');
   console.log('Original Workflow:', originalWorkflow);

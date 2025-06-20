@@ -15,24 +15,19 @@ const NextSteps: React.FC<NextStepsProps> = ({
     return null;
   }
 
-  // Immediate Actions: from detailed_changes with Execution Time or Memory Usage
-  const immediateActions = optimizationResult.detailed_changes
-    ?.filter(change => 
-      change.metric === 'Execution Time' || 
-      change.metric === 'Memory Usage'
-    )
-    .map((change, index) => ({
+  // Immediate Actions: from issues_resolved with High priority
+  const immediateActions = optimizationResult.issues_resolved
+    ?.filter(issue => issue.priority === 'High')
+    .map((issue, index) => ({
       number: index + 1,
-      text: change.improvement ?? 'NA'
+      text: issue.improvement ?? 'NA'
     })) || [];
 
-  // Future Optimizations: from suggestions prop
-  const futureOptimizations = Array.isArray(suggestions) && suggestions.length > 0
-    ? suggestions.map((suggestion, index) => ({
-        number: index + 1,
-        text: suggestion ?? 'NA'
-      }))
-    : [];
+  // Future Optimizations: from next_steps.future_optimizations
+  const futureOptimizations = optimizationResult.next_steps?.future_optimizations?.map((optimization, index) => ({
+    number: index + 1,
+    text: optimization ?? 'NA'
+  })) || [];
 
   return (
     <Card className="bg-black/10 backdrop-blur-xl border border-white/10">

@@ -1,10 +1,10 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { CheckCircle, AlertTriangle } from 'lucide-react';
-import type { ConversionQuality } from '@/types/api';
+import type { ConversionQualityData } from '@/types/api';
 
 interface ConversionQualityMetricsProps {
-  conversionQuality: ConversionQuality;
+  conversionQuality: ConversionQualityData | undefined;
 }
 
 const ConversionQualityMetrics: React.FC<ConversionQualityMetricsProps> = ({ conversionQuality }) => {
@@ -13,29 +13,26 @@ const ConversionQualityMetrics: React.FC<ConversionQualityMetricsProps> = ({ con
     {
       icon: <CheckCircle className="w-4 h-4 text-green-500 mr-2" />,
       label: "Syntax Conversion",
-      status: conversionQuality?.syntax_conversion_status 
-        ? conversionQuality.syntax_conversion_status.charAt(0).toUpperCase() + 
-          conversionQuality.syntax_conversion_status.slice(1)
-        : 'N/A',
-      statusColor: conversionQuality?.syntax_conversion_status === 'complete' ? 'text-green-600' : 'text-yellow-600'
+      status: conversionQuality?.metrics?.syntax_conversion?.status || 'NA',
+      statusColor: conversionQuality?.metrics?.syntax_conversion?.status === 'Complete' ? 'text-green-600' : 'text-yellow-600'
     },
     {
       icon: <CheckCircle className="w-4 h-4 text-green-500 mr-2" />,
       label: "Logic Preservation",
-      status: conversionQuality?.logic_preservation_status === 'verified' ? 'Verified' : 'Not Verified',
-      statusColor: conversionQuality?.logic_preservation_status === 'verified' ? 'text-green-600' : 'text-yellow-600'
+      status: conversionQuality?.metrics?.logic_preservation?.status || 'NA',
+      statusColor: conversionQuality?.metrics?.logic_preservation?.status === 'Verified' ? 'text-green-600' : 'text-yellow-600'
     },
     {
       icon: <CheckCircle className="w-4 h-4 text-green-500 mr-2" />,
       label: "Data Type Mapping",
-      status: "Optimized",
-      statusColor: "text-green-600"
+      status: conversionQuality?.metrics?.data_type_mapping?.status || 'NA',
+      statusColor: conversionQuality?.metrics?.data_type_mapping?.status === 'Optimized' ? 'text-green-600' : 'text-yellow-600'
     },
     {
       icon: <AlertTriangle className="w-4 h-4 text-yellow-500 mr-2" />,
       label: "Manual Review",
-      status: "Recommended",
-      statusColor: "text-yellow-600"
+      status: conversionQuality?.metrics?.manual_review?.status || 'NA',
+      statusColor: conversionQuality?.metrics?.manual_review?.status === 'Recommended' ? 'text-yellow-600' : 'text-red-600'
     }
   ];
 
@@ -46,7 +43,7 @@ const ConversionQualityMetrics: React.FC<ConversionQualityMetricsProps> = ({ con
           <CardTitle className="text-white/90">Conversion Quality</CardTitle>
           <div className="flex items-center space-x-2 text-sm">
             <span className="text-white/70">Success Rate:</span>
-            <span className="font-bold text-green-400">{conversionQuality?.success_rate || 'N/A'}%</span>
+            <span className="font-bold text-green-400">{conversionQuality?.success_rate || 'NA'}%</span>
           </div>
         </div>
       </CardHeader>

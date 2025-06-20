@@ -23,12 +23,12 @@ const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({
   }
 
   // Use backend values directly, fallback to 'NA' if not present
-  const totalIssues = Array.isArray(optimizationResult.detailed_changes)
-    ? optimizationResult.detailed_changes.length
+  const totalIssues = Array.isArray(optimizationResult.issues_resolved)
+    ? optimizationResult.issues_resolved.length
     : 'NA';
 
   const performanceGain =
-    optimizationResult.improvement_percentages?.execution_time ?? 'NA';
+    optimizationResult.performance_analysis?.performance_metrics?.execution_time?.improvement_percentage ?? 'NA';
 
   const monthlySavings =
     optimizationResult.resource_savings?.monthly_server_cost_savings !== undefined
@@ -36,8 +36,8 @@ const ExecutiveSummary: React.FC<ExecutiveSummaryProps> = ({
       : 'NA';
 
   const roiTimeline =
-    optimizationResult.resource_savings?.annual_roi !== undefined
-      ? `${optimizationResult.resource_savings.annual_roi}%`
+    optimizationResult.resource_savings?.['Expected Annual Shavings'] !== undefined
+      ? `${optimizationResult.resource_savings['Expected Annual Shavings']}%`
       : 'NA';
 
   const summaryMetrics = [

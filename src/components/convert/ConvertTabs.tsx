@@ -16,22 +16,22 @@ const ConvertTabs: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <ConversionQualityMetrics conversionQuality={convertedCode.conversion_quality} />
+        <ConversionQualityMetrics conversionQuality={convertedCode.conversion?.quality} />
         <ConversionAdvantages 
-          estimatedBenefits={convertedCode.estimated_benefits}
-          targetLanguage={convertedCode.target_language}
+          estimatedBenefits={convertedCode.conversion?.benefits}
+          targetLanguage={convertedCode.conversion?.metadata?.target_language}
         />
       </div>
-      <EstimatedBenefitsGrid benefits={convertedCode.estimated_benefits} />
+      <EstimatedBenefitsGrid benefits={convertedCode.conversion?.benefits} />
       <ConversionDetails 
-        sourceLanguage={convertedCode.source_language}
-        targetLanguage={convertedCode.target_language}
-        environmentSetup={convertedCode.environment_setup}
+        sourceLanguage={convertedCode.conversion?.metadata?.source_language}
+        targetLanguage={convertedCode.conversion?.metadata?.target_language}
+        environmentSetup={convertedCode.conversion?.environment}
       />
       <ConversionNotes 
-        conversionNotes={convertedCode.conversion_notes}
-        sourceLanguage={convertedCode.source_language}
-        targetLanguage={convertedCode.target_language}
+        conversionNotes={convertedCode.conversion?.notes}
+        sourceLanguage={convertedCode.conversion?.metadata?.source_language}
+        targetLanguage={convertedCode.conversion?.metadata?.target_language}
       />
     </div>
   );

@@ -58,40 +58,40 @@ const PerformanceAnalysis: React.FC<PerformanceAnalysisProps> = ({ scores, overa
     {
       icon: Clock,
       iconColor: 'text-blue-500',
-      value: getMetric(['execution_time', 'optimized']) !== 'NA' ? `${getMetric(['execution_time', 'optimized'])}s` : 'NA',
+      value: getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'optimized']) !== 'NA' ? `${getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'optimized'])}s` : 'NA',
       label: 'Execution Time',
-      original: getMetric(['execution_time', 'original']),
-      optimized: getMetric(['execution_time', 'optimized']),
+      original: getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'original']),
+      optimized: getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'optimized']),
       unit: 's',
       isLowerBetter: true,
     },
     {
       icon: Database,
       iconColor: 'text-green-500',
-      value: getMetric(['memory_usage', 'optimized']) !== 'NA' ? `${getMetric(['memory_usage', 'optimized'])}MB` : 'NA',
+      value: getMetric(['performance_analysis', 'performance_metrics', 'memory_usage', 'optimized']) !== 'NA' ? `${getMetric(['performance_analysis', 'performance_metrics', 'memory_usage', 'optimized'])}MB` : 'NA',
       label: 'Memory Usage',
-      original: getMetric(['memory_usage', 'original']),
-      optimized: getMetric(['memory_usage', 'optimized']),
+      original: getMetric(['performance_analysis', 'performance_metrics', 'memory_usage', 'original']),
+      optimized: getMetric(['performance_analysis', 'performance_metrics', 'memory_usage', 'optimized']),
       unit: 'MB',
       isLowerBetter: true,
     },
     {
       icon: Cpu,
       iconColor: 'text-purple-500',
-      value: getMetric(['code_complexity', 'optimized']) !== 'NA' ? `${(getMetric(['code_complexity', 'optimized']) * 100).toFixed(2)}%` : 'NA',
+      value: getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) !== 'NA' ? `${(getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) * 100).toFixed(2)}%` : 'NA',
       label: 'CPU Utilization',
-      original: getMetric(['code_complexity', 'original']) !== 'NA' ? (getMetric(['code_complexity', 'original']) * 100) : 'NA',
-      optimized: getMetric(['code_complexity', 'optimized']) !== 'NA' ? (getMetric(['code_complexity', 'optimized']) * 100) : 'NA',
+      original: getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'original']) !== 'NA' ? (getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'original']) * 100) : 'NA',
+      optimized: getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) !== 'NA' ? (getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) * 100) : 'NA',
       unit: '%',
       isLowerBetter: true,
     },
     {
       icon: HardDrive,
       iconColor: 'text-orange-500',
-      value: 'NA',
+      value: getMetric(['performance_analysis', 'performance_metrics', 'io_operations', 'optimized']) !== 'NA' ? `${getMetric(['performance_analysis', 'performance_metrics', 'io_operations', 'optimized'])}` : 'NA',
       label: 'I/O Operations',
-      original: 'NA',
-      optimized: 'NA',
+      original: getMetric(['performance_analysis', 'performance_metrics', 'io_operations', 'original']),
+      optimized: getMetric(['performance_analysis', 'performance_metrics', 'io_operations', 'optimized']),
       unit: '',
       isLowerBetter: true,
     },
@@ -101,36 +101,36 @@ const PerformanceAnalysis: React.FC<PerformanceAnalysisProps> = ({ scores, overa
   const rightMetrics = [
     {
       label: 'Execution Time',
-      before: getMetric(['execution_time', 'original']) !== 'NA' && getMetric(['execution_time', 'optimized']) !== 'NA' ? `${getMetric(['execution_time', 'original'])}s → ${getMetric(['execution_time', 'optimized'])}s` : 'NA',
-      original: getMetric(['execution_time', 'original']),
-      optimized: getMetric(['execution_time', 'optimized']),
+      before: getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'original']) !== 'NA' && getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'optimized']) !== 'NA' ? `${getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'original'])}s → ${getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'optimized'])}s` : 'NA',
+      original: getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'original']),
+      optimized: getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'optimized']),
       barColor: 'bg-blue-500',
       unit: 's',
       isLowerBetter: true,
     },
     {
       label: 'Memory Usage',
-      before: getMetric(['memory_usage', 'original']) !== 'NA' && getMetric(['memory_usage', 'optimized']) !== 'NA' ? `${getMetric(['memory_usage', 'original'])}MB → ${getMetric(['memory_usage', 'optimized'])}MB` : 'NA',
-      original: getMetric(['memory_usage', 'original']),
-      optimized: getMetric(['memory_usage', 'optimized']),
+      before: getMetric(['performance_analysis', 'performance_metrics', 'memory_usage', 'original']) !== 'NA' && getMetric(['performance_analysis', 'performance_metrics', 'memory_usage', 'optimized']) !== 'NA' ? `${getMetric(['performance_analysis', 'performance_metrics', 'memory_usage', 'original'])}MB → ${getMetric(['performance_analysis', 'performance_metrics', 'memory_usage', 'optimized'])}MB` : 'NA',
+      original: getMetric(['performance_analysis', 'performance_metrics', 'memory_usage', 'original']),
+      optimized: getMetric(['performance_analysis', 'performance_metrics', 'memory_usage', 'optimized']),
       barColor: 'bg-green-500',
       unit: 'MB',
       isLowerBetter: true,
     },
     {
       label: 'CPU Utilization',
-      before: getMetric(['code_complexity', 'original']) !== 'NA' && getMetric(['code_complexity', 'optimized']) !== 'NA' ? `${(getMetric(['code_complexity', 'original']) * 100).toFixed(2)}% → ${(getMetric(['code_complexity', 'optimized']) * 100).toFixed(2)}%` : 'NA',
-      original: getMetric(['code_complexity', 'original']) !== 'NA' ? (getMetric(['code_complexity', 'original']) * 100) : 'NA',
-      optimized: getMetric(['code_complexity', 'optimized']) !== 'NA' ? (getMetric(['code_complexity', 'optimized']) * 100) : 'NA',
+      before: getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'original']) !== 'NA' && getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) !== 'NA' ? `${(getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'original']) * 100).toFixed(2)}% → ${(getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) * 100).toFixed(2)}%` : 'NA',
+      original: getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'original']) !== 'NA' ? (getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'original']) * 100) : 'NA',
+      optimized: getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) !== 'NA' ? (getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) * 100) : 'NA',
       barColor: 'bg-purple-500',
       unit: '%',
       isLowerBetter: true,
     },
     {
       label: 'I/O Operations',
-      before: 'NA',
-      original: 'NA',
-      optimized: 'NA',
+      before: getMetric(['performance_analysis', 'performance_metrics', 'io_operations', 'original']) !== 'NA' && getMetric(['performance_analysis', 'performance_metrics', 'io_operations', 'optimized']) !== 'NA' ? `${getMetric(['performance_analysis', 'performance_metrics', 'io_operations', 'original'])} → ${getMetric(['performance_analysis', 'performance_metrics', 'io_operations', 'optimized'])}` : 'NA',
+      original: getMetric(['performance_analysis', 'performance_metrics', 'io_operations', 'original']),
+      optimized: getMetric(['performance_analysis', 'performance_metrics', 'io_operations', 'optimized']),
       barColor: 'bg-orange-500',
       unit: '',
       isLowerBetter: true,
@@ -199,45 +199,24 @@ const PerformanceAnalysis: React.FC<PerformanceAnalysisProps> = ({ scores, overa
             const isImprovement = changeInfo?.isImprovement ?? false;
             
             return (
-              <div key={idx}>
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-sm text-white/80">{metric.label}</span>
-                  <span className="text-sm text-white/60">{metric.before}</span>
+              <div key={idx} className="space-y-2">
+                <div className="flex justify-between items-center">
+                  <span className="text-sm text-white/80 font-medium">{metric.label}</span>
+                  <span className="text-xs text-white/60">{metric.before}</span>
                 </div>
-                <div className="w-full bg-white/10 rounded-full h-6 relative overflow-hidden">
-                  {/* Filled part: optimized value */}
+                <div className="relative bg-white/10 rounded-full h-2">
                   <div
-                    className={`${metric.barColor} h-6 rounded-full transition-all duration-500 absolute top-0 left-0`}
-                    style={{ width: barWidth, zIndex: 2 }}
-                  >
-                    {/* Show text inside filled bar only for improvements */}
-                    {isImprovement && changeInfo && (
-                      <div className="flex items-center justify-end pr-2 h-full">
-                        <span className="text-xs text-white font-medium flex items-center gap-1">
-                          <TrendingDown className="w-3 h-3" />
-                          {getDiffLabel(metric.original, metric.optimized, metric.unit, metric.isLowerBetter)}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                  
-                  {/* Show text at the end of bar for increases or when bar is too narrow */}
-                  {(!isImprovement || parseFloat(barWidth) < 30) && changeInfo && (
-                    <div className="flex items-center h-full absolute top-0" 
-                         style={{ 
-                           left: isImprovement ? barWidth : '100%',
-                           transform: isImprovement ? 'translateX(0)' : 'translateX(-100%)',
-                           zIndex: 3
-                         }}>
-                      <span className="text-xs text-white font-medium flex items-center gap-1 px-2">
-                        <TrendingUp className="w-3 h-3" />
-                        {getDiffLabel(metric.original, metric.optimized, metric.unit, metric.isLowerBetter)}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {/* Transparent part: original value (background) */}
-                  <div className="h-6" style={{ width: '100%', opacity: 0 }}></div>
+                    className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${metric.barColor}`}
+                    style={{ width: barWidth }}
+                  />
+                </div>
+                <div className="flex justify-between items-center text-xs">
+                  <span className={`font-medium ${isImprovement ? 'text-emerald-400/90' : 'text-red-400/90'}`}>
+                    {getDiffLabel(metric.original, metric.optimized, metric.unit, metric.isLowerBetter)}
+                  </span>
+                  <span className="text-white/60">
+                    {typeof metric.optimized === 'number' ? `${metric.optimized}${metric.unit}` : 'NA'}
+                  </span>
                 </div>
               </div>
             );

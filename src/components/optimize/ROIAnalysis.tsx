@@ -2,11 +2,15 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Timer, Database, DollarSign, TrendingUp, Calculator } from 'lucide-react';
 import { useOptimize } from '@/hooks/use-optimize';
-import { type ResourceSavings, type ImprovementPercentages } from '@/types/api';
+import { type ResourceSavings } from '@/types/api';
 
 interface ROIAnalysisProps {
   resourceSavings: ResourceSavings;
-  improvementPercentages: ImprovementPercentages;
+  improvementPercentages: {
+    code_complexity: number;
+    execution_time: number;
+    memory_usage: number;
+  };
 }
 
 const ROIAnalysis: React.FC<ROIAnalysisProps> = ({
@@ -75,8 +79,8 @@ const ROIAnalysis: React.FC<ROIAnalysisProps> = ({
     {
       icon: TrendingUp,
       iconColor: 'text-amber-400/80',
-      value: getMetric(['resource_savings', 'annual_roi']) !== 'NA'
-        ? `${formatDecimal(getMetric(['resource_savings', 'annual_roi']))}%`
+      value: getMetric(['resource_savings', 'Expected Annual Shavings']) !== 'NA'
+        ? `${formatDecimal(getMetric(['resource_savings', 'Expected Annual Shavings']))}%`
         : 'NA',
       label: 'Annual ROI',
       sublabel: 'Total ROI',
@@ -85,8 +89,8 @@ const ROIAnalysis: React.FC<ROIAnalysisProps> = ({
   ];
 
   // Total Value from backend only
-  const totalValue = getMetric(['resource_savings', 'annual_roi']) !== 'NA'
-    ? `${formatDecimal(getMetric(['resource_savings', 'annual_roi']))}%`
+  const totalValue = getMetric(['resource_savings', 'Expected Annual Shavings']) !== 'NA'
+    ? `${formatDecimal(getMetric(['resource_savings', 'Expected Annual Shavings']))}%`
     : 'NA';
 
   return (

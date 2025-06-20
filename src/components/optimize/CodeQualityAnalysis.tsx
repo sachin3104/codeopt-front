@@ -20,8 +20,9 @@ const CodeQualityAnalysis: React.FC<CodeQualityAnalysisProps> = ({
     return null;
   }
 
-  const { scores: optimizedScores } = optimizationResult.optimized_code_scores;
-  const overallScore = optimizationResult.optimized_code_scores.overall_score;
+  // Get code quality metrics from the new structure
+  const codeQualityMetrics = optimizationResult.code_quality_analysis?.code_quality_metrics;
+  const overallScore = codeQualityMetrics?.overall_score?.optimized ?? 0;
 
   // Calculate before scores based on improvement percentages
   const calculateBeforeScore = (currentScore: number, improvement: number) => {
@@ -33,36 +34,36 @@ const CodeQualityAnalysis: React.FC<CodeQualityAnalysisProps> = ({
       name: 'Maintainability',
       icon: Code2,
       color: 'bg-blue-400/80',
-      before: typeof scores.scores.maintainability.score === 'number' ? calculateBeforeScore(scores.scores.maintainability.score, 70) : 'NA',
-      after: typeof scores.scores.maintainability.score === 'number' ? scores.scores.maintainability.score : 'NA',
-      improvement: 'NA',
+      before: codeQualityMetrics?.maintainability?.original ?? 'NA',
+      after: codeQualityMetrics?.maintainability?.optimized ?? 'NA',
+      improvement: codeQualityMetrics?.maintainability?.improvement_percentage ?? 'NA',
       costSavings: 'NA'
     },
     {
       name: 'Performance',
       icon: Zap,
       color: 'bg-emerald-400/80',
-      before: typeof scores.scores.performance_efficiency.score === 'number' ? calculateBeforeScore(scores.scores.performance_efficiency.score, 31) : 'NA',
-      after: typeof scores.scores.performance_efficiency.score === 'number' ? scores.scores.performance_efficiency.score : 'NA',
-      improvement: 'NA',
+      before: codeQualityMetrics?.performance_efficiency?.original ?? 'NA',
+      after: codeQualityMetrics?.performance_efficiency?.optimized ?? 'NA',
+      improvement: codeQualityMetrics?.performance_efficiency?.improvement_percentage ?? 'NA',
       costSavings: 'NA'
     },
     {
       name: 'Readability',
       icon: Eye,
       color: 'bg-violet-400/80',
-      before: typeof scores.scores.readability.score === 'number' ? calculateBeforeScore(scores.scores.readability.score, 35) : 'NA',
-      after: typeof scores.scores.readability.score === 'number' ? scores.scores.readability.score : 'NA',
-      improvement: 'NA',
+      before: codeQualityMetrics?.readability?.original ?? 'NA',
+      after: codeQualityMetrics?.readability?.optimized ?? 'NA',
+      improvement: codeQualityMetrics?.readability?.improvement_percentage ?? 'NA',
       costSavings: 'NA'
     },
     {
       name: 'Test Coverage',
       icon: TestTube2,
       color: 'bg-amber-400/80',
-      before: typeof scores.scores.test_coverage.score === 'number' ? calculateBeforeScore(scores.scores.test_coverage.score, 117) : 'NA',
-      after: typeof scores.scores.test_coverage.score === 'number' ? scores.scores.test_coverage.score : 'NA',
-      improvement: 'NA',
+      before: codeQualityMetrics?.test_coverage?.original ?? 'NA',
+      after: codeQualityMetrics?.test_coverage?.optimized ?? 'NA',
+      improvement: codeQualityMetrics?.test_coverage?.improvement_percentage ?? 'NA',
       costSavings: 'NA'
     }
   ];
@@ -90,7 +91,7 @@ const CodeQualityAnalysis: React.FC<CodeQualityAnalysisProps> = ({
           </div>
           <div className="text-sm text-white/70">
             Overall Score: <span className="text-emerald-400/90 font-bold">{overallScore.toFixed(1)}/10</span>
-            <span className="text-white/50 ml-1">(was {Math.min(overallScore - 2, 6.0).toFixed(1)})</span>
+            <span className="text-white/50 ml-1">(was {codeQualityMetrics?.overall_score?.original?.toFixed(1) ?? 'NA'})</span>
           </div>
         </CardTitle>
       </CardHeader>
@@ -147,7 +148,7 @@ const CodeQualityAnalysis: React.FC<CodeQualityAnalysisProps> = ({
                       </div>
                     </td>
                     <td className="text-center py-3 text-emerald-400/90 font-medium align-middle">
-                      +{metric.improvement}
+                      {typeof metric.improvement === 'number' ? `+${metric.improvement.toFixed(1)}%` : 'NA'}
                     </td>
                   </tr>
                 );

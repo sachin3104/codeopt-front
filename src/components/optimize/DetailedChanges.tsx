@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { AlertTriangle } from "lucide-react";
 import { 
@@ -8,16 +7,10 @@ import {
   AccordionTrigger 
 } from "@/components/ui/accordion";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-
-interface DetailedChange {
-  issue: string;
-  improvement: string;
-  location: string;
-  metric: string;
-}
+import { type IssuesResolved } from '@/types/api';
 
 interface DetailedChangesProps {
-  changes: DetailedChange[];
+  changes: IssuesResolved[];
 }
 
 const DetailedChanges: React.FC<DetailedChangesProps> = ({ changes }) => {
@@ -25,19 +18,20 @@ const DetailedChanges: React.FC<DetailedChangesProps> = ({ changes }) => {
     return <div className="p-4">No detailed changes available</div>;
   }
 
-  // Group changes by metric
-  const changesByMetric: Record<string, DetailedChange[]> = {};
+  // Group changes by category (previously metric)
+  const changesByCategory: Record<string, IssuesResolved[]> = {};
   
   changes.forEach(change => {
-    if (!changesByMetric[change.metric]) {
-      changesByMetric[change.metric] = [];
+    const category = change.category || 'Other';
+    if (!changesByCategory[category]) {
+      changesByCategory[category] = [];
     }
-    changesByMetric[change.metric].push(change);
+    changesByCategory[category].push(change);
   });
   
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      {Object.entries(changesByMetric).map(([metric, metricChanges], index) => (
+      {Object.entries(changesByCategory).map(([category, categoryChanges], index) => (
         <Card 
           key={index} 
           className="border border-amber-700/30 bg-amber-950/10 transition-all duration-300 hover:shadow-md"
@@ -46,30 +40,38 @@ const DetailedChanges: React.FC<DetailedChangesProps> = ({ changes }) => {
             <div className="flex items-center justify-between">
               <CardTitle className="text-sm font-medium flex items-center gap-2">
                 <AlertTriangle size={16} className="text-amber-500" />
-                {metric}
+                {category}
               </CardTitle>
               <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded-full">
-                {metricChanges.length} {metricChanges.length === 1 ? 'change' : 'changes'}
+                {categoryChanges.length} {categoryChanges.length === 1 ? 'change' : 'changes'}
               </span>
             </div>
             <CardDescription className="text-xs">
-              {metricChanges.length} optimization {metricChanges.length === 1 ? 'change' : 'changes'} applied
+              {categoryChanges.length} optimization {categoryChanges.length === 1 ? 'change' : 'changes'} applied
             </CardDescription>
           </CardHeader>
           <CardContent>
             <Accordion type="single" collapsible className="w-full">
-              {metricChanges.map((change, issueIndex) => (
+              {categoryChanges.map((change, issueIndex) => (
                 <AccordionItem key={issueIndex} value={`issue-${issueIndex}`}>
                   <AccordionTrigger className="text-sm">{change.issue}</AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-3 text-sm">
                       <div>
+                        <div className="font-medium text-xs text-muted-foreground mb-1">PRIORITY</div>
+                        <div className="bg-secondary/50 px-3 py-1 rounded-sm">{change.priority || 'NA'}</div>
+                      </div>
+                      <div>
                         <div className="font-medium text-xs text-muted-foreground mb-1">CODE LOCATION</div>
-                        <div className="bg-secondary/50 px-3 py-1 rounded-sm">{change.location}</div>
+                        <div className="bg-secondary/50 px-3 py-1 rounded-sm">{change.location || 'NA'}</div>
                       </div>
                       <div>
                         <div className="font-medium text-xs text-muted-foreground mb-1">IMPROVEMENT</div>
-                        <p className="text-primary">{change.improvement}</p>
+                        <p className="text-primary">{change.improvement || 'NA'}</p>
+                      </div>
+                      <div>
+                        <div className="font-medium text-xs text-muted-foreground mb-1">STATUS</div>
+                        <div className="bg-secondary/50 px-3 py-1 rounded-sm">{change.status || 'NA'}</div>
                       </div>
                     </div>
                   </AccordionContent>

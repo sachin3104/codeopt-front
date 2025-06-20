@@ -117,8 +117,8 @@ const ConvertLayout: React.FC = () => {
       {/* Code Editors Section - Full Width */}
       <div className="w-full h-[600px] overflow-hidden">
         <SyncCodeEditors
-          originalCode={convertedCode.original_code || 'N/A'}
-          convertedCode={convertedCode.converted_code || 'N/A'}
+          originalCode={convertedCode.conversion?.code?.original || 'NA'}
+          convertedCode={convertedCode.conversion?.code?.converted || 'NA'}
           isReadOnly={true}
           originalTitle={`Original Code`}
           convertedTitle={`Converted Code`}

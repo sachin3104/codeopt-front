@@ -21,30 +21,33 @@ export interface AnalysisResponse {
   functionality_analysis: string
 }
 
-// Types for optimizeCode
-export interface DetailedChange {
-  improvement: string
-  issue: string
-  location: string
-  metric: string
-}
-
 export interface ResourceSavings {
   monthly_server_cost_savings: number
-  annual_roi: number
   daily_time_saved_per_execution: number
   memory_saved_per_run: number
+  "Expected Annual Shavings": number
 }
 
 export interface OptimizationMetrics {
   optimized: number
   original: number
+  improvement_percentage: number
 }
 
-export interface ImprovementPercentages {
-  code_complexity: number
-  execution_time: number
-  memory_usage: number
+export interface PerformanceMetrics {
+  cpu_utilization: OptimizationMetrics
+  execution_time: OptimizationMetrics
+  io_operations: OptimizationMetrics
+  memory_usage: OptimizationMetrics
+}
+
+export interface CodeQualityMetrics {
+  maintainability: OptimizationMetrics
+  overall_score: OptimizationMetrics
+  performance_efficiency: OptimizationMetrics
+  readability: OptimizationMetrics
+  security_vulnerability: OptimizationMetrics
+  test_coverage: OptimizationMetrics
 }
 
 export interface CodeScores {
@@ -74,25 +77,39 @@ export interface FlowchartDependency {
 export interface CodeFlowchart {
   steps: FlowchartStep[]
   dependencies: FlowchartDependency[]
+  optimizable_steps: string[]
+}
+
+export interface IssuesResolved {
+  category: string
+  improvement: string
+  issue: string
+  location: string
+  priority: string
+  status: string
+}
+
+export interface NextSteps {
+  future_optimizations: string[]
+  immediate_actions: string[]
 }
 
 export interface OptimizationResult {
-  status: string
-  code_complexity: OptimizationMetrics
-  detailed_changes: DetailedChange[]
-  execution_time: OptimizationMetrics
-  future_optimization_suggestions: string[]
-  improvement_percentages: ImprovementPercentages
-  improvement_summary: string
-  language: string
-  memory_usage: OptimizationMetrics
-  metrics_improved: string[]
+  code_flowcharts: {
+    optimized_code_flowchart: CodeFlowchart
+    original_code_flowchart: CodeFlowchart
+  }
+  code_quality_analysis: {
+    code_quality_metrics: CodeQualityMetrics
+  }
+  issues_resolved: IssuesResolved[]
+  next_steps: NextSteps
   optimized_code: string
-  optimized_code_flowchart: CodeFlowchart
-  optimized_code_scores: OptimizedCodeScores
-  original_code: string
-  original_code_flowchart: CodeFlowchart
+  performance_analysis: {
+    performance_metrics: PerformanceMetrics
+  }
   resource_savings: ResourceSavings
+  summary: string
 }
 
 // Types for documentCode
@@ -108,27 +125,67 @@ export interface ConversionQuality {
   logic_preservation_status: 'verified' | 'not verified'
 }
 
-export interface EstimatedBenefits {
-  processing_speed_improvement: string
-  memory_usage_reduction: string
-  license_cost_savings: string
-  cloud_readiness: string
+export interface ConversionQualityMetrics {
+  data_type_mapping: { status: string }
+  logic_preservation: { status: string }
+  manual_review: { status: string }
+  syntax_conversion: { status: string }
 }
 
-export interface EnvironmentSetup {
+export interface ConversionBenefits {
+  advantages: Array<{ text: string }>
+  cloud_readiness: string
+  license_cost_savings: string
+  memory_usage_reduction: string
+  metrics_grid: Array<{ label: string; value: string }>
+  processing_speed_improvement: string
+}
+
+export interface ConversionCode {
+  converted: string
+  original: string
+}
+
+export interface ConversionEnvironment {
   installation_commands: string
+  setup_steps: Array<{
+    command: string
+    description: string
+    step: string
+  }>
   version_compatibility: string
 }
 
-export interface ConversionResult {
-  original_code: string
-  converted_code: string
+export interface ConversionMetadata {
   source_language: string
   target_language: string
-  conversion_notes: string
-  conversion_quality: ConversionQuality
-  estimated_benefits: EstimatedBenefits
-  environment_setup: EnvironmentSetup
+  timestamp: string
+}
+
+export interface ConversionNotes {
+  content: string
+  key_changes: string[]
+  paragraphs: string[]
+}
+
+export interface ConversionQualityData {
+  logic_preservation_status: string
+  metrics: ConversionQualityMetrics
+  success_rate: number
+  syntax_conversion_status: string
+}
+
+export interface ConversionData {
+  benefits: ConversionBenefits
+  code: ConversionCode
+  environment: ConversionEnvironment
+  metadata: ConversionMetadata
+  notes: ConversionNotes
+  quality: ConversionQualityData
+}
+
+export interface ConversionResult {
+  conversion: ConversionData
 }
 
 // Shared helpers

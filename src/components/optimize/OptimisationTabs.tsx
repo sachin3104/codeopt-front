@@ -23,77 +23,92 @@ const OptimisationTabs: React.FC<OptimisationTabsProps> = ({
   // Prepare metrics data for the dashboard
   const metricsData: MetricsData = {
     executionTime: {
-      value: optimizationResult.execution_time?.optimized ?? 'NA',
-      original: optimizationResult.execution_time?.original ?? 'NA',
-      improvement: optimizationResult.improvement_percentages?.execution_time ?? 'NA'
+      value: optimizationResult.performance_analysis?.performance_metrics?.execution_time?.optimized ?? 'NA',
+      original: optimizationResult.performance_analysis?.performance_metrics?.execution_time?.original ?? 'NA',
+      improvement: optimizationResult.performance_analysis?.performance_metrics?.execution_time?.improvement_percentage ?? 'NA'
     },
     memoryUsage: {
-      value: optimizationResult.memory_usage?.optimized ?? 'NA',
-      original: optimizationResult.memory_usage?.original ?? 'NA',
-      improvement: optimizationResult.improvement_percentages?.memory_usage ?? 'NA'
+      value: optimizationResult.performance_analysis?.performance_metrics?.memory_usage?.optimized ?? 'NA',
+      original: optimizationResult.performance_analysis?.performance_metrics?.memory_usage?.original ?? 'NA',
+      improvement: optimizationResult.performance_analysis?.performance_metrics?.memory_usage?.improvement_percentage ?? 'NA'
     },
     codeComplexity: {
-      value: optimizationResult.code_complexity?.optimized ?? 'NA',
-      original: optimizationResult.code_complexity?.original ?? 'NA',
-      improvement: optimizationResult.improvement_percentages?.code_complexity ?? 'NA'
+      value: optimizationResult.code_quality_analysis?.code_quality_metrics?.overall_score?.optimized ?? 'NA',
+      original: optimizationResult.code_quality_analysis?.code_quality_metrics?.overall_score?.original ?? 'NA',
+      improvement: optimizationResult.code_quality_analysis?.code_quality_metrics?.overall_score?.improvement_percentage ?? 'NA'
     }
   };
 
   // Prepare optimization details data
-  const issuesResolved = optimizationResult.detailed_changes?.map(change => ({
-    priority: 'NA' as const,
-    category: change.metric ?? 'NA',
-    issue: change.issue ?? 'NA',
-    improvement: change.improvement ?? 'NA',
-    status: 'NA' as const,
-    location: change.location ?? 'NA',
+  const issuesResolved = optimizationResult.issues_resolved?.map(issue => ({
+    priority: (issue.priority ?? 'NA') as 'High' | 'Medium' | 'NA',
+    category: issue.category ?? 'NA',
+    issue: issue.issue ?? 'NA',
+    improvement: issue.improvement ?? 'NA',
+    status: (issue.status ?? 'NA') as 'Resolved' | 'NA',
+    location: issue.location ?? 'NA',
     costSaving: 'NA'
   })) ?? [];
 
   const optimizationDetailsData = {
-    highPriorityDetails: optimizationResult.detailed_changes?.map(change => ({
-      title: change.metric ?? 'NA',
-      description: change.improvement !== 'N/A' ? (change.improvement ?? 'NA') : (change.issue ?? 'NA'),
+    highPriorityDetails: optimizationResult.issues_resolved?.filter(issue => issue.priority === 'High').map(issue => ({
+      title: issue.category ?? 'NA',
+      description: issue.improvement ?? 'NA',
       icon: <Activity className="w-5 h-5 text-blue-500 mt-0.5" />
     })) ?? [],
-    mediumPriorityDetails: (optimizationResult.future_optimization_suggestions ?? []).map(suggestion => ({
-      title: suggestion,
-      description: '',
+    mediumPriorityDetails: optimizationResult.issues_resolved?.filter(issue => issue.priority === 'Medium').map(issue => ({
+      title: issue.category ?? 'NA',
+      description: issue.improvement ?? 'NA',
       icon: <Activity className="w-5 h-5 text-orange-400/80 mt-0.5" />
-    })),
+    })) ?? [],
     resourceSavings: optimizationResult.resource_savings ?? 'NA'
   };
 
   return (
     <div className="space-y-8">
-
-      
-
       <PerformanceAnalysis
-        scores={optimizationResult.optimized_code_scores.scores}
-        overall_score={optimizationResult.optimized_code_scores.overall_score}
+        scores={{
+          readability: { explanation: 'NA', score: optimizationResult.code_quality_analysis?.code_quality_metrics?.readability?.optimized ?? 0 },
+          maintainability: { explanation: 'NA', score: optimizationResult.code_quality_analysis?.code_quality_metrics?.maintainability?.optimized ?? 0 },
+          performance_efficiency: { explanation: 'NA', score: optimizationResult.code_quality_analysis?.code_quality_metrics?.performance_efficiency?.optimized ?? 0 },
+          security_vulnerability: { explanation: 'NA', score: optimizationResult.code_quality_analysis?.code_quality_metrics?.security_vulnerability?.optimized ?? 0 },
+          test_coverage: { explanation: 'NA', score: optimizationResult.code_quality_analysis?.code_quality_metrics?.test_coverage?.optimized ?? 0 }
+        }}
+        overall_score={optimizationResult.code_quality_analysis?.code_quality_metrics?.overall_score?.optimized ?? 0}
       />
 
       <FlowchartComparison 
-        originalFlowchart={optimizationResult.original_code_flowchart}
-        optimizedFlowchart={optimizationResult.optimized_code_flowchart}
+        originalFlowchart={optimizationResult.code_flowcharts?.original_code_flowchart}
+        optimizedFlowchart={optimizationResult.code_flowcharts?.optimized_code_flowchart}
       />
 
       <CodeQualityAnalysis 
-        scores={optimizationResult.optimized_code_scores}
+        scores={{
+          overall_score: optimizationResult.code_quality_analysis?.code_quality_metrics?.overall_score?.optimized ?? 0,
+          scores: {
+            readability: { explanation: 'NA', score: optimizationResult.code_quality_analysis?.code_quality_metrics?.readability?.optimized ?? 0 },
+            maintainability: { explanation: 'NA', score: optimizationResult.code_quality_analysis?.code_quality_metrics?.maintainability?.optimized ?? 0 },
+            performance_efficiency: { explanation: 'NA', score: optimizationResult.code_quality_analysis?.code_quality_metrics?.performance_efficiency?.optimized ?? 0 },
+            security_vulnerability: { explanation: 'NA', score: optimizationResult.code_quality_analysis?.code_quality_metrics?.security_vulnerability?.optimized ?? 0 },
+            test_coverage: { explanation: 'NA', score: optimizationResult.code_quality_analysis?.code_quality_metrics?.test_coverage?.optimized ?? 0 }
+          },
+          summary: 'NA'
+        }}
         metricsData={metricsData}
       />
 
       <ROIAnalysis 
         resourceSavings={optimizationResult.resource_savings}
-        improvementPercentages={optimizationResult.improvement_percentages}
+        improvementPercentages={{
+          code_complexity: optimizationResult.code_quality_analysis?.code_quality_metrics?.overall_score?.improvement_percentage ?? 0,
+          execution_time: optimizationResult.performance_analysis?.performance_metrics?.execution_time?.improvement_percentage ?? 0,
+          memory_usage: optimizationResult.performance_analysis?.performance_metrics?.memory_usage?.improvement_percentage ?? 0
+        }}
       />
 
       <IssuesResolvedTable 
         issuesResolved={issuesResolved}
       />
-
-      
 
       <ExecutiveSummary 
         metricsData={metricsData}
@@ -103,10 +118,8 @@ const OptimisationTabs: React.FC<OptimisationTabsProps> = ({
         detailsData={optimizationDetailsData}
       />
 
-      
-
       <NextSteps 
-        suggestions={optimizationResult.future_optimization_suggestions}
+        suggestions={optimizationResult.next_steps?.future_optimizations ?? []}
       />
     </div>
   );
