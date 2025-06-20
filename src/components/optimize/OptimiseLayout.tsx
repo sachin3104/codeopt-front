@@ -69,7 +69,7 @@ const OptimiseLayout: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen p-6 space-y-6">
+    <div className="flex flex-col min-h-screen  space-y-6">
       {/* Header Section */}
       <div className="flex items-center justify-between w-full">
         <h2 className="text-xl font-semibold text-white">Code Optimization Results</h2>
@@ -97,6 +97,8 @@ const OptimiseLayout: React.FC = () => {
           originalCode={code}
           convertedCode={optimizationResult.optimized_code}
           isReadOnly={true}
+          originalTitle="Original Code"
+          convertedTitle="Optimized Code"
         />
       </div>
 

@@ -182,8 +182,8 @@ const AnalyseLayout: React.FC = () => {
 
       {/* Content */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
-        <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 rounded-3xl border border-white/20 shadow-2xl p-6 flex flex-col">
-          <h2 className="text-lg font-semibold text-white/90 mb-4">Original Code</h2>
+        <div className="   flex flex-col">
+          
           <div className="flex-1 min-h-0">
             <CodeEditor value={code} isReadOnly height="100%" />
           </div>

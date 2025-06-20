@@ -74,6 +74,12 @@ const CodeQualityAnalysis: React.FC<CodeQualityAnalysisProps> = ({
     return { text: 'Poor', bg: 'bg-red-100/20', textColor: 'text-red-400' };
   };
 
+  const getScoreLevel = (score: number) => {
+    if (score >= 8) return { text: 'High', bg: 'bg-green-500/20', textColor: 'text-green-400' };
+    if (score >= 5) return { text: 'Medium', bg: 'bg-yellow-500/20', textColor: 'text-yellow-400' };
+    return { text: 'Low', bg: 'bg-red-500/20', textColor: 'text-red-400' };
+  };
+
   return (
     <Card className="bg-black/10 backdrop-blur-xl border border-white/10">
       <CardHeader>
@@ -93,17 +99,20 @@ const CodeQualityAnalysis: React.FC<CodeQualityAnalysisProps> = ({
           <table className="w-full">
             <thead>
               <tr className="text-xs text-white/60 uppercase">
-                <th className="text-left pb-2">Metric</th>
-                <th className="text-center pb-2">Before</th>
-                <th className="text-center pb-2">After</th>
-                <th className="text-center pb-2">Improvement</th>
-                <th className="text-right pb-2">Cost Savings</th>
+                <th className="text-left pb-2 w-1/6">Metric</th>
+                <th className="text-center pb-2 w-1/6">Before</th>
+                <th className="text-center pb-2 w-1/6"></th>
+                <th className="text-center pb-2 w-1/6">After</th>
+                <th className="text-center pb-2 w-1/6"></th>
+                <th className="text-center pb-2 w-1/6">Improvement</th>
               </tr>
             </thead>
             <tbody>
               {qualityMetrics.map((metric, index) => {
                 const beforeLabel = typeof metric.before === 'number' ? getScoreLabel(metric.before) : { text: 'N/A', bg: 'bg-gray-100/20', textColor: 'text-gray-400' };
                 const afterLabel = typeof metric.after === 'number' ? getScoreLabel(metric.after) : { text: 'N/A', bg: 'bg-gray-100/20', textColor: 'text-gray-400' };
+                const beforeLevel = typeof metric.before === 'number' ? getScoreLevel(metric.before) : { text: 'N/A', bg: 'bg-gray-100/20', textColor: 'text-gray-400' };
+                const afterLevel = typeof metric.after === 'number' ? getScoreLevel(metric.after) : { text: 'N/A', bg: 'bg-gray-100/20', textColor: 'text-gray-400' };
                 
                 return (
                   <tr key={index} className="border-t border-white/10">
@@ -119,15 +128,26 @@ const CodeQualityAnalysis: React.FC<CodeQualityAnalysisProps> = ({
                       </div>
                     </td>
                     <td className="text-center py-3 align-middle">
+                      <div className="flex justify-center">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${beforeLevel.bg} ${beforeLevel.textColor}`}>
+                          {beforeLevel.text}
+                        </span>
+                      </div>
+                    </td>
+                    <td className="text-center py-3 align-middle">
                       <div className="flex flex-col items-center justify-center gap-1">
                         <span className={`text-lg font-semibold ${afterLabel.textColor}`}>{typeof metric.after === 'number' ? metric.after.toFixed(1) + '/10' : 'NA'}</span>
                       </div>
                     </td>
+                    <td className="text-center py-3 align-middle">
+                      <div className="flex justify-center">
+                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${afterLevel.bg} ${afterLevel.textColor}`}>
+                          {afterLevel.text}
+                        </span>
+                      </div>
+                    </td>
                     <td className="text-center py-3 text-emerald-400/90 font-medium align-middle">
                       +{metric.improvement}
-                    </td>
-                    <td className="text-right py-3 text-emerald-400/90 font-medium align-middle">
-                      {metric.costSavings !== 'NA' ? `$${metric.costSavings}/mo` : 'NA'}
                     </td>
                   </tr>
                 );

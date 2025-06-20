@@ -28,13 +28,25 @@ const ROIAnalysis: React.FC<ROIAnalysisProps> = ({
     }
   };
 
+  // Helper to format decimal values to 2 decimal places
+  const formatDecimal = (value: any): string => {
+    if (value === 'NA' || value === null || value === undefined) {
+      return 'NA';
+    }
+    const num = parseFloat(value);
+    if (isNaN(num)) {
+      return 'NA';
+    }
+    return num.toFixed(2);
+  };
+
   // ROI metrics from backend only, no calculations or hardcoded labels
   const roiMetrics = [
     {
       icon: Timer,
       iconColor: 'text-blue-400/80',
       value: getMetric(['resource_savings', 'daily_time_saved_per_execution']) !== 'NA'
-        ? `${getMetric(['resource_savings', 'daily_time_saved_per_execution'])} min`
+        ? `${formatDecimal(getMetric(['resource_savings', 'daily_time_saved_per_execution']))} min`
         : 'NA',
       label: 'Daily Time Saved',
       sublabel: 'Per execution',
@@ -44,7 +56,7 @@ const ROIAnalysis: React.FC<ROIAnalysisProps> = ({
       icon: Database,
       iconColor: 'text-emerald-400/80',
       value: getMetric(['resource_savings', 'memory_saved_per_run']) !== 'NA'
-        ? `${getMetric(['resource_savings', 'memory_saved_per_run'])} KB`
+        ? `${formatDecimal(getMetric(['resource_savings', 'memory_saved_per_run']))} KB`
         : 'NA',
       label:  'Memory Saved',
       sublabel: 'Per run',
@@ -54,7 +66,7 @@ const ROIAnalysis: React.FC<ROIAnalysisProps> = ({
       icon: DollarSign,
       iconColor: 'text-violet-400/80',
       value: getMetric(['resource_savings', 'monthly_server_cost_savings']) !== 'NA'
-        ? `$${getMetric(['resource_savings', 'monthly_server_cost_savings'])}`
+        ? `$${formatDecimal(getMetric(['resource_savings', 'monthly_server_cost_savings']))}`
         : 'NA',
       label: 'Monthly Savings',
       sublabel: 'Server costs',
@@ -64,7 +76,7 @@ const ROIAnalysis: React.FC<ROIAnalysisProps> = ({
       icon: TrendingUp,
       iconColor: 'text-amber-400/80',
       value: getMetric(['resource_savings', 'annual_roi']) !== 'NA'
-        ? `${getMetric(['resource_savings', 'annual_roi'])}%`
+        ? `${formatDecimal(getMetric(['resource_savings', 'annual_roi']))}%`
         : 'NA',
       label: 'Annual ROI',
       sublabel: 'Total ROI',
@@ -74,7 +86,7 @@ const ROIAnalysis: React.FC<ROIAnalysisProps> = ({
 
   // Total Value from backend only
   const totalValue = getMetric(['resource_savings', 'annual_roi']) !== 'NA'
-    ? `${getMetric(['resource_savings', 'annual_roi'])}%`
+    ? `${formatDecimal(getMetric(['resource_savings', 'annual_roi']))}%`
     : 'NA';
 
   return (

@@ -81,7 +81,7 @@ const ConvertLayout: React.FC = () => {
     <div className="space-y-6">
       {/* Header Section */}
       <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-white">Converted Code</h2>
+        <h2 className="text-xl font-semibold text-white">Conversion Results</h2>
         <div className="flex items-center gap-4">
           <DocumentButton convertedCode={convertedCode.converted_code} />
           <button 
@@ -100,6 +100,8 @@ const ConvertLayout: React.FC = () => {
           originalCode={convertedCode.original_code}
           convertedCode={convertedCode.converted_code}
           isReadOnly={true}
+          originalTitle="Original Code"
+          convertedTitle="Converted Code"
         />
       </div>
 
