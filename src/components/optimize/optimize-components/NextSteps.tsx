@@ -2,13 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useOptimize } from '@/hooks/use-optimize';
 
-interface NextStepsProps {
-  suggestions: string[];
-}
-
-const NextSteps: React.FC<NextStepsProps> = ({
-  suggestions
-}) => {
+const NextSteps: React.FC = () => {
   const { result: optimizationResult } = useOptimize();
 
   if (!optimizationResult) {

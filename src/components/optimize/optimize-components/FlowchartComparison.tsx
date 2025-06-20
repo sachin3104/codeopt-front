@@ -5,15 +5,7 @@ import FlowchartVisualization from '@/components/common/FlowchartVisualization';
 import { useOptimize } from '@/hooks/use-optimize';
 import { type WorkflowData, type CodeFlowchart } from '@/types/api';
 
-interface FlowchartComparisonProps {
-  originalFlowchart: CodeFlowchart | undefined;
-  optimizedFlowchart: CodeFlowchart | undefined;
-}
-
-const FlowchartComparison: React.FC<FlowchartComparisonProps> = ({
-  originalFlowchart,
-  optimizedFlowchart
-}) => {
+const FlowchartComparison: React.FC = () => {
   const { result: optimizationResult } = useOptimize();
 
   useEffect(() => {
@@ -27,6 +19,10 @@ const FlowchartComparison: React.FC<FlowchartComparisonProps> = ({
     console.log('Missing optimization result');
     return null;
   }
+
+  // Get flowchart data from the optimization result
+  const originalFlowchart = optimizationResult.code_flowcharts?.original_code_flowchart;
+  const optimizedFlowchart = optimizationResult.code_flowcharts?.optimized_code_flowchart;
 
   // Transform the workflow data to match the expected format
   const transformWorkflowData = (data: CodeFlowchart | undefined) => {

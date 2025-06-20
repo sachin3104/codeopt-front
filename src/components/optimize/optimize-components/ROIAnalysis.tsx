@@ -1,22 +1,8 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Timer, Database, DollarSign, TrendingUp, Calculator } from 'lucide-react';
 import { useOptimize } from '@/hooks/use-optimize';
-import { type ResourceSavings } from '@/types/api';
 
-interface ROIAnalysisProps {
-  resourceSavings: ResourceSavings;
-  improvementPercentages: {
-    code_complexity: number;
-    execution_time: number;
-    memory_usage: number;
-  };
-}
-
-const ROIAnalysis: React.FC<ROIAnalysisProps> = ({
-  resourceSavings,
-  improvementPercentages
-}) => {
+const ROIAnalysis: React.FC = () => {
   const { result: optimizationResult } = useOptimize();
 
   if (!optimizationResult) {
@@ -94,32 +80,27 @@ const ROIAnalysis: React.FC<ROIAnalysisProps> = ({
     : 'NA';
 
   return (
-    <Card className="bg-black/10 backdrop-blur-xl border border-white/10">
-      <CardHeader>
-        <CardTitle className="text-white/90 flex items-center justify-between">
-          <div className="flex items-center">
-            <Calculator className="w-4 h-4 text-amber-400/80 mr-2" />
-            Resource Savings & ROI
-          </div>
-          <div className="text-sm text-white/70">
-            Total Value: <span className="text-emerald-400/90 font-bold">{totalValue}</span>
-          </div>
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-4 gap-6">
-          {roiMetrics.map((metric, index) => (
-            <div key={index} className="flex flex-col items-center rounded-lg p-4 ">
-              <metric.icon className={`w-6 h-6 ${metric.iconColor} mb-2`} />
-              <div className="text-2xl font-bold text-white/90 mb-1">{metric.value}</div>
-              <div className="text-xs text-emerald-400/90 font-semibold mb-1">{metric.label}</div>
-              <div className="text-xs text-white/50">{metric.sublabel}</div>
-              
-            </div>
-          ))}
+    <div className="bg-black/10 backdrop-blur-xl border border-white/10 rounded-xl p-6">
+      <div className="flex items-center justify-between mb-6">
+        <h3 className="font-semibold text-white flex items-center">
+          <Calculator className="w-4 h-4 text-amber-400/80 mr-2" />
+          Resource Savings & ROI
+        </h3>
+        <div className="text-sm text-white/70">
+          Total Value: <span className="text-emerald-400/90 font-bold">{totalValue}</span>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {roiMetrics.map((metric, index) => (
+          <div key={index} className="flex flex-col items-center p-3">
+            <metric.icon className={`w-5 h-5 ${metric.iconColor} mb-2`} />
+            <div className="text-xl font-bold text-white/90 mb-1">{metric.value}</div>
+            <div className="text-xs text-emerald-400/90 font-semibold mb-1">{metric.label}</div>
+            <div className="text-xs text-white/50">{metric.sublabel}</div>
+          </div>
+        ))}
+      </div>
+    </div>
   );
 };
 

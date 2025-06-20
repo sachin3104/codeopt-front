@@ -2,18 +2,8 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Code2, Zap, Eye, TestTube2 } from 'lucide-react';
 import { useOptimize } from '@/hooks/use-optimize';
-import { type OptimizedCodeScores } from '@/types/api';
-import { type MetricsData } from '@/types/metrics';
 
-interface CodeQualityAnalysisProps {
-  scores: OptimizedCodeScores;
-  metricsData: MetricsData;
-}
-
-const CodeQualityAnalysis: React.FC<CodeQualityAnalysisProps> = ({
-  scores,
-  metricsData
-}) => {
+const CodeQualityAnalysis: React.FC = () => {
   const { result: optimizationResult } = useOptimize();
 
   if (!optimizationResult) {

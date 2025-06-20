@@ -2,9 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, AlertTriangle } from 'lucide-react';
 import SyncCodeEditors from '@/components/common/editor/SyncCodeEditors';
-import OptimisationTabs from './OptimisationTabs';
 import { ActionMenu } from '../common/actions/CommonActionButtons';
 import LanguageSelectModal from '../common/actions/LanguageSelectModal';
+
+// Direct imports of optimize components
+import PerformanceGains from './optimize-components/PerformanceGains';
+import PerformanceAnalysis from './optimize-components/PerformanceAnalysis';
+import ROIAnalysis from './optimize-components/ROIAnalysis';
+import FlowchartComparison from './optimize-components/FlowchartComparison';
+import CodeQualityAnalysis from './optimize-components/CodeQualityAnalysis';
+import ExecutiveSummary from './optimize-components/ExecutiveSummary';
+import NextSteps from './optimize-components/NextSteps';
+import IssuesResolvedTable from './optimize-components/IssuesResolvedTable';
 
 import { useOptimize } from '@/hooks/use-optimize';
 import { useCode } from '@/hooks/use-code';
@@ -139,12 +148,20 @@ const OptimiseLayout: React.FC = () => {
         />
       </div>
 
-      {/* Optimization Details Tabs */}
-      <div className="w-full">
-        <OptimisationTabs
-          optimizationResult={optimizationResult}
-          originalCode={code}
-        />
+      {/* Performance Components - Side by Side */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <PerformanceGains />
+        <ROIAnalysis />
+      </div>
+
+      {/* Other Optimization Details */}
+      <div className="space-y-8">
+        <FlowchartComparison />
+        <CodeQualityAnalysis />
+        <PerformanceAnalysis />
+        <IssuesResolvedTable />
+        <ExecutiveSummary />
+        <NextSteps />
       </div>
 
       {/* Convert Modal */}
