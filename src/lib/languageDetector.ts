@@ -1,46 +1,28 @@
-// src/utils/languageDetector.ts
+// src/lib/languageDetector.ts
+import hljs from 'highlight.js/lib/core'
+import python from 'highlight.js/lib/languages/python'
+import sql    from 'highlight.js/lib/languages/sql'
+import rlang  from 'highlight.js/lib/languages/r'
+import sas    from 'highlight.js/lib/languages/sas'
 
-// Only these four get labels
+// register just these four
+hljs.registerLanguage('python', python)
+hljs.registerLanguage('sql',    sql)
+hljs.registerLanguage('r',      rlang)
+hljs.registerLanguage('sas',    sas)
+
 const SUPPORTED = new Set(['python','sql','r','sas'])
 
 /**
- * Pure-regex detector for Python, SQL, R, SAS.
+ * Uses highlight.js to auto-detect.  You can even pass
+ * your SUPPORTED array as a hint so it only considers those.
  * Returns one of 'python'|'sql'|'r'|'sas', or '' otherwise.
  */
 export function detectLanguage(code: string): string {
   const txt = code.trim()
   if (!txt) return ''
 
-  // 1) SAS: DATA step or PROC step (must end with semicolon)
-  //    e.g. "data foo;" or "proc print data=foo;"
-  if (/^\s*(?:data\s+\w+\s*;|proc\s+\w+\b[\s\S]*?;)/i.test(txt)) {
-    return 'sas'
-  }
-
-  // 2) SQL: starts with a DML/DDL keyword + semicolon
-  //    e.g. "SELECT * FROM tbl;" or "CREATE TABLE x (...);"
-  if (/^\s*(?:SELECT|INSERT|UPDATE|DELETE|CREATE|ALTER|DROP|WITH)\b[\s\S]*?;/i.test(txt)) {
-    return 'sql'
-  }
-
-  // 3) R: assignment "<-" or library()/require()/paste0()
-  //    e.g. "x <- 1", "foo <- function(a)...", "library(ggplot2)"
-  if (
-    /^\s*[\w.]+\s*<-\s*.+/m.test(txt) ||
-    /\b(?:library|require|paste0)\s*\(/i.test(txt)
-  ) {
-    return 'r'
-  }
-
-  // 4) Python: def/class/import/from/print or a function/statement line ending in ":"
-  //    e.g. "def foo():", "class Bar:", "import os", "from sys import argv"
-  if (
-    /^\s*(?:def|class|import|from|print)\b/.test(txt) ||
-    /^\s*[\w_]+\s*\(.*\)\s*:$/.test(txt.split('\n', 1)[0])
-  ) {
-    return 'python'
-  }
-
-  // else: unsupported
-  return ''
+  // pass SUPPORTED to limit detection scope
+  const { language } = hljs.highlightAuto(txt, Array.from(SUPPORTED))  // :contentReference[oaicite:0]{index=0}
+  return SUPPORTED.has(language) ? language : ''
 }

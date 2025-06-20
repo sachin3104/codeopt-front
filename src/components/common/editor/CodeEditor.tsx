@@ -2,7 +2,7 @@ import React, { useRef, useState } from 'react';
 import Editor, { loader, OnMount } from '@monaco-editor/react';
 import { Copy } from 'lucide-react';
 import { useCode } from '@/hooks/use-code';
-// import { useDetectedLanguage } from '@/hooks/use-detected-language';
+import { useDetectedLanguage } from '@/hooks/use-detected-language';
 
 // 1) Move this to module scope so it only ever runs once
 loader.init().then(monaco => {
@@ -81,16 +81,16 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const displayCode = value !== undefined ? value : code;
 
   // detect lang on every code change
-  // const detectedLang = useDetectedLanguage(displayCode);
+  const detectedLang = useDetectedLanguage(displayCode);
 
   const handleChange = (val?: string) => {
     const newText = val ?? ''
     if (value !== undefined) {
       onChange?.(newText)
-      return
+    } else {
+      setCode(newText)
+      onChange?.(newText)
     }
-    setCode(newText)
-    onChange?.(newText)
   }
 
   const handleEditorMount: OnMount = editor => {
@@ -116,27 +116,32 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       style={{ height }}
     >
       {/* Editor header with copy button */}
-      <div className="flex items-center justify-between p-2 border-b border-white/20">
-        {/* show the title on the left, if provided */}
-        <div className="flex-1">
+      <div className="flex items-center justify-between p-3 border-b border-white/20 bg-gradient-to-r from-black/20 via-black/10 to-black/20">
+        {/* show the title and detected language on the left */}
+        <div className="flex-1 flex items-center gap-3">
           {title && (
-            <span className="text-sm font-medium text-white/90">
-              {title}
-            </span>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 backdrop-blur-sm">
+              <span className="text-sm font-medium text-white/90">
+                {title}
+              </span>
+            </div>
           )}
-        </div>
-        {/* show the detected language in center, if any */}
-        <div className="flex-1 flex justify-center">
-          {/* detectedLang && (
-            <span className="text-sm font-medium text-white/80">
-              {detectedLang.toUpperCase()}
-            </span>
-          ) */}
+          {/* show the detected language with enhanced styling */}
+          {detectedLang && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-500/20 to-purple-500/20 border border-blue-400/30 backdrop-blur-sm">
+              <span className="text-xs font-medium text-blue-300/80 uppercase tracking-wider">
+                Language
+              </span>
+              <span className="text-sm font-semibold text-blue-200 uppercase tracking-wide">
+                {detectedLang}
+              </span>
+            </div>
+          )}
         </div>
         <button
           onClick={handleCopyCode}
           className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20
-                     border border-white/20 transition-colors text-white/80 hover:text-white"
+                     border border-white/20 transition-colors text-white/80 hover:text-white backdrop-blur-sm"
           title="Copy code"
         >
           <Copy size={16} />
@@ -148,7 +153,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       <div className="flex-1 min-h-0">
         <Editor
           height="100%"
-          language="plaintext"
+          language={detectedLang || 'plaintext'}
           theme="glassmorphic-dark"
           value={displayCode}
           onChange={handleChange}

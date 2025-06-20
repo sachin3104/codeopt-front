@@ -100,8 +100,8 @@ const ConvertLayout: React.FC = () => {
           originalCode={convertedCode.original_code || 'N/A'}
           convertedCode={convertedCode.converted_code || 'N/A'}
           isReadOnly={true}
-          originalTitle={`Original Code (${convertedCode.source_language || 'N/A'})`}
-          convertedTitle={`Converted Code (${convertedCode.target_language || 'N/A'})`}
+          originalTitle={`Original Code `}
+          convertedTitle={`Converted Code `}
         />
       </div>
 
