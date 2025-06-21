@@ -6,22 +6,23 @@
 
   <!-- CSP: allow your CDNs, Stripe, and local API -->
   <meta http-equiv="Content-Security-Policy"
-        content="
-          default-src 'self';
-          script-src 'self'
-                     https://cdn.gpteng.co
-                     https://cdn.jsdelivr.net
-                     https://js.stripe.com;
-          worker-src 'self' blob:;
-          font-src 'self'
-                   https://cdn.jsdelivr.net;
-          connect-src 'self'
-                      http://localhost:5001
-                      https://apiop.optqo.ai
-                      https://api.stripe.com;
-          img-src 'self' data:;
-          style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;
-        "
+  content="
+    default-src 'self';
+    script-src 'self' 'unsafe-inline' 'unsafe-eval'
+      https://cdn.gpteng.co
+      https://cdn.jsdelivr.net
+      https://js.stripe.com;
+    worker-src 'self' blob:;
+    font-src 'self' data:
+      https://cdn.jsdelivr.net;
+    connect-src 'self'
+      http://localhost:5001
+      https://apiop.optqo.ai
+      https://api.stripe.com;
+    img-src 'self' data:;
+    style-src 'self' 'unsafe-inline'
+      https://cdn.jsdelivr.net;
+  "
   />
 
   <!-- Basic Meta Tags -->
