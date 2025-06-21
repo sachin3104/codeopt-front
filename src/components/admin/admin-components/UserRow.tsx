@@ -168,8 +168,6 @@ export default function UserRow({
         </div>
 
         <div className="flex items-center gap-2">
-          {getAuthProviderBadge()}
-          
           {isLoading ? (
             <div className="w-8 h-8 flex items-center justify-center">
               <Loader2 size={16} className="animate-spin text-white/50" />

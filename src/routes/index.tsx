@@ -20,7 +20,6 @@ import DocumentResult from '@/pages/results/DocumentResult';
 // Admin pages
 import AdminLogin from '@/pages/admin/AdminLogin';
 import AdminDashboard from '@/pages/admin/AdminDashboard';
-import UserManagement from '@/pages/admin/UserManagement';
 
 // Payment Routes
 import PaymentSuccess from '@/pages/subscription/PaymentSuccess';
@@ -93,7 +92,6 @@ const AppRoutes: React.FC = () => {
       {/* Admin routes */}
       <Route path="/admin/login" element={<AdminLogin />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
-      <Route path="/admin/users" element={<UserManagement />} />
       
       {/* OPTIMIZED: Conditional home route using external component */}
       <Route path="/" element={<ConditionalHomeRoute />} />

@@ -12,7 +12,6 @@ const PUBLIC_ROUTES = [
   '/auth/success',
   '/admin/login',
   '/admin/dashboard',
-  '/admin/users',
   '/subscription/success',
   '/subscription/cancel'
 ];
