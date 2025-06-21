@@ -3,49 +3,21 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <!-- CSP: allow your CDNs, Stripe, and local API -->
-  <meta http-equiv="Content-Security-Policy"
-  content="
-    default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval'
-      https://cdn.gpteng.co
-      https://cdn.jsdelivr.net
-      https://js.stripe.com;
-    worker-src 'self' blob:;
-    font-src 'self' data:
-      https://cdn.jsdelivr.net;
-    connect-src 'self'
-      http://localhost:5001
-      https://apiop.optqo.ai
-      https://api.stripe.com;
-    img-src 'self' data:;
-    style-src 'self' 'unsafe-inline'
-      https://cdn.jsdelivr.net;
-  "
-  />
-
-  <!-- Basic Meta Tags -->
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://cdn.gpteng.co https://cdn.jsdelivr.net https://js.stripe.com; worker-src 'self' blob:; font-src 'self' data: https://cdn.jsdelivr.net https://cdn.jsdelivr.net/gh/JetBrains/; connect-src 'self' https://apiop.optqo.ai https://api.stripe.com; img-src 'self' data:; style-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net;" />
   <title>optqo</title>
   <meta name="description" content="Advanced code optimization platform that automates, integrates, and optimizes your development workflow for better performance." />
   <meta name="author" content="6th-Sense" />
   <meta name="robots" content="index, follow" />
-
-  <!-- Open Graph Meta Tags -->
   <meta property="og:title" content="optqo" />
   <meta property="og:description" content="Advanced code optimization platform that automates, integrates, and optimizes your development workflow for better performance." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://www.optqao.ai/og-image.png" />
-  <meta property="og:url" content="https://www.optqao.ai" />
+  <meta property="og:image" content="https://www.optqo.ai/og-image.png" />
+  <meta property="og:url" content="https://www.optqo.ai" />
   <meta property="og:site_name" content="optqo" />
-
-  <!-- Twitter Card Meta Tags -->
   <meta name="twitter:card" content="summary_large_image" />
   <meta name="twitter:title" content="optqo" />
   <meta name="twitter:description" content="Advanced code optimization platform that automates, integrates, and optimizes your development workflow for better performance." />
-  <meta name="twitter:image" content="https://www.optqao.ai/og-image.png" />
-
-  <!-- Favicon Links -->
+  <meta name="twitter:image" content="https://www.optqo.ai/og-image.png" />
   <link rel="icon" type="image/x-icon" href="/favicon/favicon.ico" />
   <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png" />
   <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png" />
@@ -56,7 +28,6 @@
 </head>
 <body>
   <div id="root"></div>
-  <!-- IMPORTANT: DO NOT REMOVE THIS SCRIPT TAG OR THIS VERY COMMENT! -->
   <script src="https://cdn.gpteng.co/gptengineer.js" type="module"></script>
   <script type="module" src="/src/main.tsx"></script>
 </body>
