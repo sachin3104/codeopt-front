@@ -157,12 +157,21 @@ const OptimiseLayout: React.FC = () => {
       {/* Other Optimization Details */}
       <div className="space-y-8">
         <FlowchartComparison />
-        <CodeQualityAnalysis />
-        <PerformanceAnalysis />
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <CodeQualityAnalysis />
+      <PerformanceAnalysis />
+      </div>
+
+      <div className="space-y-8">
         <IssuesResolvedTable />
         <ExecutiveSummary />
         <NextSteps />
       </div>
+
+
+      
 
       {/* Convert Modal */}
       <LanguageSelectModal 

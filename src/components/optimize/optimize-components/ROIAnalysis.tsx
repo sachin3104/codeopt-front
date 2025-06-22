@@ -68,7 +68,7 @@ const ROIAnalysis: React.FC = () => {
       value: getMetric(['resource_savings', 'Expected Annual Shavings']) !== 'NA'
         ? `${formatDecimal(getMetric(['resource_savings', 'Expected Annual Shavings']))}%`
         : 'NA',
-      label: 'Annual ROI',
+      label: 'Estimated Annual Savings',
       sublabel: 'Total ROI',
       barColor: 'bg-amber-400/30'
     }

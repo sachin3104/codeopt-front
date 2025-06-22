@@ -27,11 +27,11 @@ export default function LandingPage() {
               transition={{ delay: 0.3, duration: 0.8, ease: "easeInOut" }}
               className="relative z-10"
             >
-              <h1 className="text-3xl md:text-7xl font-bold text-white">
-                optqo: Next-Level Optimisation
+              <h1 className="text-xl md:text-6xl font-bold text-white">
+                Analytics, Reinvented with AI & Experts
               </h1>
-              <p className="mt-4 font-extralight text-base md:text-4xl text-neutral-200">
-                Automate. Integrate. Optimize.
+              <p className="text-sm mt-4 font-extralight text-sm md:text-2xl text-neutral-200">
+                Understand, Optimize, Translate & Document Your Code — with AI Agents and Expert Mentoring.
               </p>
               <button 
                 onClick={() => window.location.href = '/login'}
