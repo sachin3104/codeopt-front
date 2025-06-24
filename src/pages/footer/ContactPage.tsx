@@ -36,20 +36,20 @@ export default function ContactPage() {
         <Header />
         
         <main className="flex-grow">
-          <section className="py-16 sm:py-20">
+          <section className="pt-32 pb-16 sm:pt-40 sm:pb-20">
             <div className="max-w-7xl mx-auto px-4">
               <div className="text-center mb-12">
                 <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent mb-4">
                   Get in Touch
                 </h1>
                 <p className="text-lg text-white/70 max-w-2xl mx-auto">
-                  Have questions about Optqo? We're here to help you optimize your code and workflow.
+                  Have questions about optqo? We're here to help you optimize your code and workflow.
                 </p>
               </div>
 
               <div className="grid lg:grid-cols-2 gap-8">
                 {/* Contact Info & Social Links */}
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="space-y-8">
                     {/* Contact Info */}
                     <div className="space-y-4">
@@ -59,8 +59,8 @@ export default function ContactPage() {
                         <div className="flex items-center gap-3">
                           <Mail className="h-5 w-5 text-blue-400" />
                           <div>
-                            <p className="text-white font-medium">info@optqo.ai</p>
-                            <p className="text-white/70 text-sm">support@optqo.ai</p>
+                            <p className="text-white font-medium">Email</p>
+                            <p className="text-white/70 text-sm">info@optqo.ai</p>
                           </div>
                         </div>
                         
@@ -93,7 +93,7 @@ export default function ContactPage() {
                           href="https://discord.gg/optqo" 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 transition-all duration-300 rounded-lg text-white"
+                          className="flex items-center gap-3 p-3 backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:bg-white/10 transition-all duration-300 rounded-lg text-white border border-white/20"
                         >
                           <DiscordIcon className="h-5 w-5 text-blue-400" />
                           <div>
@@ -106,7 +106,7 @@ export default function ContactPage() {
                           href="https://twitter.com/optqo" 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 transition-all duration-300 rounded-lg text-white"
+                          className="flex items-center gap-3 p-3 backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:bg-white/10 transition-all duration-300 rounded-lg text-white border border-white/20"
                         >
                           <XIcon className="h-5 w-5 text-blue-400" />
                           <div>
@@ -119,7 +119,7 @@ export default function ContactPage() {
                           href="https://linkedin.com/company/optqo" 
                           target="_blank" 
                           rel="noopener noreferrer"
-                          className="flex items-center gap-3 p-3 bg-white/5 hover:bg-white/10 transition-all duration-300 rounded-lg text-white"
+                          className="flex items-center gap-3 p-3 backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:bg-white/10 transition-all duration-300 rounded-lg text-white border border-white/20"
                         >
                           <Linkedin className="h-5 w-5 text-blue-400" />
                           <div>
@@ -133,7 +133,7 @@ export default function ContactPage() {
                 </div>
 
                 {/* Contact Form */}
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <h2 className="text-2xl font-bold text-white mb-6">Send us a Message</h2>
                   <form className="space-y-4">
                     <div className="grid sm:grid-cols-2 gap-4">
@@ -144,7 +144,7 @@ export default function ContactPage() {
                         <input
                           type="text"
                           id="firstName"
-                          className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                          className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                           placeholder="John"
                         />
                       </div>
@@ -155,7 +155,7 @@ export default function ContactPage() {
                         <input
                           type="text"
                           id="lastName"
-                          className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                          className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                           placeholder="Doe"
                         />
                       </div>
@@ -168,7 +168,7 @@ export default function ContactPage() {
                       <input
                         type="email"
                         id="email"
-                        className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                        className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                         placeholder="john@example.com"
                       />
                     </div>
@@ -179,7 +179,7 @@ export default function ContactPage() {
                       </label>
                       <select
                         id="subject"
-                        className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
+                        className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
                       >
                         <option value="">Select a subject</option>
                         <option value="general">General Inquiry</option>
@@ -196,14 +196,14 @@ export default function ContactPage() {
                       <textarea
                         id="message"
                         rows={6}
-                        className="w-full bg-white/10 backdrop-blur-sm border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none"
+                        className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none"
                         placeholder="Tell us how we can help you..."
-                      ></textarea>
+                      />
                     </div>
                     
                     <button
                       type="submit"
-                      className="w-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-6 py-3 flex items-center justify-center gap-2"
+                      className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-8 py-3 flex items-center justify-center gap-2"
                     >
                       <Send className="w-4 h-4" />
                       Send Message

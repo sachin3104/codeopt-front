@@ -12,11 +12,11 @@ export default function CookiePolicyPage() {
         <Header />
         
         <main className="flex-grow">
-          <section className="py-32 sm:py-40">
+          <section className="pt-32 pb-16 sm:pt-40 sm:pb-20">
             <div className="max-w-4xl mx-auto px-4">
               <div className="text-center mb-20">
                 <div className="flex justify-center mb-6">
-                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4">
+                  <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-4">
                     <Cookie className="h-12 w-12 text-blue-400" />
                   </div>
                 </div>
@@ -24,7 +24,7 @@ export default function CookiePolicyPage() {
                   Cookie Policy
                 </h1>
                 <p className="text-lg text-white/70 max-w-2xl mx-auto">
-                  Learn how Sixth Sense Enterprises OPC Pvt Ltd uses cookies and similar technologies on the OptQo analytics code optimization platform.
+                  Learn how Sixth Sense Enterprises OPC Pvt Ltd uses cookies and similar technologies on the optqo analytics code optimization platform.
                 </p>
                 <p className="text-sm text-white/50 mt-4">
                   Effective Date: July 1, 2025 | Last Updated: July 1, 2025 | Effective Till: January 1, 2026
@@ -32,14 +32,14 @@ export default function CookiePolicyPage() {
               </div>
 
               <div className="space-y-8">
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Info className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">1. Introduction</h2>
                   </div>
                   <div className="space-y-4 text-white/80">
                     <p className="text-sm">
-                      Sixth Sense Enterprises OPC Pvt Ltd ("Company," "we," "us," or "our") operates the OptQo analytics code optimization platform ("Service"). This Cookie Policy explains how we use cookies and similar tracking technologies on our website and platform. This policy should be read in conjunction with our Privacy Policy, which provides additional information about how we collect, use, and protect your personal information.
+                      Sixth Sense Enterprises OPC Pvt Ltd ("Company," "we," "us," or "our") operates the optqo analytics code optimization platform ("Service"). This Cookie Policy explains how we use cookies and similar tracking technologies on our website and platform. This policy should be read in conjunction with our Privacy Policy, which provides additional information about how we collect, use, and protect your personal information.
                     </p>
                     <p className="text-sm">
                       By continuing to use our Service, you consent to our use of cookies and similar technologies as described in this policy. You have the right to manage your cookie preferences and can modify your browser settings to control how cookies are handled during your use of our platform.
@@ -47,7 +47,7 @@ export default function CookiePolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Database className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">2. What Are Cookies</h2>
@@ -62,7 +62,7 @@ export default function CookiePolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Shield className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">3. Types of Cookies We Use</h2>
@@ -90,7 +90,7 @@ export default function CookiePolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Settings className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">4. How We Use Cookies</h2>
@@ -118,7 +118,7 @@ export default function CookiePolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Info className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">5. Third-Party Cookies</h2>
@@ -135,7 +135,7 @@ export default function CookiePolicyPage() {
                       <h3 className="text-lg font-semibold text-white mb-2">Infrastructure Support Services</h3>
                       <p className="text-sm mb-2">Include cookies from cloud hosting providers, content delivery networks, and security services that help deliver our platform reliably and securely. These third-party cookies enable essential functions such as load balancing, DDoS protection, and global content distribution.</p>
                     </div>
-                    <div className="mt-4 p-4 bg-white/5 rounded-lg">
+                    <div className="mt-4 p-4 backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 rounded-lg border border-white/20">
                       <p className="text-sm text-white/70">
                         We work with reputable third-party providers who maintain appropriate data protection standards and use cookies in accordance with applicable privacy regulations. However, we recommend reviewing the privacy policies of these third-party services to understand their specific cookie practices and data handling procedures.
                       </p>
@@ -143,7 +143,7 @@ export default function CookiePolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Settings className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">6. Managing Your Cookie Preferences</h2>
@@ -179,7 +179,7 @@ export default function CookiePolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Info className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">7. Cookie Retention and Expiration</h2>
@@ -199,79 +199,22 @@ export default function CookiePolicyPage() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold text-white mb-2">Manual Deletion</h3>
-                      <p className="text-sm mb-2">Can be performed through your browser settings at any time, allowing you complete control over which cookies remain on your device. Regular deletion of cookies provides additional privacy protection, though it may require you to re-establish preferences and settings within our Service.</p>
+                      <p className="text-sm mb-2">Can be performed through your browser settings at any time. Clearing cookies will remove stored preferences and may require you to re-enter certain information or reconfigure your settings within our platform.</p>
                     </div>
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Shield className="h-6 w-6 text-blue-400" />
-                    <h2 className="text-2xl font-bold text-white">8. Data Protection and Cookie Security</h2>
-                  </div>
-                  <div className="space-y-4 text-white/80">
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">Encryption and Security</h3>
-                      <p className="text-sm mb-2">Measures protect cookie data during transmission and storage, ensuring that sensitive information contained in cookies remains secure. We implement industry-standard security protocols to protect cookie data and prevent unauthorized access to your preferences and session information.</p>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">Data Minimization</h3>
-                      <p className="text-sm mb-2">Principles guide our cookie practices, ensuring that we collect and store only the information necessary to provide our Service effectively. We regularly review our cookie usage to eliminate unnecessary data collection and maintain minimal information requirements.</p>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">Regular Security Reviews</h3>
-                      <p className="text-sm mb-2">Assess our cookie implementation and security measures to ensure ongoing protection against emerging threats and vulnerabilities. These reviews help us maintain robust security standards while providing you with efficient and personalized service.</p>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">Compliance Standards</h3>
-                      <p className="text-sm mb-2">Ensure that our cookie practices align with applicable data protection regulations and industry best practices. We monitor regulatory developments and adjust our cookie policies and practices accordingly to maintain compliance across all jurisdictions where we operate.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
-                  <div className="flex items-center gap-3 mb-6">
-                    <Info className="h-6 w-6 text-blue-400" />
-                    <h2 className="text-2xl font-bold text-white">9. Updates to This Cookie Policy</h2>
+                    <h2 className="text-2xl font-bold text-white">8. Contact Information</h2>
                   </div>
                   <div className="space-y-4 text-white/80">
                     <p className="text-sm">
-                      We may update this Cookie Policy periodically to reflect changes in our cookie practices, technology developments, or regulatory requirements. When we make material changes to this policy, we will notify you through our Service, email communication, or other appropriate channels before the changes take effect.
+                      If you have any questions about this Cookie Policy, please contact us:
                     </p>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">Notification Methods</h3>
-                      <p className="text-sm mb-2">For policy updates include prominent notices on our website, email notifications to registered users, and in-platform announcements. We provide reasonable advance notice of significant changes to give you time to review the updated policy and adjust your cookie preferences if desired.</p>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">Continued Use</h3>
-                      <p className="text-sm mb-2">Of our Service after policy updates take effect constitutes your acceptance of the revised cookie practices. We encourage you to review this Cookie Policy regularly to stay informed about how we use cookies and similar technologies.</p>
-                    </div>
-                    <div>
-                      <h3 className="text-lg font-semibold text-white mb-2">Version Control</h3>
-                      <p className="text-sm mb-2">Ensures that you can access previous versions of this Cookie Policy to understand what changes have been made and how they may affect your use of our Service. We maintain clear documentation of policy updates and their effective dates for your reference.</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
-                  <h2 className="text-2xl font-bold text-white mb-4">10. Contact Information</h2>
-                  <p className="text-white/70 mb-6">
-                    For questions about this Cookie Policy, concerns about our cookie practices, or requests for additional information about how we use tracking technologies, please contact us using the following information:
-                  </p>
-                  <div className="space-y-2 text-sm text-white/60">
                     <p><strong>Email:</strong> info@optqo.ai</p>
-                    <p><strong>India Office:</strong> 4th Floor, Rectangle 1, Commercial Complex D Floor, Saket, New Delhi 110017, India</p>
-                    <p><strong>Dubai Office:</strong> Sixth Sense Management Consultancy L.L.C-FZ, Meydan Grandstand, 6th Floor, Meydan Road, Nad Al Sheba, Dubai, U.A.E.</p>
                   </div>
-                  <p className="text-sm text-white/70 mt-4">
-                    We are committed to addressing your questions and concerns about our cookie practices and will respond to your inquiries promptly and in accordance with applicable data protection regulations.
-                  </p>
-                </div>
-
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
-                  <p className="text-sm text-white/50 italic">
-                    This Cookie Policy is effective as of the date indicated above and governs our use of cookies and similar technologies in connection with our Service.
-                  </p>
                 </div>
               </div>
             </div>

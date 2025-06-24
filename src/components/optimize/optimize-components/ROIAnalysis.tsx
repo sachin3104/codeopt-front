@@ -18,7 +18,7 @@ const ROIAnalysis: React.FC = () => {
     }
   };
 
-  // Helper to format decimal values to 2 decimal places
+  // Helper to format decimal values to integers only
   const formatDecimal = (value: any): string => {
     if (value === 'NA' || value === null || value === undefined) {
       return 'NA';
@@ -27,7 +27,7 @@ const ROIAnalysis: React.FC = () => {
     if (isNaN(num)) {
       return 'NA';
     }
-    return num.toFixed(2);
+    return Math.round(num).toString();
   };
 
   // ROI metrics from backend only, no calculations or hardcoded labels
@@ -95,7 +95,7 @@ const ROIAnalysis: React.FC = () => {
           <div key={index} className="flex flex-col items-center p-3">
             <metric.icon className={`w-5 h-5 ${metric.iconColor} mb-2`} />
             <div className="text-xl font-bold text-white/90 mb-1">{metric.value}</div>
-            <div className="text-xs text-emerald-400/90 font-semibold mb-1">{metric.label}</div>
+            <div className="text-xs text-emerald-400/90 font-semibold mb-1 text-center">{metric.label}</div>
             <div className="text-xs text-white/50">{metric.sublabel}</div>
           </div>
         ))}

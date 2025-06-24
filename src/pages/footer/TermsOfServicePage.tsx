@@ -12,11 +12,11 @@ export default function TermsOfServicePage() {
         <Header />
         
         <main className="flex-grow">
-          <section className="py-32 sm:py-40">
+          <section className="pt-32 pb-16 sm:pt-40 sm:pb-20">
             <div className="max-w-4xl mx-auto px-4">
               <div className="text-center mb-20">
                 <div className="flex justify-center mb-6">
-                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4">
+                  <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-4">
                     <Scale className="h-12 w-12 text-blue-400" />
                   </div>
                 </div>
@@ -24,7 +24,7 @@ export default function TermsOfServicePage() {
                   Terms of Service
                 </h1>
                 <p className="text-lg text-white/70 max-w-2xl mx-auto">
-                  These terms govern your use of Sixth Sense Enterprises OPC Pvt Ltd's OptQo analytics code optimization platform.
+                  These terms govern your use of Sixth Sense Enterprises OPC Pvt Ltd's optqo analytics code optimization platform.
                 </p>
                 <p className="text-sm text-white/50 mt-4">
                   Effective Date: July 1, 2025 | Last Updated: July 1, 2025 | Effective Till: January 1, 2026
@@ -32,7 +32,7 @@ export default function TermsOfServicePage() {
               </div>
 
               <div className="space-y-8">
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <CheckCircle className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">1. Acceptance of Terms</h2>
@@ -44,7 +44,7 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <FileText className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">2. Description of Service</h2>
@@ -72,7 +72,7 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Shield className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">3. User Accounts and Registration</h2>
@@ -84,7 +84,7 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <AlertTriangle className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">4. Acceptable Use Policy</h2>
@@ -105,7 +105,7 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <FileText className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">5. Intellectual Property Rights</h2>
@@ -126,7 +126,7 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Shield className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">6. Data Processing and Privacy</h2>
@@ -151,7 +151,7 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <CheckCircle className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">7. Service Availability and Performance</h2>
@@ -166,7 +166,7 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <AlertTriangle className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">8. Limitation of Liability</h2>
@@ -184,7 +184,7 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Shield className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">9. User Responsibilities and Warranties</h2>
@@ -199,7 +199,7 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <FileText className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">10. Indemnification</h2>
@@ -211,7 +211,7 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <AlertTriangle className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">11. Termination</h2>
@@ -226,7 +226,7 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <FileText className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">12. Modifications to Terms</h2>
@@ -238,7 +238,7 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Scale className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">13. Governing Law and Dispute Resolution</h2>
@@ -250,7 +250,7 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <FileText className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">14. Miscellaneous Provisions</h2>
@@ -275,22 +275,17 @@ export default function TermsOfServicePage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
-                  <h2 className="text-2xl font-bold text-white mb-4">15. Contact Information</h2>
-                  <p className="text-white/70 mb-6">
-                    For questions regarding these Terms of Service, please contact us at:
-                  </p>
-                  <div className="space-y-2 text-sm text-white/60">
-                    <p><strong>Email:</strong> info@optqo.ai</p>
-                    <p><strong>India Office:</strong> 4th Floor, Rectangle 1, Commercial Complex D Floor, Saket, New Delhi 110017, India</p>
-                    <p><strong>Dubai Office:</strong> Sixth Sense Management Consultancy L.L.C-FZ, Meydan Grandstand, 6th Floor, Meydan Road, Nad Al Sheba, Dubai, U.A.E.</p>
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
+                  <div className="flex items-center gap-3 mb-6">
+                    <FileText className="h-6 w-6 text-blue-400" />
+                    <h2 className="text-2xl font-bold text-white">10. Contact Information</h2>
                   </div>
-                </div>
-
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
-                  <p className="text-sm text-white/50 italic">
-                    By using our Service, you acknowledge that you have read, understood, and agree to be bound by these Terms of Service.
-                  </p>
+                  <div className="space-y-4 text-white/80">
+                    <p className="text-sm">
+                      If you have any questions about these Terms of Service, please contact us:
+                    </p>
+                    <p><strong>Email:</strong> info@optqo.ai</p>
+                  </div>
                 </div>
               </div>
             </div>

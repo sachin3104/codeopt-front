@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
 import Editor, { loader, OnMount } from '@monaco-editor/react';
-import { Copy } from 'lucide-react';
+import { Copy, AlertTriangle } from 'lucide-react';
 import { useCode } from '@/hooks/use-code';
 import { useDetectedLanguage } from '@/hooks/use-detected-language';
+import { useCharacterLimit, formatCharacterCount } from '@/hooks/use-character-limit';
 
 // 1) Move this to module scope so it only ever runs once
 loader.init().then(monaco => {
@@ -83,6 +84,29 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   // detect lang on every code change
   const detectedLang = useDetectedLanguage(displayCode);
 
+  // Character limit information
+  const { currentCount, limit, isOverLimit, percentageUsed } = useCharacterLimit(displayCode);
+
+  // React.useEffect(() => {
+  //   const style = document.createElement('style');
+  //   style.innerHTML = `
+  //     .monaco-editor,
+  //     .monaco-editor *,
+  //     .monaco-editor .inputarea.ime-input,
+  //     .monaco-editor .monaco-editor-background,
+  //     .monaco-editor textarea {
+  //       outline: none !important;
+  //       border: none !important;
+  //     }
+  //   `;
+  //   document.head.appendChild(style);
+    
+  //   return () => {
+  //     document.head.removeChild(style);
+  //   };
+  // }, []);
+
+
   const handleChange = (val?: string) => {
     const newText = val ?? ''
     if (value !== undefined) {
@@ -107,7 +131,20 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     }
   };
 
-  
+  // Get character count styling based on limit status
+  const getCharacterCountStyle = () => {
+    if (isOverLimit) {
+      return 'text-red-400 font-semibold'
+    }
+    return 'text-white/60'
+  }
+
+  // Get character count text with formatting
+  const getCharacterCountText = () => {
+    const formattedCount = formatCharacterCount(currentCount)
+    const formattedLimit = formatCharacterCount(limit)
+    return `${formattedCount} / ${formattedLimit}`
+  }
 
   return (
     <div
@@ -120,7 +157,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         {/* show the title and detected language on the left */}
         <div className="flex-1 flex items-center gap-3">
           {title && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 border border-white/20 backdrop-blur-sm">
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-white backdrop-blur-md transition-all duration-300 bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:from-black/50 hover:via-black/40 hover:to-black/30 border border-white/20 hover:border-white/30">
               <span className="text-sm font-medium text-white/90">
                 {title}
               </span>
@@ -137,11 +174,19 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
               </span>
             </div>
           )}
+          {/* Character limit warning indicator - only show when over limit */}
+          {isOverLimit && (
+            <div className="flex items-center gap-1 px-2 py-1 rounded-md bg-red-500/20 border border-red-500/30 backdrop-blur-sm">
+              <AlertTriangle size={12} className="text-red-400" />
+              <span className="text-xs font-medium text-red-400">
+                Limit Exceeded
+              </span>
+            </div>
+          )}
         </div>
         <button
           onClick={handleCopyCode}
-          className="flex items-center gap-1 px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20
-                     border border-white/20 transition-colors text-white/80 hover:text-white backdrop-blur-sm"
+          className="flex items-center gap-1 px-3 py-1.5 rounded-lg text-white backdrop-blur-md transition-all duration-300 bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:from-black/50 hover:via-black/40 hover:to-black/30 border border-white/20 hover:border-white/30"
           title="Copy code"
         >
           <Copy size={16} />
@@ -150,7 +195,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       </div>
 
       {/* Monaco Editor */}
-      <div className="flex-1 min-h-0">
+      <div className="flex-1 min-h-0 [&_.monaco-editor]:!outline-none [&_.monaco-editor]:!border-none [&_.monaco-editor_*]:!outline-none [&_.monaco-editor_*]:!border-none [&_.monaco-editor_textarea]:!outline-none [&_.monaco-editor_textarea]:!border-none">
         <Editor
           height="100%"
           language={detectedLang || 'plaintext'}
@@ -189,12 +234,31 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         />
       </div>
 
-      {/* Status bar */}
-      <div className="flex items-center justify-end px-4 py-2 bg-gradient-to-br from-black/40 via-black/30 to-black/20
-                      border-t border-white/20 text-xs text-white/60">
-        <div className="flex items-center space-x-4">
+      {/* Status bar with enhanced character count */}
+      <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-br from-black/40 via-black/30 to-black/20
+                      border-t border-white/20 text-xs">
+        <div className="flex items-center space-x-4 text-white/60">
           <span>Lines: {displayCode.split('\n').length}</span>
           <span>Chars: {displayCode.length}</span>
+        </div>
+        <div className="flex items-center space-x-3">
+          {/* Character count with limit awareness */}
+          <div className="flex items-center gap-2">
+            <span className={getCharacterCountStyle()}>
+              {getCharacterCountText()}
+            </span>
+            {/* Progress bar for character usage */}
+            <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
+              <div 
+                className={`h-full rounded-full transition-all duration-300 ${
+                  isOverLimit 
+                    ? 'bg-red-500' 
+                    : 'bg-green-500'
+                }`}
+                style={{ width: `${Math.min(100, percentageUsed)}%` }}
+              />
+            </div>
+          </div>
         </div>
       </div>
     </div>

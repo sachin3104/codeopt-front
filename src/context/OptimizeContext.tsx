@@ -10,6 +10,7 @@ import React, {
   import { useCode } from '@/hooks/use-code'
   import type { OptimizationResult } from '@/types/api'
   import { useLoading } from '@/context/LoadingContext'
+  import { useSubscription } from '@/hooks/use-subscription'
   
   export interface OptimizeContextType {
     isLoading: boolean
@@ -25,6 +26,7 @@ import React, {
   export const OptimizeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const { code } = useCode()
     const { show, hide } = useLoading()
+    const { refresh: refreshSubscription } = useSubscription()
     const [isLoading, setLoading] = useState(false)
     const [result, setResult]     = useState<OptimizationResult | null>(null)
     const [error, setError]       = useState<string | null>(null)
@@ -54,6 +56,13 @@ import React, {
       try {
         const data = await optimizeCode(code)
         setResult(data)
+        // Refresh subscription data after successful request to update plan details in header
+        try {
+          await refreshSubscription()
+        } catch (refreshError) {
+          // Silently handle refresh errors to avoid breaking the main flow
+          console.warn('Failed to refresh subscription data:', refreshError)
+        }
       } catch (e: any) {
         setError(e.message || 'Optimization failed.')
       } finally {

@@ -12,7 +12,7 @@ export default function PricingPage() {
         <Header />
         
         <main className="flex-grow">
-          <section className="py-32 sm:py-40">
+          <section className="pt-32 pb-16 sm:pt-40 sm:pb-20">
             <div className="max-w-4xl mx-auto px-4">
               <div className="text-center mb-20">
                 <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent mb-6">
@@ -24,10 +24,10 @@ export default function PricingPage() {
               </div>
 
               <div className="space-y-12">
-                {/* Optqo Free */}
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                {/* optqo Free */}
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="mb-6">
-                    <h2 className="text-3xl font-bold text-white mb-3">Optqo Free</h2>
+                    <h2 className="text-3xl font-bold text-white mb-3">optqo Free</h2>
                     <p className="text-lg text-white/70 mb-4">
                       Get started with essential code optimization tools – perfect for exploration and small projects.
                     </p>
@@ -56,15 +56,15 @@ export default function PricingPage() {
                     </div>
                   </div>
                   
-                  <button className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-8 py-3 flex items-center gap-2">
+                  <button className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-8 py-3 flex items-center gap-2">
                     Get Started <MoveRight className="w-4 h-4" />
                   </button>
                 </div>
 
-                {/* Optqo Pro */}
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                {/* optqo Pro */}
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="mb-6">
-                    <h2 className="text-3xl font-bold text-white mb-3">Optqo Pro</h2>
+                    <h2 className="text-3xl font-bold text-white mb-3">optqo Pro</h2>
                     <p className="text-lg text-white/70 mb-4">
                       For analysts and practitioners seeking deeper diagnostics and more powerful insights.
                     </p>
@@ -93,15 +93,15 @@ export default function PricingPage() {
                     </div>
                   </div>
                   
-                  <button className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-8 py-3 flex items-center gap-2">
+                  <button className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-8 py-3 flex items-center gap-2">
                     Subscribe Now <MoveRight className="w-4 h-4" />
                   </button>
                 </div>
 
-                {/* Optqo OptiFlow */}
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                {/* optqo OptiFlow */}
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="mb-6">
-                    <h2 className="text-3xl font-bold text-white mb-3">Optqo OptiFlow</h2>
+                    <h2 className="text-3xl font-bold text-white mb-3">optqo Ultimate</h2>
                     <p className="text-lg text-white/70 mb-4">
                       For advanced professionals and teams focused on scalable ML and analytics optimization.
                     </p>
@@ -134,15 +134,15 @@ export default function PricingPage() {
                     </div>
                   </div>
                   
-                  <button className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-8 py-3 flex items-center gap-2">
-                    Upgrade to OptiFlow <MoveRight className="w-4 h-4" />
+                  <button className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-8 py-3 flex items-center gap-2">
+                    Upgrade to Ultimate <MoveRight className="w-4 h-4" />
                   </button>
                 </div>
 
-                {/* Optqo Enterprise */}
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                {/* optqo Enterprise */}
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="mb-6">
-                    <h2 className="text-3xl font-bold text-white mb-3">Optqo Enterprise</h2>
+                    <h2 className="text-3xl font-bold text-white mb-3">optqo Enterprise</h2>
                     <p className="text-lg text-white/70 mb-4">
                       Custom AI solutions for enterprise-scale optimization.
                     </p>
@@ -167,15 +167,15 @@ export default function PricingPage() {
                     </div>
                   </div>
                   
-                  <button className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-8 py-3 flex items-center gap-2">
+                  <button className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-8 py-3 flex items-center gap-2">
                     Contact Us <PhoneCall className="w-4 h-4" />
                   </button>
                 </div>
 
-                {/* Optqo Expert */}
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                {/* optqo Expert */}
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="mb-6">
-                    <h2 className="text-3xl font-bold text-white mb-3">Optqo Expert</h2>
+                    <h2 className="text-3xl font-bold text-white mb-3">optqo Expert</h2>
                     <p className="text-lg text-white/70 mb-4">
                       One-on-one mentoring with a senior analytics leader.
                     </p>
@@ -196,12 +196,12 @@ export default function PricingPage() {
                     </div>
                     <div className="flex items-start gap-3">
                       <Check className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-white/80">Toolchain advisory: Optqo + third-party solutions</span>
+                      <span className="text-white/80">Toolchain advisory: optqo + third-party solutions</span>
                     </div>
                   </div>
                   
-                  <button className="bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-8 py-3 flex items-center gap-2">
-                    Schedule a Call <PhoneCall className="w-4 h-4" />
+                  <button className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-8 py-3 flex items-center gap-2">
+                    Book Session <MoveRight className="w-4 h-4" />
                   </button>
                 </div>
               </div>

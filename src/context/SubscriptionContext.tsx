@@ -9,7 +9,7 @@ import React, {
 import { useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
 import { PlanType, subscriptionService } from '@/api/subscription'
-import type { Subscription, ApiErrorResponse } from '@/types/subscription'
+import type { Subscription, ApiErrorResponse, UsageHistoryResponse } from '@/types/subscription'
 import { redirectToStripeCheckout } from '@/api/stripe'
 import { useAuth } from '@/hooks/use-auth'
 
@@ -20,6 +20,12 @@ export interface SubscriptionContextType {
   fetching: boolean
   fetchError: AxiosError<ApiErrorResponse> | null
   refresh: () => Promise<void>
+
+  // Usage data
+  usageData: UsageHistoryResponse | null
+  fetchingUsage: boolean
+  usageError: AxiosError<ApiErrorResponse> | null
+  fetchUsage: (days?: number) => Promise<void>
 
   // Checkout
   checkoutLoading: boolean
@@ -61,6 +67,11 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [fetching, setFetching] = useState(false)
   const [fetchError, setFetchError] = useState<AxiosError<ApiErrorResponse> | null>(null)
 
+  // Usage data states
+  const [usageData, setUsageData] = useState<UsageHistoryResponse | null>(null)
+  const [fetchingUsage, setFetchingUsage] = useState(false)
+  const [usageError, setUsageError] = useState<AxiosError<ApiErrorResponse> | null>(null)
+
   // Checkout states
   const [checkoutLoading, setCheckoutLoading] = useState(false)
   const [checkoutError, setCheckoutError] = useState<AxiosError<ApiErrorResponse> | null>(null)
@@ -95,16 +106,32 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   }, [])
 
+  /** Fetch usage history */
+  const fetchUsage = useCallback(async (days = 30) => {
+    setFetchingUsage(true)
+    setUsageError(null)
+    try {
+      const usage = await subscriptionService.getUsageHistory(days)
+      setUsageData(usage)
+    } catch (err: any) {
+      setUsageError(err)
+    } finally {
+      setFetchingUsage(false)
+    }
+  }, [])
+
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
       fetchSubscription()
+      fetchUsage()
     }
-  }, [fetchSubscription, authLoading, isAuthenticated])
+  }, [fetchSubscription, fetchUsage, authLoading, isAuthenticated])
 
   /** Public API: refresh */
   const refresh = useCallback(async () => {
     await fetchSubscription()
-  }, [fetchSubscription])
+    await fetchUsage()
+  }, [fetchSubscription, fetchUsage])
 
   /** Start Stripe checkout */
   const startCheckout = useCallback(
@@ -195,6 +222,10 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
         fetching,
         fetchError,
         refresh,
+        usageData,
+        fetchingUsage,
+        usageError,
+        fetchUsage,
         checkoutLoading,
         checkoutError,
         startCheckout,

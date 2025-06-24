@@ -10,6 +10,7 @@ import React, {
   import { useCode } from '@/hooks/use-code'
   import type { ConversionResult } from '@/types/api'
   import { useLoading } from '@/context/LoadingContext'
+  import { useSubscription } from '@/hooks/use-subscription'
   
   export interface ConvertContextType {
     isLoading: boolean
@@ -25,6 +26,7 @@ import React, {
   export const ConvertProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
     const { code } = useCode()
     const { show, hide } = useLoading()
+    const { refresh: refreshSubscription } = useSubscription()
     const [isLoading, setLoading] = useState(false)
     const [result, setResult]     = useState<ConversionResult | null>(null)
     const [error, setError]       = useState<string | null>(null)
@@ -58,6 +60,13 @@ import React, {
       try {
         const data = await convertCode(code, from, to)
         setResult(data)
+        // Refresh subscription data after successful request to update plan details in header
+        try {
+          await refreshSubscription()
+        } catch (refreshError) {
+          // Silently handle refresh errors to avoid breaking the main flow
+          console.warn('Failed to refresh subscription data:', refreshError)
+        }
       } catch (e: any) {
         setError(e.message || 'Code conversion failed.')
       } finally {

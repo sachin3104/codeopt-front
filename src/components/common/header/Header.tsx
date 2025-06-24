@@ -1,8 +1,9 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { User, LogOut, Settings, CreditCard, UserCircle } from 'lucide-react';
+import { User, LogOut, UserCircle } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
 import LogoutModal from './LogoutModal';
+import PlanDetails from './PlanDetails';
 
 const Header: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
@@ -31,10 +32,10 @@ const Header: React.FC = () => {
     }
   };
 
-  const handleSubscriptionClick = (e: React.MouseEvent) => {
+  const handleUserProfileClick = (e: React.MouseEvent) => {
     e.preventDefault();
     setIsDropdownOpen(false);
-    navigate('/subscription');
+    navigate('/profile');
   };
 
   const handleLogoClick = () => {
@@ -75,50 +76,42 @@ const Header: React.FC = () => {
             </div>
 
             {/* User Menu */}
-            <div className="relative" ref={dropdownRef}>
-              <button
-                onClick={toggleDropdown}
-                className="flex items-center space-x-2 p-2 rounded-full bg-white/10 hover:bg-white/20 border border-white/20 transition-colors"
-              >
-                <User className="w-6 h-6 text-white" />
-              </button>
+            <div className="flex items-center space-x-3">
+              {/* Plan Details */}
+              <PlanDetails />
+              
+              {/* Profile Dropdown */}
+              <div className="relative" ref={dropdownRef}>
+                <button
+                  onClick={toggleDropdown}
+                  className="flex items-center space-x-2 p-2 rounded-full text-white backdrop-blur-md transition-all duration-300 bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:from-black/50 hover:via-black/40 hover:to-black/30 border border-white/20 hover:border-white/30"
+                >
+                  <User className="w-6 h-6 text-white" />
+                </button>
 
-              {/* Dropdown Menu */}
-              {isDropdownOpen && (
-                <div className="absolute right-0 mt-2 w-48 rounded-xl backdrop-blur-xl bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 shadow-lg">
-                  <div className="py-1">
-                    <a
-                      href="#profile"
-                      className="flex items-center px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors"
-                    >
-                      <UserCircle className="w-4 h-4 mr-2" />
-                      Profile
-                    </a>
-                    <button
-                      onClick={handleSubscriptionClick}
-                      className="w-full flex items-center px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors"
-                    >
-                      <CreditCard className="w-4 h-4 mr-2" />
-                      Subscription
-                    </button>
-                    <a
-                      href="#settings"
-                      className="flex items-center px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors"
-                    >
-                      <Settings className="w-4 h-4 mr-2" />
-                      Settings
-                    </a>
-                    <div className="border-t border-white/20 my-1"></div>
-                    <button
-                      onClick={handleLogoutClick}
-                      className="w-full flex items-center px-4 py-2 text-sm text-red-400 hover:bg-white/10 transition-colors"
-                    >
-                      <LogOut className="w-4 h-4 mr-2" />
-                      Logout
-                    </button>
+                {/* Dropdown Menu */}
+                {isDropdownOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-xl bg-black/95 border border-white/20 shadow-lg">
+                    <div className="py-1">
+                      <button
+                        onClick={handleUserProfileClick}
+                        className="w-full flex items-center px-4 py-2 text-sm text-white hover:bg-white/10 transition-colors"
+                      >
+                        <UserCircle className="w-4 h-4 mr-2" />
+                        Profile
+                      </button>
+                      <div className="border-t border-white/20 my-1"></div>
+                      <button
+                        onClick={handleLogoutClick}
+                        className="w-full flex items-center px-4 py-2 text-sm text-red-400 hover:bg-white/10 transition-colors"
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </button>
+                    </div>
                   </div>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </div>
         </div>

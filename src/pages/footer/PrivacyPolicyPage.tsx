@@ -12,11 +12,11 @@ export default function PrivacyPolicyPage() {
         <Header />
         
         <main className="flex-grow">
-          <section className="py-32 sm:py-40">
+          <section className="pt-32 pb-16 sm:pt-40 sm:pb-20">
             <div className="max-w-4xl mx-auto px-4">
               <div className="text-center mb-20">
                 <div className="flex justify-center mb-6">
-                  <div className="bg-white/10 backdrop-blur-sm border border-white/20 rounded-2xl p-4">
+                  <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-4">
                     <Shield className="h-12 w-12 text-blue-400" />
                   </div>
                 </div>
@@ -24,7 +24,7 @@ export default function PrivacyPolicyPage() {
                   Privacy Policy
                 </h1>
                 <p className="text-lg text-white/70 max-w-2xl mx-auto">
-                  Sixth Sense Enterprises OPC Pvt Ltd is committed to protecting your privacy and ensuring the security of your data on the OptQo analytics code optimization platform.
+                  Sixth Sense Enterprises OPC Pvt Ltd is committed to protecting your privacy and ensuring the security of your data on the optqo analytics code optimization platform.
                 </p>
                 <p className="text-sm text-white/50 mt-4">
                   Effective Date: July 1, 2025 | Last Updated: July 1, 2025 | Effective Till: January 1, 2026
@@ -32,14 +32,14 @@ export default function PrivacyPolicyPage() {
               </div>
 
               <div className="space-y-8">
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Database className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">1. Introduction</h2>
                   </div>
                   <div className="space-y-4 text-white/80">
                     <p className="text-sm">
-                      Sixth Sense Enterprises OPC Pvt Ltd ("Company," "we," "us," or "our") operates the OptQo analytics code optimization platform ("Service"). This Privacy Policy explains how we collect, use, process, and protect your personal information when you use our Service. We are committed to protecting your privacy and ensuring the security of your data in accordance with applicable data protection laws.
+                      Sixth Sense Enterprises OPC Pvt Ltd ("Company," "we," "us," or "our") operates the optqo analytics code optimization platform ("Service"). This Privacy Policy explains how we collect, use, process, and protect your personal information when you use our Service. We are committed to protecting your privacy and ensuring the security of your data in accordance with applicable data protection laws.
                     </p>
                     <p className="text-sm">
                       This Privacy Policy applies to all users of our Service and describes our practices regarding the collection and processing of information through our website and platform. By using our Service, you consent to the collection and use of information as described in this Privacy Policy.
@@ -47,7 +47,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Eye className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">2. Information We Collect</h2>
@@ -80,7 +80,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Lock className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">3. How We Use Your Information</h2>
@@ -113,7 +113,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Database className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">4. Data Processing Through Third-Party LLM APIs</h2>
@@ -131,7 +131,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Users className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">5. Data Sharing and Disclosure</h2>
@@ -157,7 +157,7 @@ export default function PrivacyPolicyPage() {
                       <p className="text-sm mb-2">We may share your information with additional third parties when you provide explicit consent for such sharing or when you direct us to integrate with other services or platforms.</p>
                     </div>
                     
-                    <div className="mt-4 p-4 bg-white/5 rounded-lg">
+                    <div className="mt-4 p-4 backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 rounded-lg border border-white/20">
                       <p className="text-sm text-white/70">
                         We do not sell, rent, or trade your personal information to third parties for their marketing purposes. Any sharing of information is conducted in accordance with applicable data protection laws and the terms outlined in this Privacy Policy.
                       </p>
@@ -165,7 +165,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Shield className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">6. Data Security and Protection</h2>
@@ -183,7 +183,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <FileText className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">7. Data Retention and Deletion</h2>
@@ -211,7 +211,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Eye className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">8. Your Rights and Choices</h2>
@@ -242,7 +242,7 @@ export default function PrivacyPolicyPage() {
                       <p className="text-sm mb-2">You can control certain communications from us through your account settings or by following unsubscribe instructions in our emails.</p>
                     </div>
                     
-                    <div className="mt-4 p-4 bg-white/5 rounded-lg">
+                    <div className="mt-4 p-4 backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 rounded-lg border border-white/20">
                       <p className="text-sm text-white/70">
                         To exercise these rights, please contact us using the information provided in the Contact section of this Privacy Policy. We will respond to your requests in accordance with applicable data protection laws.
                       </p>
@@ -250,7 +250,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Database className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">9. International Data Transfers</h2>
@@ -265,7 +265,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Lock className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">10. Cookies and Tracking Technologies</h2>
@@ -280,7 +280,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <Shield className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">11. Children's Privacy</h2>
@@ -292,7 +292,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <div className="flex items-center gap-3 mb-6">
                     <FileText className="h-6 w-6 text-blue-400" />
                     <h2 className="text-2xl font-bold text-white">12. Changes to This Privacy Policy</h2>
@@ -307,7 +307,7 @@ export default function PrivacyPolicyPage() {
                   </div>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8 text-center">
                   <h2 className="text-2xl font-bold text-white mb-4">13. Data Protection Officer and Contact Information</h2>
                   <p className="text-white/70 mb-6">
                     For questions about this Privacy Policy, requests regarding your personal information, or concerns about our data practices, please contact us at:
@@ -322,7 +322,7 @@ export default function PrivacyPolicyPage() {
                   </p>
                 </div>
 
-                <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 text-center">
+                <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8 text-center">
                   <p className="text-sm text-white/50 italic">
                     This Privacy Policy is effective as of the date indicated above and governs the collection and use of information through our Service.
                   </p>

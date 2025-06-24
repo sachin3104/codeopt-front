@@ -98,15 +98,15 @@ const PerformanceAnalysis: React.FC = () => {
 
   return (
     <div className="bg-black/10 backdrop-blur-xl border border-white/10 rounded-xl p-6 flex flex-col justify-between h-full min-h-[340px]">
-      <h3 className="font-semibold text-white mb-4">Performance Analysis</h3>
-      <div className="space-y-5 flex-1 flex flex-col justify-center">
+      <h3 className="font-semibold text-white mb-6">Performance Analysis</h3>
+      <div className="space-y-6 flex-1 flex flex-col justify-center">
         {metrics.map((metric, idx) => {
           const changeInfo = getChangeInfo(metric.original, metric.optimized, metric.unit, metric.isLowerBetter);
           const barWidth = getBarWidth(metric.original, metric.optimized);
           const isImprovement = changeInfo?.isImprovement ?? false;
           
           return (
-            <div key={idx} className="space-y-2">
+            <div key={idx} className="space-y-1">
               <div className="flex justify-between items-center">
                 <span className="text-sm text-white/80 font-medium">{metric.label}</span>
                 <span className="text-xs text-white/60">{metric.before}</span>

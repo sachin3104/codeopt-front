@@ -1,5 +1,5 @@
 import React from "react";
-import { Check, Minus, MoveRight, PhoneCall } from "lucide-react";
+import { Check, Minus, MoveRight, PhoneCall, Calendar, Mail } from "lucide-react";
 
 const plans = [
   {
@@ -33,7 +33,7 @@ const plans = [
     buttonIcon: MoveRight
   },
   {
-    name: "optqo OptiFlow",
+    name: "optqo Ultimate",
     price: 30,
     period: "per month",
     description: "For professionals focused on ML and analytics.",
@@ -44,7 +44,7 @@ const plans = [
       "Real-time  analytics",
       "Documentation reports with Scribe"
     ],
-    buttonText: "Upgrade to OptiFlow",
+    buttonText: "Upgrade to Ultimate",
     buttonIcon: MoveRight
   },
   {
@@ -60,7 +60,7 @@ const plans = [
       "Expert-led delivery"
     ],
     buttonText: "Contact Us",
-    buttonIcon: PhoneCall
+    buttonIcon: Mail
   },
   {
     name: "optqo Expert",
@@ -75,14 +75,14 @@ const plans = [
       "Third-party solutions support"
     ],
     buttonText: "Schedule a Call",
-    buttonIcon: PhoneCall
+    buttonIcon: Calendar
   }
 ];
 
 export default function PricingCards() {
   return (
     <section className="relative py-16 sm:py-20">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-7xl mx-auto px-0">
         <div className="flex text-center justify-center items-center gap-4 flex-col">
           <div className="flex gap-2 flex-col">
             <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">
@@ -95,10 +95,10 @@ export default function PricingCards() {
 
           <div className="grid text-left w-full lg:grid-cols-5 gap-6 pt-20">
             {plans.map((plan, index) => (
-              <div key={plan.name} className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-8 flex flex-col">
+              <div key={plan.name} className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-4 flex flex-col">
                 {/* Plan Name and Description */}
                 <div className="min-h-[120px]">
-                  <h3 className="text-xl font-bold text-white mb-3 leading-tight">{plan.name}</h3>
+                  <h3 className="text-xl font-bold text-white mb-3 leading-tight px-2 py-1">{plan.name}</h3>
                   <p className="text-sm text-white/60 leading-relaxed">
                     {plan.description}
                   </p>
@@ -128,7 +128,7 @@ export default function PricingCards() {
 
                 {/* CTA Button */}
                 <button 
-                  className="w-full bg-white/10 backdrop-blur-sm border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-6 py-3 flex items-center justify-center gap-2 mt-auto"
+                  className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-3 py-3 flex items-center justify-center gap-2 mt-auto"
                 >
                   {plan.buttonText} <plan.buttonIcon className="w-4 h-4" />
                 </button>

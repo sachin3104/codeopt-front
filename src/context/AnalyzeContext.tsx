@@ -10,6 +10,7 @@ import { analyzeCode } from '@/api/service'
 import { useCode }     from '@/hooks/use-code'
 import type { AnalysisResponse } from '@/types/api'
 import { useLoading } from '@/context/LoadingContext'
+import { useSubscription } from '@/hooks/use-subscription'
 
 export interface AnalyzeContextType {
   isLoading: boolean
@@ -27,6 +28,7 @@ export const AnalyzeContext = createContext<AnalyzeContextType | undefined>(
 export const AnalyzeProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const { code } = useCode()
   const { show, hide } = useLoading()
+  const { refresh: refreshSubscription } = useSubscription()
   const [isLoading, setLoading] = useState(false)
   const [result, setResult]     = useState<AnalysisResponse | null>(null)
   const [error, setError]       = useState<string | null>(null)
@@ -67,6 +69,13 @@ export const AnalyzeProvider: React.FC<{ children: ReactNode }> = ({ children })
     try {
       const data = await analyzeCode(code)
       setResult(data)
+      // Refresh subscription data after successful request to update plan details in header
+      try {
+        await refreshSubscription()
+      } catch (refreshError) {
+        // Silently handle refresh errors to avoid breaking the main flow
+        console.warn('Failed to refresh subscription data:', refreshError)
+      }
     } catch (e: any) {
       setError(e.message || 'Analysis failed.')
       setResult(null)

@@ -3,7 +3,6 @@ import { useNavigate } from 'react-router-dom'
 import Header from '../common/header/Header'
 import CodeEditor from '../common/editor/CodeEditor'
 import { Background } from '@/components/common/background'
-// import SubscriptionWidget from '../subscription/SubscriptionWidget'  // currently unused
 import { ActionMenu } from '../common/actions/CommonActionButtons'
 import LanguageSelectModal from '../common/actions/LanguageSelectModal'
 import { useConvert } from '@/hooks/use-convert'
@@ -38,16 +37,16 @@ const Layout: React.FC = () => {
       />
 
       {/* Main Content */}
-      <main className="container mx-auto px-4 pt-24 pb-8">
+      <main className="container mx-auto px-2 pt-20 pb-6">
         {/* Action Buttons Section */}
-        <div className="mb-8">
-        <ActionMenu
-          actions={['analyze', 'optimize', 'convert', 'document']}
-          variant="homepage"  // or omit since it's default
-          onOverrides={{
-            convert: async () => setShowConvertModal(true),
-          }}
-        />
+        <div>
+          <ActionMenu
+            actions={['analyze', 'optimize', 'convert', 'document']}
+            variant="homepage"  // or omit since it's default
+            onOverrides={{
+              convert: async () => setShowConvertModal(true),
+            }}
+          />
         </div>
 
         {/* Main Content Grid */}
@@ -56,11 +55,6 @@ const Layout: React.FC = () => {
           <div className="lg:col-span-4 h-[600px]">
             <CodeEditor height="100%" />
           </div>
-
-          {/* Subscription Widget Section (commented out) */}
-          {/* <div className="lg:col-span-1">
-            <SubscriptionWidget variant="detailed" />
-          </div> */}
         </div>
       </main>
     </div>

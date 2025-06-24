@@ -14,7 +14,7 @@ const PerformanceGains: React.FC = () => {
     try {
       const value = path.reduce((acc, key) => (acc && acc[key] !== undefined ? acc[key] : undefined), optimizationResult);
       if (typeof value === 'number') {
-        return Number(value.toFixed(2));
+        return Math.round(value);
       }
       return value ?? fallback;
     } catch {
@@ -30,8 +30,8 @@ const PerformanceGains: React.FC = () => {
       const isImprovement = isLowerBetter ? change > 0 : change < 0;
       
       return {
-        change: Math.abs(change).toFixed(2),
-        percentageChange: Math.abs(percentageChange).toFixed(2),
+        change: Math.round(Math.abs(change)),
+        percentageChange: Math.round(Math.abs(percentageChange)),
         isImprovement,
         direction: isImprovement ? 'decreased' : 'increased',
         sign: isImprovement ? '-' : '+'
@@ -65,7 +65,7 @@ const PerformanceGains: React.FC = () => {
     {
       icon: Cpu,
       iconColor: 'text-purple-500',
-      value: getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) !== 'NA' ? `${(getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) * 100).toFixed(2)}%` : 'NA',
+      value: getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) !== 'NA' ? `${Math.round(getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) * 100)}%` : 'NA',
       label: 'CPU Utilization',
       original: getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'original']) !== 'NA' ? (getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'original']) * 100) : 'NA',
       optimized: getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) !== 'NA' ? (getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) * 100) : 'NA',

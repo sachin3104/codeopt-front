@@ -14,10 +14,6 @@ const CodeQualityAnalysis: React.FC = () => {
   const codeQualityMetrics = optimizationResult.code_quality_analysis?.code_quality_metrics;
   const overallScore = codeQualityMetrics?.overall_score?.optimized ?? 0;
 
-  // Calculate before scores based on improvement percentages
-  const calculateBeforeScore = (currentScore: number, improvement: number) => {
-    return Math.max(0, Math.min(10, currentScore / (1 + improvement / 100)));
-  };
 
   const qualityMetrics = [
     {
@@ -71,8 +67,14 @@ const CodeQualityAnalysis: React.FC = () => {
     return { text: 'Low', bg: 'bg-red-500/20', textColor: 'text-red-400' };
   };
 
+  const getScoreColor = (score: number) => {
+    if (score >= 8) return 'text-green-400';
+    if (score >= 5) return 'text-yellow-400';
+    return 'text-red-400';
+  };
+
   return (
-    <Card className="bg-black/10 backdrop-blur-xl border border-white/10">
+    <Card className="bg-black/10 backdrop-blur-xl border border-white/10 h-full min-h-[340px] flex flex-col">
       <CardHeader>
         <CardTitle className="text-white/90 flex items-center justify-between">
           <div className="flex items-center">
@@ -85,59 +87,61 @@ const CodeQualityAnalysis: React.FC = () => {
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="flex-1 flex flex-col justify-center">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="text-xs text-white/60 uppercase">
-                <th className="text-left pb-2 w-1/6">Metric</th>
-                <th className="text-center pb-2 w-1/6">Before</th>
-                <th className="text-center pb-2 w-1/6"></th>
-                <th className="text-center pb-2 w-1/6">After</th>
-                <th className="text-center pb-2 w-1/6"></th>
-                <th className="text-center pb-2 w-1/6">Improvement</th>
+                <th className="text-left pb-3 w-1/4 border-r border-white/10">Metric</th>
+                <th className="text-center pb-3 w-1/4 border-r border-white/10">
+                  Before
+                </th>
+                <th className="text-center pb-3 w-1/4 border-r border-white/10">
+                  After
+                </th>
+                <th className="text-center pb-3 w-1/4">Improvement</th>
               </tr>
             </thead>
             <tbody>
               {qualityMetrics.map((metric, index) => {
-                const beforeLabel = typeof metric.before === 'number' ? getScoreLabel(metric.before) : { text: 'N/A', bg: 'bg-gray-100/20', textColor: 'text-gray-400' };
-                const afterLabel = typeof metric.after === 'number' ? getScoreLabel(metric.after) : { text: 'N/A', bg: 'bg-gray-100/20', textColor: 'text-gray-400' };
                 const beforeLevel = typeof metric.before === 'number' ? getScoreLevel(metric.before) : { text: 'N/A', bg: 'bg-gray-100/20', textColor: 'text-gray-400' };
                 const afterLevel = typeof metric.after === 'number' ? getScoreLevel(metric.after) : { text: 'N/A', bg: 'bg-gray-100/20', textColor: 'text-gray-400' };
+                const beforeColor = typeof metric.before === 'number' ? getScoreColor(metric.before) : 'text-gray-400';
+                const afterColor = typeof metric.after === 'number' ? getScoreColor(metric.after) : 'text-gray-400';
                 
                 return (
-                  <tr key={index} className="border-t border-white/10">
-                    <td className="py-3">
+                  <tr key={index}>
+                    <td className="py-4 border-r border-white/10">
                       <div className="flex items-center">
                         <div className={`w-2 h-2 ${metric.color} rounded-full mr-2`}></div>
                         <span className="text-white/90 font-medium">{metric.name}</span>
                       </div>
                     </td>
-                    <td className="text-center py-3 align-middle">
-                      <div className="flex flex-col items-center justify-center gap-1">
-                        <span className={`text-lg font-semibold ${beforeLabel.textColor}`}>{typeof metric.before === 'number' ? metric.before.toFixed(1) + '/10' : 'NA'}</span>
+                    <td className="text-center py-4 border-r border-white/10">
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className={`text-lg font-semibold ${beforeColor}`}>
+                          {typeof metric.before === 'number' ? metric.before.toFixed(1) + '/10' : 'NA'}
+                        </div>
+                        <div className={`text-sm font-medium ${beforeColor}`}>
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium bg-white/10 ${beforeColor}`}>
+                            {beforeLevel.text}
+                          </span>
+                        </div>
                       </div>
                     </td>
-                    <td className="text-center py-3 align-middle">
-                      <div className="flex justify-center">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${beforeLevel.bg} ${beforeLevel.textColor}`}>
-                          {beforeLevel.text}
-                        </span>
+                    <td className="text-center py-4 border-r border-white/10">
+                      <div className="grid grid-cols-2 gap-1">
+                        <div className={`text-lg font-semibold ${afterColor}`}>
+                          {typeof metric.after === 'number' ? metric.after.toFixed(1) + '/10' : 'NA'}
+                        </div>
+                        <div className={`text-sm font-medium ${afterColor}`}>
+                          <span className={`px-3 py-1 rounded-full text-xs font-medium bg-white/10 ${afterColor}`}>
+                            {afterLevel.text}
+                          </span>
+                        </div>
                       </div>
                     </td>
-                    <td className="text-center py-3 align-middle">
-                      <div className="flex flex-col items-center justify-center gap-1">
-                        <span className={`text-lg font-semibold ${afterLabel.textColor}`}>{typeof metric.after === 'number' ? metric.after.toFixed(1) + '/10' : 'NA'}</span>
-                      </div>
-                    </td>
-                    <td className="text-center py-3 align-middle">
-                      <div className="flex justify-center">
-                        <span className={`px-2 py-1 rounded-full text-xs font-medium ${afterLevel.bg} ${afterLevel.textColor}`}>
-                          {afterLevel.text}
-                        </span>
-                      </div>
-                    </td>
-                    <td className="text-center py-3 text-emerald-400/90 font-medium align-middle">
+                    <td className="text-center py-4 text-emerald-400/90 font-medium">
                       {typeof metric.improvement === 'number' ? `+${metric.improvement.toFixed(1)}%` : 'NA'}
                     </td>
                   </tr>

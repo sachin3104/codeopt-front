@@ -27,11 +27,14 @@ import ContactPage from '@/pages/footer/ContactPage';
 import PrivacyPolicyPage from '@/pages/footer/PrivacyPolicyPage';
 import TermsOfServicePage from '@/pages/footer/TermsOfServicePage';
 import CookiePolicyPage from '@/pages/footer/CookiePolicyPage';
+import BlogsPage from '@/pages/footer/BlogsPage';
 
 // Subscription & Dashboard pages
-import PricingPage from '@/pages/subscription/PricingPage';                // subscription purchase UI
 import SubscriptionSuccessPage from '@/pages/subscription/SubscriptionSuccessPage';
-import Dashboard from '@/pages/subscription/Dashboard';
+import SubscriptionPage from '@/pages/subscription/SubscriptionPage';       // subscription management UI
+
+// User pages
+import UserPage from '@/pages/user/UserPage';
 
 // OPTIMIZED: Import the optimized ConditionalHomeRoute component
 import ConditionalHomeRoute from '@/routes/ConditionalHomeRoute';
@@ -49,19 +52,32 @@ const AppRoutes: React.FC = () => {
       {/* Public footer/marketing pages */}
       <Route path="/pricing" element={<FooterPricingPage />} />
       <Route path="/contact" element={<ContactPage />} />
+      <Route path="/blogs" element={<BlogsPage />} />
       <Route path="/privacy" element={<PrivacyPolicyPage />} />
       <Route path="/terms" element={<TermsOfServicePage />} />
       <Route path="/cookies" element={<CookiePolicyPage />} />
 
-      {/* Subscription purchase (must be logged in) */}
+      {/* Profile page (must be logged in) */}
+      <Route
+        path="/profile"
+        element={
+          <PrivateRoute>
+            <UserPage />
+          </PrivateRoute>
+        }
+      />
+
+      {/* Subscription management (must be logged in) */}
       <Route
         path="/subscription"
         element={
           <PrivateRoute>
-            <PricingPage />
+            <SubscriptionPage />
           </PrivateRoute>
         }
       />
+
+      
 
       {/* Stripe checkout success callback */}
       <Route
@@ -73,15 +89,7 @@ const AppRoutes: React.FC = () => {
         }
       />
 
-      {/* User dashboard for subscription details, cancel & billing portal */}
-      <Route
-        path="/dashboard"
-        element={
-          <PrivateRoute>
-            <Dashboard />
-          </PrivateRoute>
-        }
-      />
+      
 
       {/* Protected result routes */}
       <Route

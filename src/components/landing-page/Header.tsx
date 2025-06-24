@@ -19,79 +19,317 @@ export default function Header() {
     };
   }, []);
 
+  const menuItems = [
+    { href: "#features", label: "Product", delay: 0 },
+    { href: "/pricing", label: "Pricing", delay: 50 },
+    { href: "/contact", label: "Contact Us", delay: 100 },
+    { href: "#community", label: "Community", delay: 150 },
+    { href: "/blogs", label: "Blogs", delay: 200 },
+  ];
+
   return (
     <header
       ref={menuRef}
       className={clsx(
-        "fixed",
-        "top-2 sm:top-4",
-        "inset-x-2 sm:inset-x-8",
-        "z-50",
-        "flex flex-col",
-        "px-6 py-4",
-        "bg-gradient-to-br from-black/60 via-black/50 to-black/40",
-        "backdrop-blur-md",
-        "shadow-none",
-        "rounded-2xl",
-        "transition-all duration-300 ease-in-out",
-        isMenuOpen ? "h-48" : "h-16"
+        "fixed top-4 inset-x-8 z-50",
+        "transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]"
       )}
     >
-      <div className="flex items-center justify-between h-8">
+      {/* Main header bar */}
+      <div className={clsx(
+        "flex items-center justify-between",
+        "px-6 py-4",
+        "backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20",
+        "rounded-2xl",
+        "border border-white/20",
+        "shadow-lg shadow-black/10",
+        "transition-all duration-700 ease-[cubic-bezier(0.4,0,0,1)]",
+        isMenuOpen ? "scale-[1.02]" : "scale-100"
+      )}>
         <Link 
           to="/" 
-          className="text-white text-xl font-bold hover:text-blue-200 transition-colors cursor-pointer"
+          className={clsx(
+            "text-white text-xl font-bold",
+            "hover:text-blue-200 transition-all duration-300",
+            "cursor-pointer relative group"
+          )}
         >
-          optqo
+          <span className="relative z-10">optqo</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
         </Link>
         
+        {/* Animated menu button */}
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
-          className="text-white p-2 hover:bg-white/10 rounded-lg transition-colors"
+          className={clsx(
+            "relative w-12 h-12",
+            "flex items-center justify-center",
+            "rounded-xl",
+            "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+            "group",
+            isMenuOpen 
+              ? "bg-white/20 shadow-lg shadow-white/10" 
+              : "bg-white/10 hover:bg-white/20"
+          )}
         >
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            className="h-6 w-6"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={2}
-              d="M4 6h16M4 12h16M4 18h16"
-            />
-          </svg>
+          {/* Animated hamburger lines */}
+          <div className="relative w-6 h-6">
+            <span className={clsx(
+              "absolute left-0 w-6 h-0.5 bg-white rounded-full",
+              "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+              "origin-center",
+              isMenuOpen 
+                ? "top-3 rotate-45" 
+                : "top-2"
+            )}></span>
+            <span className={clsx(
+              "absolute left-0 w-6 h-0.5 bg-white rounded-full",
+              "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+              "top-3",
+              isMenuOpen ? "opacity-0 scale-0" : "opacity-100 scale-100"
+            )}></span>
+            <span className={clsx(
+              "absolute left-0 w-6 h-0.5 bg-white rounded-full",
+              "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+              "origin-center",
+              isMenuOpen 
+                ? "top-3 -rotate-45" 
+                : "top-4"
+            )}></span>
+          </div>
+          
+          {/* Ripple effect */}
+          <div className={clsx(
+            "absolute inset-0 rounded-xl",
+            "bg-gradient-to-r from-blue-400/20 to-purple-400/20",
+            "opacity-0 group-hover:opacity-100",
+            "transition-opacity duration-300",
+            "blur-sm"
+          )}></div>
         </button>
       </div>
 
+      {/* Animated menu overlay */}
       <div className={clsx(
-        "flex flex-col gap-4 mt-6",
-        "transition-all duration-300 ease-in-out",
-        isMenuOpen ? "opacity-100 translate-y-0" : "opacity-0 -translate-y-4 pointer-events-none"
+        "absolute top-full left-0 right-0 mt-4",
+        "transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]",
+        isMenuOpen 
+          ? "opacity-100 translate-y-0 pointer-events-auto" 
+          : "opacity-0 -translate-y-8 pointer-events-none"
       )}>
-        <a
-          href="#features"
-          className="text-white hover:text-gray-200 transition-colors text-lg"
-          onClick={() => setIsMenuOpen(false)}
-        >
-          Features
-        </a>
-        <a
-          href="#benefits"
-          className="text-white hover:text-gray-200 transition-colors text-lg"
-          onClick={() => setIsMenuOpen(false)}
-        >
-          Benefits
-        </a>
-        <a
-          href="#pricing"
-          className="text-white hover:text-gray-200 transition-colors text-lg"
-          onClick={() => setIsMenuOpen(false)}
-        >
-          Pricing
-        </a>
+        <div className={clsx(
+          "backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20",
+          "rounded-2xl",
+          "border border-white/20",
+          "shadow-xl shadow-black/20",
+          "p-6",
+          "overflow-hidden"
+        )}>
+          {/* Menu Items */}
+          <div className="flex flex-col gap-3 mb-6">
+            {menuItems.map((item, index) => {
+              const isExternalLink = item.href.startsWith('/');
+              
+              if (isExternalLink) {
+                return (
+                  <Link
+                    key={item.href}
+                    to={item.href}
+                    className={clsx(
+                      "relative group",
+                      "px-6 py-4",
+                      "text-white text-lg font-medium",
+                      "rounded-xl",
+                      "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                      "hover:bg-white/20 hover:scale-[1.02]",
+                      "cursor-pointer",
+                      "overflow-hidden"
+                    )}
+                    style={{
+                      transform: isMenuOpen 
+                        ? "translateX(0) scale(1)" 
+                        : "translateX(-50px) scale(0.95)",
+                      opacity: isMenuOpen ? 1 : 0,
+                      transitionDelay: `${item.delay}ms`,
+                      transition: "all 0.6s cubic-bezier(0.4,0,0.2,1)"
+                    }}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {/* Background gradient on hover */}
+                    <div className={clsx(
+                      "absolute inset-0",
+                      "bg-gradient-to-r from-blue-400/10 to-purple-400/10",
+                      "opacity-0 group-hover:opacity-100",
+                      "transition-opacity duration-300",
+                      "rounded-xl"
+                    )}></div>
+                    
+                    {/* Text with glow effect */}
+                    <span className="relative z-10 group-hover:text-blue-200 transition-colors duration-300">
+                      {item.label}
+                    </span>
+                    
+                    {/* Subtle border animation */}
+                    <div className={clsx(
+                      "absolute bottom-0 left-0 h-0.5",
+                      "bg-gradient-to-r from-blue-400 to-purple-400",
+                      "transition-all duration-300 ease-out",
+                      "group-hover:w-full w-0"
+                    )}></div>
+                  </Link>
+                );
+              } else {
+                return (
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className={clsx(
+                      "relative group",
+                      "px-6 py-4",
+                      "text-white text-lg font-medium",
+                      "rounded-xl",
+                      "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                      "hover:bg-white/20 hover:scale-[1.02]",
+                      "cursor-pointer",
+                      "overflow-hidden"
+                    )}
+                    style={{
+                      transform: isMenuOpen 
+                        ? "translateX(0) scale(1)" 
+                        : "translateX(-50px) scale(0.95)",
+                      opacity: isMenuOpen ? 1 : 0,
+                      transitionDelay: `${item.delay}ms`,
+                      transition: "all 0.6s cubic-bezier(0.4,0,0.2,1)"
+                    }}
+                    onClick={() => setIsMenuOpen(false)}
+                  >
+                    {/* Background gradient on hover */}
+                    <div className={clsx(
+                      "absolute inset-0",
+                      "bg-gradient-to-r from-blue-400/10 to-purple-400/10",
+                      "opacity-0 group-hover:opacity-100",
+                      "transition-opacity duration-300",
+                      "rounded-xl"
+                    )}></div>
+                    
+                    {/* Text with glow effect */}
+                    <span className="relative z-10 group-hover:text-blue-200 transition-colors duration-300">
+                      {item.label}
+                    </span>
+                    
+                    {/* Subtle border animation */}
+                    <div className={clsx(
+                      "absolute bottom-0 left-0 h-0.5",
+                      "bg-gradient-to-r from-blue-400 to-purple-400",
+                      "transition-all duration-300 ease-out",
+                      "group-hover:w-full w-0"
+                    )}></div>
+                  </a>
+                );
+              }
+            })}
+          </div>
+
+          {/* Divider */}
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-6"></div>
+
+          {/* Auth Buttons */}
+          <div className="flex flex-col gap-3">
+            <Link
+              to="/login"
+              className={clsx(
+                "relative group",
+                "px-6 py-4",
+                "text-white text-lg font-medium text-center",
+                "rounded-xl",
+                "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                "hover:scale-[1.02]",
+                "cursor-pointer",
+                "overflow-hidden",
+                "bg-white/10",
+                "border border-white/20"
+              )}
+              style={{
+                transform: isMenuOpen 
+                  ? "translateX(0) scale(1)" 
+                  : "translateX(-50px) scale(0.95)",
+                opacity: isMenuOpen ? 1 : 0,
+                transitionDelay: "250ms",
+                transition: "all 0.6s cubic-bezier(0.4,0,0.2,1)"
+              }}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {/* Background gradient on hover */}
+              <div className={clsx(
+                "absolute inset-0",
+                "bg-gradient-to-r from-white/20 to-gray-300/20",
+                "opacity-0 group-hover:opacity-100",
+                "transition-opacity duration-300",
+                "rounded-xl"
+              )}></div>
+              
+              {/* Text with glow effect */}
+              <span className="relative z-10 group-hover:text-gray-200 transition-colors duration-300">
+                Login
+              </span>
+              
+              {/* Subtle border animation */}
+              <div className={clsx(
+                "absolute bottom-0 left-0 h-0.5",
+                "bg-gradient-to-r from-white to-gray-300",
+                "transition-all duration-300 ease-out",
+                "group-hover:w-full w-0"
+              )}></div>
+            </Link>
+
+            <Link
+              to="/signup"
+              className={clsx(
+                "relative group",
+                "px-6 py-4",
+                "text-white text-lg font-medium text-center",
+                "rounded-xl",
+                "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                "hover:scale-[1.02]",
+                "cursor-pointer",
+                "overflow-hidden",
+                "bg-black/20",
+                "border border-white/20"
+              )}
+              style={{
+                transform: isMenuOpen 
+                  ? "translateX(0) scale(1)" 
+                  : "translateX(-50px) scale(0.95)",
+                opacity: isMenuOpen ? 1 : 0,
+                transitionDelay: "300ms",
+                transition: "all 0.6s cubic-bezier(0.4,0,0.2,1)"
+              }}
+              onClick={() => setIsMenuOpen(false)}
+            >
+              {/* Background gradient on hover */}
+              <div className={clsx(
+                "absolute inset-0",
+                "bg-gradient-to-r from-black/30 to-gray-800/30",
+                "opacity-0 group-hover:opacity-100",
+                "transition-opacity duration-300",
+                "rounded-xl"
+              )}></div>
+              
+              {/* Text with glow effect */}
+              <span className="relative z-10 group-hover:text-gray-200 transition-colors duration-300">
+                Sign Up
+              </span>
+              
+              {/* Subtle border animation */}
+              <div className={clsx(
+                "absolute bottom-0 left-0 h-0.5",
+                "bg-gradient-to-r from-gray-300 to-white",
+                "transition-all duration-300 ease-out",
+                "group-hover:w-full w-0"
+              )}></div>
+            </Link>
+          </div>
+        </div>
       </div>
     </header>
   );
