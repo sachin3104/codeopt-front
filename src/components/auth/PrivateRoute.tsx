@@ -1,14 +1,8 @@
-// File: src/components/auth/PrivateRoute.tsx
-// OPTIMIZED: Adds approval gating with overlay, prevents unnecessary re-renders
+// src/components/auth/PrivateRoute.tsx
 
 import React, { memo } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import {
-  useIsAuthenticated,
-  useAuthLoading,
-  useApprovalState,
-  useAuth
-} from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 
 interface PrivateRouteProps {
   children: JSX.Element;
@@ -30,13 +24,8 @@ PrivateRouteLoader.displayName = 'PrivateRouteLoader';
 
 // OPTIMIZED: PrivateRoute with auth + approval gating
 const PrivateRoute: React.FC<PrivateRouteProps> = memo(({ children }) => {
-  const isAuthenticated = useIsAuthenticated();      // only re-renders on auth change
-  const loading = useAuthLoading();                 // only re-renders on loading change
-  const approval = useApprovalState();              // only re-renders on approval change
-  const { refreshApproval } = useAuth();            // method to re-check approval
+  const { loading, isAuthenticated, user } = useAuth();
   const location = useLocation();
-
-  console.log(`🔒 PrivateRoute check - Path: ${location.pathname}, Auth: ${isAuthenticated}, Loading: ${loading}, Approval: ${approval}`);
 
   // 1. Loading user/session
   if (loading) {
@@ -45,13 +34,11 @@ const PrivateRoute: React.FC<PrivateRouteProps> = memo(({ children }) => {
 
   // 2. Not authenticated → redirect to login
   if (!isAuthenticated) {
-    console.log(`🚫 PrivateRoute: Redirecting to login from ${location.pathname}`);
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   // 3. Authenticated but pending approval → overlay
-  if (approval === 'pending') {
-    console.log(`⏳ PrivateRoute: Pending approval for ${location.pathname}`);
+  if (!user?.is_approved) {
     return (
       <>
         {children}
@@ -60,7 +47,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = memo(({ children }) => {
             <h2 className="text-xl font-semibold mb-4 text-white">Account Pending Approval</h2>
             <p className="mb-6 text-white/80">Your account is awaiting admin approval.</p>
             <button
-              onClick={refreshApproval}
+              onClick={() => window.location.reload()}
               className="px-4 py-2 backdrop-blur-sm bg-white/10 hover:bg-white/20 text-white rounded-lg focus:outline-none transition-all duration-200 border border-white/20 hover:border-white/30"
             >
               Refresh Status
@@ -72,7 +59,6 @@ const PrivateRoute: React.FC<PrivateRouteProps> = memo(({ children }) => {
   }
 
   // 4. Approved → render protected component
-  console.log(`✅ PrivateRoute: Access granted for ${location.pathname}`);
   return children;
 });
 

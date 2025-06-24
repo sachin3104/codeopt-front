@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { User, LogOut, Settings, CreditCard, UserCircle } from 'lucide-react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
 import LogoutModal from './LogoutModal';
 

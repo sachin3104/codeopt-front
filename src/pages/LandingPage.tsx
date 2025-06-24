@@ -30,7 +30,7 @@ export default function LandingPage() {
               <h1 className="text-xl md:text-6xl font-bold text-white">
                 Analytics, Reinvented with AI & Experts
               </h1>
-              <p className="text-sm mt-4 font-extralight text-sm md:text-2xl text-neutral-200">
+              <p className="mt-4 font-extralight text-sm md:text-2xl text-neutral-200">
                 Understand, Optimize, Translate & Document Your Code — with AI Agents and Expert Mentoring.
               </p>
               <button 

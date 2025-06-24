@@ -1,8 +1,8 @@
 // src/pages/AuthSuccessPage.tsx
-// OPTIMIZED VERSION - Removes explicit refreshUser call
+// OPTIMIZED VERSION - Uses new auth context
 
 import React, { useEffect, useState } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircle, AlertCircle, Loader2, Home } from 'lucide-react';
 
@@ -13,7 +13,7 @@ interface LocationState {
 }
 
 const AuthSuccessPage: React.FC = () => {
-  const { user, loading } = useAuth(); // REMOVED refreshUser to prevent double-trigger
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -62,7 +62,7 @@ const AuthSuccessPage: React.FC = () => {
     };
 
     handleAuthSuccess();
-  }, [user, loading, navigate, location.state]); // FIXED: Removed refreshUser from dependencies
+  }, [user, loading, navigate, location.state]);
 
   // Manual redirect function for error state
   const handleRedirect = () => {

@@ -1,476 +1,220 @@
-// File: src/context/SubscriptionContext.tsx
-// OPTIMIZED VERSION - Prevents request loops and provides selective subscriptions
+import React, {
+  createContext,
+  useContext,
+  useState,
+  useEffect,
+  ReactNode,
+  useCallback,
+} from 'react'
+import { useNavigate } from 'react-router-dom'
+import { AxiosError } from 'axios'
+import { PlanType, subscriptionService } from '@/api/subscription'
+import type { Subscription, ApiErrorResponse } from '@/types/subscription'
+import { redirectToStripeCheckout } from '@/api/stripe'
+import { useAuth } from '@/hooks/use-auth'
 
-import React, { createContext, useContext, useState, useEffect, useCallback, useRef } from 'react';
-import { useIsAuthenticated } from './AuthContext';
-import type { 
-  Plan, 
-  Subscription, 
-  UsageData, 
-  SubscriptionStatusResponse,
-  PlansResponse,
-  CheckoutResponse,
-  BillingPortalResponse,
-  UsageHistoryResponse,
-  SubscriptionActionResponse,
-  ApiErrorResponse 
-} from '../types/subscription';
-import type { Stripe, StripeConfig } from '../types/stripe';
-import * as subscriptionApi from '../api/subscription';
-import * as stripeApi from '../api/stripe';
+export interface SubscriptionContextType {
+  subscription: Subscription | null
+  
+  // Fetch subscription
+  fetching: boolean
+  fetchError: AxiosError<ApiErrorResponse> | null
+  refresh: () => Promise<void>
 
-interface SubscriptionContextType {
-  // Subscription state
-  subscription: Subscription | null;
-  plans: Plan[];
-  usage: UsageData | null;
-  isLoading: boolean;
-  error: string | null;
-  
-  // Stripe state
-  stripe: Stripe | null;
-  isStripeReady: boolean;
-  stripeConfig: StripeConfig | null;
-  
-  // Usage limits
-  planLimits: {
-    maxCodeInputChars: number;
-    maxDailyUsage: number | null;
-    maxMonthlyUsage: number | null;
-  };
-  
-  // Methods
-  refreshSubscription: () => Promise<void>;
-  getPlans: () => Promise<void>;
-  createCheckoutSession: (plan: Plan) => Promise<void>;
-  openBillingPortal: () => Promise<void>;
-  cancelSubscription: (immediate?: boolean) => Promise<void>;
-  reactivateSubscription: () => Promise<void>;
-  getUsageHistory: (days?: number, page?: number, perPage?: number) => Promise<UsageHistoryResponse>;
-  hasFeatureAccess: (feature: string) => boolean;
-  hasExceededLimits: () => { daily: boolean; monthly: boolean; anyLimit: boolean };
-  shouldRecommendUpgrade: () => { recommended: boolean; reason: string; suggestedPlan: string };
+  // Checkout
+  checkoutLoading: boolean
+  checkoutError: AxiosError<ApiErrorResponse> | null
+  startCheckout: (plan: PlanType) => Promise<void>
+
+  // Create subscription
+  createLoading: boolean
+  createError: AxiosError<ApiErrorResponse> | null
+  createSubscription: (
+    plan: PlanType,
+    paymentMethodId?: string
+  ) => Promise<void>
+
+  // Update subscription
+  updateLoading: boolean
+  updateError: AxiosError<ApiErrorResponse> | null
+  updateSubscription: (plan: PlanType) => Promise<void>
+
+  // Cancel subscription
+  cancelLoading: boolean
+  cancelError: AxiosError<ApiErrorResponse> | null
+  cancelSubscription: (immediate?: boolean) => Promise<void>
+
+  // Billing portal
+  portalLoading: boolean
+  portalError: AxiosError<ApiErrorResponse> | null
+  openBillingPortal: () => Promise<void>
 }
 
-const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined);
+export const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined)
 
-export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Subscription state
-  const [subscription, setSubscription] = useState<Subscription | null>(null);
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [usage, setUsage] = useState<UsageData | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const navigate = useNavigate()
+  const { isAuthenticated, loading: authLoading } = useAuth()
+  const [subscription, setSubscription] = useState<Subscription | null>(null)
   
-  // Stripe state
-  const [stripe, setStripe] = useState<Stripe | null>(null);
-  const [stripeConfig, setStripeConfig] = useState<StripeConfig | null>(null);
-  
-  // Plan limits
-  const [planLimits, setPlanLimits] = useState({
-    maxCodeInputChars: 0,
-    maxDailyUsage: null as number | null,
-    maxMonthlyUsage: null as number | null,
-  });
+  // Fetch subscription states
+  const [fetching, setFetching] = useState(false)
+  const [fetchError, setFetchError] = useState<AxiosError<ApiErrorResponse> | null>(null)
 
-  // Auth state for conditional loading
-  const isAuthenticated = useIsAuthenticated();
+  // Checkout states
+  const [checkoutLoading, setCheckoutLoading] = useState(false)
+  const [checkoutError, setCheckoutError] = useState<AxiosError<ApiErrorResponse> | null>(null)
 
-  // Request management refs
-  const subscriptionRequestRef = useRef<Promise<void> | null>(null);
-  const plansRequestRef = useRef<Promise<void> | null>(null);
-  const lastSubscriptionRefreshRef = useRef<number>(0);
-  const lastPlansRefreshRef = useRef<number>(0);
-  const isInitializedRef = useRef(false);
-  const consecutiveFailuresRef = useRef(0);
+  // Create subscription states
+  const [createLoading, setCreateLoading] = useState(false)
+  const [createError, setCreateError] = useState<AxiosError<ApiErrorResponse> | null>(null)
 
-  // OPTIMIZED: Conservative refreshSubscription with request deduplication
-  const refreshSubscription = useCallback(async (force = false): Promise<void> => {
-    // Only refresh if authenticated
-    if (!isAuthenticated && !force) {
-      console.log('💳 Skipping subscription refresh - not authenticated');
-      return Promise.resolve();
+  // Update subscription states
+  const [updateLoading, setUpdateLoading] = useState(false)
+  const [updateError, setUpdateError] = useState<AxiosError<ApiErrorResponse> | null>(null)
+
+  // Cancel subscription states
+  const [cancelLoading, setCancelLoading] = useState(false)
+  const [cancelError, setCancelError] = useState<AxiosError<ApiErrorResponse> | null>(null)
+
+  // Billing portal states
+  const [portalLoading, setPortalLoading] = useState(false)
+  const [portalError, setPortalError] = useState<AxiosError<ApiErrorResponse> | null>(null)
+
+  /** Fetch current subscription status */
+  const fetchSubscription = useCallback(async () => {
+    setFetching(true)
+    setFetchError(null)
+    try {
+      const sub = await subscriptionService.getSubscriptionStatus()
+      setSubscription(sub)
+    } catch (err: any) {
+      setFetchError(err)
+    } finally {
+      setFetching(false)
     }
+  }, [])
 
-    // Prevent rapid successive calls (3 second debounce)
-    const now = Date.now();
-    if (!force && now - lastSubscriptionRefreshRef.current < 3000) {
-      console.log('💳 Subscription refresh debounced');
-      return subscriptionRequestRef.current || Promise.resolve();
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      fetchSubscription()
     }
+  }, [fetchSubscription, authLoading, isAuthenticated])
 
-    // Implement exponential backoff for failures
-    if (consecutiveFailuresRef.current > 0 && !force) {
-      const backoffTime = Math.min(2000 * Math.pow(2, consecutiveFailuresRef.current), 30000);
-      if (now - lastSubscriptionRefreshRef.current < backoffTime) {
-        console.log(`💳 Subscription refresh backing off for ${backoffTime}ms`);
-        return Promise.resolve();
-      }
-    }
+  /** Public API: refresh */
+  const refresh = useCallback(async () => {
+    await fetchSubscription()
+  }, [fetchSubscription])
 
-    // If there's already a request in progress, return that promise
-    if (subscriptionRequestRef.current && !force) {
-      console.log('💳 Subscription refresh already in progress');
-      return subscriptionRequestRef.current;
-    }
-
-    lastSubscriptionRefreshRef.current = now;
-
-    const requestPromise = (async () => {
+  /** Start Stripe checkout */
+  const startCheckout = useCallback(
+    async (plan: PlanType) => {
+      setCheckoutLoading(true)
+      setCheckoutError(null)
       try {
-        console.log('💳 Refreshing subscription data...');
-        setIsLoading(true);
-        const response = await subscriptionApi.getSubscriptionStatus();
-        
-        if (response.data.status === 'success') {
-          setSubscription(response.data.subscription);
-          setUsage(response.data.usage);
-          setPlanLimits({
-            maxCodeInputChars: response.data.plan_limits.max_code_input_chars,
-            maxDailyUsage: response.data.plan_limits.max_daily_usage,
-            maxMonthlyUsage: response.data.plan_limits.max_monthly_usage,
-          });
-          consecutiveFailuresRef.current = 0; // Reset failure count
-          console.log('✅ Subscription data refreshed successfully');
-        } else {
-          throw new Error('Failed to load subscription');
-        }
+        const url = await subscriptionService.createCheckoutSession(plan)
+        await redirectToStripeCheckout(url)
       } catch (err: any) {
-        consecutiveFailuresRef.current++;
-        console.error(`❌ Failed to refresh subscription (attempt ${consecutiveFailuresRef.current}):`, err);
-        
-        // Only set error on first few failures to avoid spam
-        if (consecutiveFailuresRef.current <= 2) {
-          setError('Failed to load subscription data');
-        }
+        setCheckoutError(err)
       } finally {
-        setIsLoading(false);
-        subscriptionRequestRef.current = null;
+        setCheckoutLoading(false)
       }
-    })();
+    },
+    []
+  )
 
-    subscriptionRequestRef.current = requestPromise;
-    return requestPromise;
-  }, [isAuthenticated]);
-
-  // OPTIMIZED: Conservative getPlans with request deduplication
-  const getPlans = useCallback(async (force = false): Promise<void> => {
-    // Prevent rapid successive calls (5 second debounce - plans change rarely)
-    const now = Date.now();
-    if (!force && now - lastPlansRefreshRef.current < 5000) {
-      console.log('🏷️ Plans refresh debounced');
-      return plansRequestRef.current || Promise.resolve();
-    }
-
-    // If there's already a request in progress, return that promise
-    if (plansRequestRef.current && !force) {
-      console.log('🏷️ Plans refresh already in progress');
-      return plansRequestRef.current;
-    }
-
-    lastPlansRefreshRef.current = now;
-
-    const requestPromise = (async () => {
+  /** Direct create subscription */
+  const createSubscription = useCallback(
+    async (plan: PlanType, paymentMethodId?: string) => {
+      setCreateLoading(true)
+      setCreateError(null)
       try {
-        console.log('🏷️ Loading subscription plans...');
-        const response = await subscriptionApi.getPlans();
-        
-        if (response.data.status === 'success') {
-          setPlans(response.data.plans);
-          console.log(`✅ Loaded ${response.data.plans.length} subscription plans`);
-          
-          // Debug logging for plans
-          response.data.plans.forEach((plan, index) => {
-            console.log(`${index + 1}. ${plan.name}: ${plan.plan_type} - $${plan.price}`);
-          });
-        } else {
-          throw new Error('Failed to load plans');
-        }
+        const sub = await subscriptionService.createSubscription(plan, paymentMethodId)
+        setSubscription(sub)
       } catch (err: any) {
-        console.error('❌ Failed to load plans:', err);
-        setError('Failed to load subscription plans');
+        setCreateError(err)
       } finally {
-        plansRequestRef.current = null;
+        setCreateLoading(false)
       }
-    })();
+    },
+    []
+  )
 
-    plansRequestRef.current = requestPromise;
-    return requestPromise;
-  }, []);
-
-  // OPTIMIZED: Initialize Stripe only once
-  useEffect(() => {
-    const initStripe = async () => {
+  /** Update subscription plan */
+  const updateSubscription = useCallback(
+    async (plan: PlanType) => {
+      setUpdateLoading(true)
+      setUpdateError(null)
       try {
-        console.log('🔧 Initializing Stripe...');
-        const stripeInstance = await stripeApi.initializeStripe();
-        setStripe(stripeInstance);
-        
-        const config = await stripeApi.getStripeConfig();
-        setStripeConfig(config);
-        console.log('✅ Stripe initialized successfully');
-      } catch (err) {
-        console.error('❌ Failed to initialize Stripe:', err);
-        setError('Failed to initialize payment system');
+        const sub = await subscriptionService.updateSubscription(plan)
+        setSubscription(sub)
+      } catch (err: any) {
+        setUpdateError(err)
+      } finally {
+        setUpdateLoading(false)
       }
-    };
-    
-    initStripe();
-  }, []); // Empty dependency array - run only once
+    },
+    []
+  )
 
-  // OPTIMIZED: Initial data load with proper dependencies
-  useEffect(() => {
-    const initializeSubscriptionData = async () => {
-      if (isInitializedRef.current) return;
-      
-      console.log('🚀 Initializing subscription data...');
-      isInitializedRef.current = true;
-      
-      // Always load plans (public data)
-      await getPlans(true);
-      
-      // Only load subscription data if authenticated
-      if (isAuthenticated) {
-        await refreshSubscription(true);
-      } else {
-        setIsLoading(false);
+  /** Cancel subscription */
+  const cancelSubscription = useCallback(
+    async (immediate = false) => {
+      setCancelLoading(true)
+      setCancelError(null)
+      try {
+        const sub = await subscriptionService.cancelSubscription(immediate)
+        setSubscription(sub)
+      } catch (err: any) {
+        setCancelError(err)
+      } finally {
+        setCancelLoading(false)
       }
-    };
+    },
+    []
+  )
 
-    initializeSubscriptionData();
-  }, []); // Empty dependency array - run only once
-
-  // OPTIMIZED: Refresh subscription data when auth status changes
-  useEffect(() => {
-    if (!isInitializedRef.current) return;
-
-    if (isAuthenticated) {
-      console.log('🔄 User authenticated - refreshing subscription data');
-      refreshSubscription(true).catch(() => {
-        console.warn('⚠️ Failed to refresh subscription on auth change');
-      });
-    } else {
-      console.log('🚪 User not authenticated - clearing subscription data');
-      setSubscription(null);
-      setUsage(null);
-      setPlanLimits({
-        maxCodeInputChars: 0,
-        maxDailyUsage: null,
-        maxMonthlyUsage: null,
-      });
-    }
-  }, [isAuthenticated, refreshSubscription]);
-
-  // Enhanced createCheckoutSession
-  const createCheckoutSession = async (plan: Plan) => {
+  /** Open billing portal */
+  const openBillingPortal = useCallback(async () => {
+    setPortalLoading(true)
+    setPortalError(null)
     try {
-      console.log('💳 Creating checkout session for:', plan.name);
-      
-      // Validate plan
-      if (!plan || !plan.plan_type) {
-        throw new Error('Invalid plan object');
-      }
-      
-      if (plan.plan_type === 'free') {
-        throw new Error('Cannot create checkout session for free plan');
-      }
-      
-      const response = await subscriptionApi.createCheckoutSession(plan.plan_type as 'developer' | 'professional');
-      
-      if (response.data.status === 'success' && response.data.checkout_url) {
-        console.log('✅ Checkout session created, redirecting...');
-        window.location.href = response.data.checkout_url;
-      } else {
-        throw new Error('Failed to get checkout URL from server');
-      }
-      
+      const { portal_url } = await subscriptionService.openBillingPortal()
+      window.location.href = portal_url
     } catch (err: any) {
-      console.error('❌ Checkout creation failed:', err);
-      setError(`Failed to create checkout session: ${err.message}`);
-      throw err;
+      setPortalError(err)
+    } finally {
+      setPortalLoading(false)
     }
-  };
-
-  const openBillingPortal = async () => {
-    try {
-      console.log('💳 Opening billing portal...');
-      const response = await subscriptionApi.createBillingPortalSession();
-      
-      if (response.data.status === 'success' && response.data.portal_url) {
-        console.log('✅ Billing portal session created, redirecting...');
-        window.location.href = response.data.portal_url;
-      } else {
-        throw new Error('Failed to get billing portal URL from server');
-      }
-    } catch (err: any) {
-      console.error('❌ Billing portal failed:', err);
-      setError('Failed to open billing portal');
-      throw err;
-    }
-  };
-
-  const cancelSubscription = async (immediate: boolean = false) => {
-    try {
-      console.log(`💳 Cancelling subscription (immediate: ${immediate})...`);
-      const response = await subscriptionApi.cancelSubscription(immediate);
-      
-      if (response.data.status === 'success') {
-        setSubscription(response.data.subscription);
-        console.log('✅ Subscription cancelled successfully');
-      }
-    } catch (err: any) {
-      console.error('❌ Subscription cancellation failed:', err);
-      setError('Failed to cancel subscription');
-      throw err;
-    }
-  };
-
-  const reactivateSubscription = async () => {
-    try {
-      console.log('💳 Reactivating subscription...');
-      const response = await subscriptionApi.reactivateSubscription();
-      
-      if (response.data.status === 'success') {
-        setSubscription(response.data.subscription);
-        console.log('✅ Subscription reactivated successfully');
-      }
-    } catch (err: any) {
-      console.error('❌ Subscription reactivation failed:', err);
-      setError('Failed to reactivate subscription');
-      throw err;
-    }
-  };
-
-  const getUsageHistory = async (
-    days: number = 30,
-    page: number = 1,
-    perPage: number = 50
-  ) => {
-    try {
-      console.log(`📊 Getting usage history: ${days} days, page ${page}`);
-      const response = await subscriptionApi.getUsageHistory(days, page, perPage);
-      return response.data;
-    } catch (err: any) {
-      console.error('❌ Failed to load usage history:', err);
-      setError('Failed to load usage history');
-      throw err;
-    }
-  };
-
-  // Utility methods
-  const hasFeatureAccess = (feature: string): boolean => {
-    return subscriptionApi.hasFeatureAccess(subscription, feature);
-  };
-
-  const hasExceededLimits = () => {
-    return subscriptionApi.hasExceededLimits(usage, subscription);
-  };
-
-  const shouldRecommendUpgrade = () => {
-    return subscriptionApi.shouldRecommendUpgrade(usage, subscription);
-  };
-
-  // Cleanup on unmount
-  useEffect(() => {
-    return () => {
-      subscriptionRequestRef.current = null;
-      plansRequestRef.current = null;
-    };
-  }, []);
-
-  const value: SubscriptionContextType = {
-    // State
-    subscription,
-    plans,
-    usage,
-    isLoading,
-    error,
-    stripe,
-    isStripeReady: stripeApi.isStripeReady(),
-    stripeConfig,
-    planLimits,
-    
-    // Methods
-    refreshSubscription,
-    getPlans,
-    createCheckoutSession,
-    openBillingPortal,
-    cancelSubscription,
-    reactivateSubscription,
-    getUsageHistory,
-    hasFeatureAccess,
-    hasExceededLimits,
-    shouldRecommendUpgrade,
-  };
+  }, [])
 
   return (
-    <SubscriptionContext.Provider value={value}>
+    <SubscriptionContext.Provider
+      value={{
+        subscription,
+        fetching,
+        fetchError,
+        refresh,
+        checkoutLoading,
+        checkoutError,
+        startCheckout,
+        createLoading,
+        createError,
+        createSubscription,
+        updateLoading,
+        updateError,
+        updateSubscription,
+        cancelLoading,
+        cancelError,
+        cancelSubscription,
+        portalLoading,
+        portalError,
+        openBillingPortal,
+      }}
+    >
       {children}
     </SubscriptionContext.Provider>
-  );
-};
+  )
+}
 
-// OPTIMIZED: Main hook - use sparingly
-export const useSubscription = () => {
-  const context = useContext(SubscriptionContext);
-  if (context === undefined) {
-    throw new Error('useSubscription must be used within a SubscriptionProvider');
-  }
-  return context;
-};
 
-// OPTIMIZED: Selective hooks to prevent unnecessary re-renders
-
-// Hook that only re-renders when subscription data changes
-export const useSubscriptionData = (): Subscription | null => {
-  const context = useContext(SubscriptionContext);
-  if (!context) {
-    throw new Error('useSubscriptionData must be used within a SubscriptionProvider');
-  }
-  return context.subscription;
-};
-
-// Hook that only re-renders when plans change
-export const useSubscriptionPlans = (): Plan[] => {
-  const context = useContext(SubscriptionContext);
-  if (!context) {
-    throw new Error('useSubscriptionPlans must be used within a SubscriptionProvider');
-  }
-  return context.plans;
-};
-
-// Hook that only re-renders when usage data changes
-export const useUsageData = (): UsageData | null => {
-  const context = useContext(SubscriptionContext);
-  if (!context) {
-    throw new Error('useUsageData must be used within a SubscriptionProvider');
-  }
-  return context.usage;
-};
-
-// Hook that only re-renders when loading state changes
-export const useSubscriptionLoading = (): boolean => {
-  const context = useContext(SubscriptionContext);
-  if (!context) {
-    throw new Error('useSubscriptionLoading must be used within a SubscriptionProvider');
-  }
-  return context.isLoading;
-};
-
-// Hook that only re-renders when error state changes
-export const useSubscriptionError = (): string | null => {
-  const context = useContext(SubscriptionContext);
-  if (!context) {
-    throw new Error('useSubscriptionError must be used within a SubscriptionProvider');
-  }
-  return context.error;
-};
-
-// Hook for plan limits only
-export const usePlanLimits = () => {
-  const context = useContext(SubscriptionContext);
-  if (!context) {
-    throw new Error('usePlanLimits must be used within a SubscriptionProvider');
-  }
-  return context.planLimits;
-};

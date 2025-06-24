@@ -2,7 +2,6 @@
 // FIXED VERSION - Router context order corrected
 
 import React from 'react';
-import { Toaster } from '@/components/ui/toaster';
 import { Toaster as Sonner } from '@/components/ui/sonner';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -34,8 +33,13 @@ const App: React.FC = () => (
                 <ConvertProvider>
                   <DocumentProvider>
                     <TooltipProvider>
-                      <Toaster />
-                      <Sonner />
+                      <Sonner 
+                        position="top-right"
+                        toastOptions={{
+                          duration: 4000,
+                          style: { padding: '12px', fontSize: '14px', borderRadius: '8px' }
+                        }}
+                      />
                       <AppRoutes />
                       <LoadingOverlay />
                     </TooltipProvider>

@@ -1,8 +1,8 @@
-// File: src/routes/ConditionalHomeRoute.tsx
-// OPTIMIZED: Adds approval gating with overlay to home route
+// src/routes/ConditionalHomeRoute.tsx
+
 
 import React, { memo } from 'react';
-import { useIsAuthenticated, useAuthLoading, useApprovalState, useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import HomePage from '@/pages/HomePage';
 import LandingPage from '@/pages/LandingPage';
 
@@ -29,12 +29,7 @@ MemoizedLandingPage.displayName = 'MemoizedLandingPage';
 
 // Conditional home route with approval overlay
 const ConditionalHomeRoute: React.FC = memo(() => {
-  const isAuthenticated = useIsAuthenticated();
-  const loading = useAuthLoading();
-  const approval = useApprovalState();
-  const { refreshApproval } = useAuth();
-
-  console.log(`🏠 ConditionalHomeRoute - Auth: ${isAuthenticated}, Loading: ${loading}, Approval: ${approval}`);
+  const { isAuthenticated, loading, user } = useAuth();
 
   if (loading) {
     return <LoadingSpinner />;
@@ -45,7 +40,7 @@ const ConditionalHomeRoute: React.FC = memo(() => {
   }
 
   // User is authenticated
-  if (approval === 'pending') {
+  if (!user?.is_approved) {
     return (
       <>
         <MemoizedHomePage />
@@ -54,7 +49,7 @@ const ConditionalHomeRoute: React.FC = memo(() => {
             <h2 className="text-xl font-semibold mb-4 text-white">Account Pending Approval</h2>
             <p className="mb-6 text-white/80">Your account is still awaiting admin approval.</p>
             <button
-              onClick={refreshApproval}
+              onClick={() => window.location.reload()}
               className="px-4 py-2 backdrop-blur-sm bg-white/10 hover:bg-white/20 text-white rounded-lg focus:outline-none transition-all duration-200 border border-white/20 hover:border-white/30"
             >
               Refresh Status

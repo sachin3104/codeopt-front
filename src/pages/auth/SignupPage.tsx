@@ -2,7 +2,7 @@
 // Updated with glassmorphic UI design
 
 import React, { useState, FormEvent } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus, User, Lock, Mail, AlertCircle, ArrowLeft } from 'lucide-react';
 import { IconBrandGoogle } from '@tabler/icons-react';
@@ -19,10 +19,10 @@ const SignupPage: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      await signup(username, email, password);
+      await signup({ username, email, password });
       navigate('/'); // protected home
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Signup failed');
+      setError(err.message || 'Signup failed');
     }
   };
 

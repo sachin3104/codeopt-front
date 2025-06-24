@@ -1,5 +1,5 @@
 import React, { useState, FormEvent } from 'react';
-import { useAuth } from '@/context/AuthContext';
+import { useAuth } from '@/hooks/use-auth';
 import { useNavigate, Link } from 'react-router-dom';
 import { LogIn, User, Lock, AlertCircle, ArrowLeft } from 'lucide-react';
 import {IconBrandGoogle} from '@tabler/icons-react';
@@ -15,10 +15,10 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     try {
-      await login(username, password);
+      await login({ username, password });
       navigate('/'); // protected home
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.message || 'Login failed');
     }
   };
 
