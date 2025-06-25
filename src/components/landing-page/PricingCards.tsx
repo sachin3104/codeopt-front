@@ -64,11 +64,11 @@ const plans = [
   },
   {
     name: "optqo Expert",
-    price: 200,
+    price: 150,
     period: "30 min",
     description: "One-on-one mentoring with a senior analytics leader.",
     features: [
-      "$200 per 30-minute session",
+      "$300 per 60-minute session",
       "Personalized platform guidance",
       "Help defining optimization needs",
       "Toolchain advisory",

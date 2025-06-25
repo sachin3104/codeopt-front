@@ -68,6 +68,7 @@ export default function PricingPage() {
                     <p className="text-lg text-white/70 mb-4">
                       For analysts and practitioners seeking deeper diagnostics and more powerful insights.
                     </p>
+                    <div className="text-2xl font-bold text-white mb-2">$9.99<span className="text-lg font-normal text-white/60">/month</span></div>
                   </div>
                   
                   <div className="space-y-3 mb-8">
@@ -105,6 +106,7 @@ export default function PricingPage() {
                     <p className="text-lg text-white/70 mb-4">
                       For advanced professionals and teams focused on scalable ML and analytics optimization.
                     </p>
+                    <div className="text-2xl font-bold text-white mb-2">$30<span className="text-lg font-normal text-white/60">/month</span></div>
                   </div>
                   
                   <div className="space-y-3 mb-8">
@@ -179,12 +181,13 @@ export default function PricingPage() {
                     <p className="text-lg text-white/70 mb-4">
                       One-on-one mentoring with a senior analytics leader.
                     </p>
+                    <div className="text-2xl font-bold text-white mb-2">$150<span className="text-lg font-normal text-white/60">/30 min</span></div>
                   </div>
                   
                   <div className="space-y-3 mb-8">
                     <div className="flex items-start gap-3">
                       <Check className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-white/80">$200 per 30-minute session</span>
+                      <span className="text-white/80">$300 per 60-minute session</span>
                     </div>
                     <div className="flex items-start gap-3">
                       <Check className="h-5 w-5 text-blue-400 flex-shrink-0 mt-0.5" />
