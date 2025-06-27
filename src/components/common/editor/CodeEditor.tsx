@@ -1,9 +1,10 @@
 import React, { useRef, useState } from 'react';
 import Editor, { loader, OnMount } from '@monaco-editor/react';
-import { Copy, AlertTriangle } from 'lucide-react';
+import { Copy, AlertTriangle, Infinity } from 'lucide-react';
 import { useCode } from '@/hooks/use-code';
 import { useDetectedLanguage } from '@/hooks/use-detected-language';
-import { useCharacterLimit, formatCharacterCount } from '@/hooks/use-character-limit';
+import { useCharacterLimit, formatCharacterCount, isUnlimitedPlan } from '@/hooks/use-character-limit';
+import { useSubscription } from '@/hooks/use-subscription';
 
 // 1) Move this to module scope so it only ever runs once
 loader.init().then(monaco => {
@@ -84,28 +85,9 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   // detect lang on every code change
   const detectedLang = useDetectedLanguage(displayCode);
 
-  // Character limit information
+  // Character limit information - fetched from backend via use-subscription
   const { currentCount, limit, isOverLimit, percentageUsed } = useCharacterLimit(displayCode);
-
-  // React.useEffect(() => {
-  //   const style = document.createElement('style');
-  //   style.innerHTML = `
-  //     .monaco-editor,
-  //     .monaco-editor *,
-  //     .monaco-editor .inputarea.ime-input,
-  //     .monaco-editor .monaco-editor-background,
-  //     .monaco-editor textarea {
-  //       outline: none !important;
-  //       border: none !important;
-  //     }
-  //   `;
-  //   document.head.appendChild(style);
-    
-  //   return () => {
-  //     document.head.removeChild(style);
-  //   };
-  // }, []);
-
+  const { subscription } = useSubscription();
 
   const handleChange = (val?: string) => {
     const newText = val ?? ''
@@ -136,12 +118,18 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     if (isOverLimit) {
       return 'text-red-400 font-semibold'
     }
+    if (percentageUsed > 80) {
+      return 'text-yellow-400 font-medium'
+    }
     return 'text-white/60'
   }
 
   // Get character count text with formatting
   const getCharacterCountText = () => {
     const formattedCount = formatCharacterCount(currentCount)
+    if (isUnlimitedPlan(subscription)) {
+      return `${formattedCount} / ∞`
+    }
     const formattedLimit = formatCharacterCount(limit)
     return `${formattedCount} / ${formattedLimit}`
   }
@@ -247,17 +235,25 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             <span className={getCharacterCountStyle()}>
               {getCharacterCountText()}
             </span>
-            {/* Progress bar for character usage */}
-            <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
-              <div 
-                className={`h-full rounded-full transition-all duration-300 ${
-                  isOverLimit 
-                    ? 'bg-red-500' 
-                    : 'bg-green-500'
-                }`}
-                style={{ width: `${Math.min(100, percentageUsed)}%` }}
-              />
-            </div>
+            {/* Progress bar for character usage - only show if there's a limit */}
+            {!isUnlimitedPlan(subscription) && (
+              <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                <div 
+                  className={`h-full rounded-full transition-all duration-300 ${
+                    isOverLimit 
+                      ? 'bg-red-500' 
+                      : percentageUsed > 80
+                      ? 'bg-yellow-500'
+                      : 'bg-green-500'
+                  }`}
+                  style={{ width: `${Math.min(100, percentageUsed)}%` }}
+                />
+              </div>
+            )}
+            {/* Show infinity icon for unlimited plans */}
+            {isUnlimitedPlan(subscription) && (
+              <Infinity className="w-4 h-4 text-green-400" />
+            )}
           </div>
         </div>
       </div>

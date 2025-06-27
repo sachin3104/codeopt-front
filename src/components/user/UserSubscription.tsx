@@ -1,5 +1,5 @@
 import React from 'react';
-import { CreditCard, BarChart3, TrendingUp, Settings } from 'lucide-react';
+import { CreditCard, BarChart3, TrendingUp, Settings, Mail, Calendar } from 'lucide-react';
 import { useSubscription } from '@/hooks/use-subscription';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
@@ -73,6 +73,38 @@ const UserSubscription: React.FC = () => {
   const usageInfo = getUsageData();
   const percentage = usageInfo && usageInfo.total ? (usageInfo.completed / usageInfo.total) * 100 : 0;
 
+  // Get action type display info
+  const getActionTypeInfo = () => {
+    switch (plan.action_type) {
+      case 'subscribe':
+        return {
+          label: 'Subscription',
+          icon: <CreditCard className="w-4 h-4 text-green-400" />,
+          color: 'text-green-400'
+        };
+      case 'email_contact':
+        return {
+          label: 'Contact Required',
+          icon: <Mail className="w-4 h-4 text-blue-400" />,
+          color: 'text-blue-400'
+        };
+      case 'book_consultation':
+        return {
+          label: 'Consultation',
+          icon: <Calendar className="w-4 h-4 text-purple-400" />,
+          color: 'text-purple-400'
+        };
+      default:
+        return {
+          label: 'Plan',
+          icon: <CreditCard className="w-4 h-4 text-white" />,
+          color: 'text-white'
+        };
+    }
+  };
+
+  const actionTypeInfo = getActionTypeInfo();
+
   return (
     <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-xl p-6">
       
@@ -80,7 +112,7 @@ const UserSubscription: React.FC = () => {
         {/* Current Plan */}
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-            <CreditCard className="w-4 h-4 text-white" />
+            {actionTypeInfo.icon}
           </div>
           <div className="flex-1">
             <p className="text-white/70 text-sm">Current Plan</p>
@@ -94,8 +126,36 @@ const UserSubscription: React.FC = () => {
                 {status}
               </span>
             </div>
+            <p className="text-white/60 text-xs mt-1">{actionTypeInfo.label}</p>
           </div>
         </div>
+
+        {/* Plan Details */}
+        <div className="grid grid-cols-2 gap-4">
+          <div className="text-center p-3 bg-white/5 rounded-lg">
+            <p className="text-white/70 text-xs">Plan Type</p>
+            <p className="text-white font-medium capitalize">{plan.plan_type}</p>
+          </div>
+          <div className="text-center p-3 bg-white/5 rounded-lg">
+            <p className="text-white/70 text-xs">Price</p>
+            <p className="text-white font-medium">
+              {plan.price === 0 ? 'Free' : `$${plan.price}/mo`}
+            </p>
+          </div>
+        </div>
+
+        {/* Consultation Options Preview */}
+        {plan.consultation_options && plan.consultation_options.length > 0 && (
+          <div className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+            <div className="flex items-center space-x-2 mb-2">
+              <Calendar className="w-4 h-4 text-purple-400" />
+              <p className="text-purple-400 text-sm font-medium">Consultation Available</p>
+            </div>
+            <p className="text-white/70 text-xs">
+              {plan.consultation_options.length} consultation option{plan.consultation_options.length > 1 ? 's' : ''} available
+            </p>
+          </div>
+        )}
 
         {/* Usage Statistics */}
         <div className="space-y-4">
@@ -112,7 +172,7 @@ const UserSubscription: React.FC = () => {
                   {isFreePlan ? 'Daily Requests' : 'Monthly Requests'}
                 </p>
                 <p className="text-white text-xs">
-                  {usageInfo.completed} / {usageInfo.total}
+                  {usageInfo.completed} / {usageInfo.total || 'Unlimited'}
                 </p>
               </div>
               <div className="w-full bg-white/10 rounded-full h-2">
@@ -129,7 +189,7 @@ const UserSubscription: React.FC = () => {
                 <span className={isFreePlan ? 'text-blue-400' : 'text-purple-400'}>
                   Completed: {usageInfo.completed}
                 </span>
-                <span className="text-white/60">Remaining: {usageInfo.remaining}</span>
+                <span className="text-white/60">Remaining: {usageInfo.remaining || 'Unlimited'}</span>
               </div>
             </div>
           ) : (

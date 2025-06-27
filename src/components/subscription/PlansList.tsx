@@ -37,15 +37,40 @@ const PlansList: React.FC = () => {
     setSelectedPlan(plan.plan_type as PlanType);
     
     try {
-      if (plan.plan_type === PlanType.FREE) {
-        // Always use createSubscription for free plan
-        await createSubscription(plan.plan_type as PlanType);
-      } else if (subscription && subscription.plan.plan_type !== PlanType.FREE) {
-        // User has a paid plan, use updateSubscription
-        await updateSubscription(plan.plan_type as PlanType);
-      } else {
-        // User has no plan or free plan, use checkout for paid plans
-        await startCheckout(plan.plan_type as PlanType);
+      // Handle different action types
+      switch (plan.action_type) {
+        case 'subscribe':
+          if (plan.plan_type === PlanType.FREE) {
+            // Always use createSubscription for free plan
+            await createSubscription(plan.plan_type as PlanType);
+          } else if (subscription && subscription.plan.plan_type !== PlanType.FREE) {
+            // User has a paid plan, use updateSubscription
+            await updateSubscription(plan.plan_type as PlanType);
+          } else {
+            // User has no plan or free plan, use checkout for paid plans
+            await startCheckout(plan.plan_type as PlanType);
+          }
+          break;
+          
+        case 'email_contact':
+          // Handle email contact action
+          window.location.href = `mailto:contact@codeopt.com?subject=Inquiry about ${plan.name} plan`;
+          break;
+          
+        case 'book_consultation':
+          // Handle consultation booking
+          if (plan.consultation_options && plan.consultation_options.length > 0) {
+            // Navigate to consultation booking page or open modal
+            console.log('Consultation options available:', plan.consultation_options);
+            // TODO: Implement consultation booking flow
+            alert('Consultation booking feature coming soon!');
+          } else {
+            alert('No consultation options available for this plan.');
+          }
+          break;
+          
+        default:
+          console.warn('Unknown action type:', plan.action_type);
       }
     } catch (error) {
       // Error is handled by the context
@@ -76,17 +101,39 @@ const PlansList: React.FC = () => {
           const planError =
             selectedPlan === plan.plan_type ? createError || checkoutError || updateError : null;
           
-          // Determine button text based on current state
+          // Determine button text based on action type and current state
           const getButtonText = () => {
             if (isCurrent) return 'Current Plan';
             if (isLoading) return 'Processing…';
-            if (plan.plan_type === PlanType.FREE) return 'Select Free';
             
-            // For paid plans, show different text based on current subscription
-            if (hasPaidSubscription) {
-              return 'Change Plan';
-            } else {
-              return 'Upgrade';
+            switch (plan.action_type) {
+              case 'subscribe':
+                if (plan.plan_type === PlanType.FREE) return 'Select Free';
+                if (hasPaidSubscription) return 'Change Plan';
+                return 'Upgrade';
+              case 'email_contact':
+                return 'Contact Us';
+              case 'book_consultation':
+                return 'Book Consultation';
+              default:
+                return 'Select Plan';
+            }
+          };
+
+          // Get button styling based on action type
+          const getButtonStyle = () => {
+            if (isCurrent) return 'bg-white/20 text-white/60 cursor-default';
+            if (isLoading) return 'bg-white/10 text-white/50 cursor-not-allowed';
+            
+            switch (plan.action_type) {
+              case 'subscribe':
+                return 'bg-white/10 hover:bg-white/20 text-white';
+              case 'email_contact':
+                return 'bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 border border-blue-500/30';
+              case 'book_consultation':
+                return 'bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/30';
+              default:
+                return 'bg-white/10 hover:bg-white/20 text-white';
             }
           };
 
@@ -108,6 +155,8 @@ const PlansList: React.FC = () => {
                 <div className="mt-4 text-3xl font-bold text-white">
                   {plan.price === 0 ? 'Free' : `$${plan.price}/mo`}
                 </div>
+                
+                {/* Plan Features */}
                 <ul className="mt-4 space-y-1 text-white/80 text-sm">
                   <li>Max code input: {plan.max_code_input_chars ? plan.max_code_input_chars.toLocaleString() : 'Unlimited'}</li>
                   <li>
@@ -117,14 +166,27 @@ const PlansList: React.FC = () => {
                     Monthly requests: {plan.max_monthly_usage != null ? plan.max_monthly_usage : 'Unlimited'}
                   </li>
                 </ul>
+
+                {/* Consultation Options */}
+                {plan.consultation_options && plan.consultation_options.length > 0 && (
+                  <div className="mt-4 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                    <p className="text-purple-400 text-sm font-medium mb-2">Consultation Options:</p>
+                    <div className="space-y-1">
+                      {plan.consultation_options.map((option, index) => (
+                        <div key={index} className="text-white/70 text-xs">
+                          {option.duration_label}: ${option.price} - {option.description}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
+              
               <div className="mt-6">
                 <button
                   onClick={() => handleSelect(plan)}
                   disabled={isCurrent || isLoading}
-                  className={`w-full py-2 rounded-md font-medium transition-colors text-white bg-white/10 hover:bg-white/20 disabled:opacity-50 disabled:cursor-not-allowed ${
-                    isCurrent ? 'bg-white/20 text-white/60 cursor-default' : ''
-                  }`}
+                  className={`w-full py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${getButtonStyle()}`}
                 >
                   {getButtonText()}
                 </button>

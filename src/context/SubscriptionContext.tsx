@@ -9,7 +9,17 @@ import React, {
 import { useNavigate } from 'react-router-dom'
 import { AxiosError } from 'axios'
 import { PlanType, subscriptionService } from '@/api/subscription'
-import type { Subscription, ApiErrorResponse, UsageHistoryResponse } from '@/types/subscription'
+import type { 
+  Plan,
+  Subscription, 
+  ApiErrorResponse, 
+  UsageHistoryResponse,
+  ConsultationPlansResponse,
+  ConsultationCheckoutResponse,
+  ConsultationBookingStatusResponse,
+  ConsultationBookingsResponse,
+  ConsultationBooking
+} from '@/types/subscription'
 import { redirectToStripeCheckout } from '@/api/stripe'
 import { useAuth } from '@/hooks/use-auth'
 
@@ -54,6 +64,36 @@ export interface SubscriptionContextType {
   portalLoading: boolean
   portalError: AxiosError<ApiErrorResponse> | null
   openBillingPortal: () => Promise<void>
+
+  // Consultation plans
+  consultationPlans: Plan[] | null
+  fetchingConsultationPlans: boolean
+  consultationPlansError: AxiosError<ApiErrorResponse> | null
+  fetchConsultationPlans: () => Promise<void>
+
+  // Consultation checkout
+  consultationCheckoutLoading: boolean
+  consultationCheckoutError: AxiosError<ApiErrorResponse> | null
+  startConsultationCheckout: (
+    consultationType: string,
+    selectedDate: string,
+    description?: string
+  ) => Promise<void>
+
+  // Consultation bookings
+  consultationBookings: ConsultationBookingsResponse | null
+  fetchingConsultationBookings: boolean
+  consultationBookingsError: AxiosError<ApiErrorResponse> | null
+  fetchConsultationBookings: (page?: number, perPage?: number) => Promise<void>
+
+  // Reactivation & Cleanup
+  reactivateLoading: boolean
+  reactivateError: AxiosError<ApiErrorResponse> | null
+  reactivateSubscription: () => Promise<void>
+
+  cleanupLoading: boolean
+  cleanupError: AxiosError<ApiErrorResponse> | null
+  cleanupSubscriptions: () => Promise<void>
 }
 
 export const SubscriptionContext = createContext<SubscriptionContextType | undefined>(undefined)
@@ -92,6 +132,27 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
   const [portalLoading, setPortalLoading] = useState(false)
   const [portalError, setPortalError] = useState<AxiosError<ApiErrorResponse> | null>(null)
 
+  // Consultation plans states
+  const [consultationPlans, setConsultationPlans] = useState<Plan[] | null>(null)
+  const [fetchingConsultationPlans, setFetchingConsultationPlans] = useState(false)
+  const [consultationPlansError, setConsultationPlansError] = useState<AxiosError<ApiErrorResponse> | null>(null)
+
+  // Consultation checkout states
+  const [consultationCheckoutLoading, setConsultationCheckoutLoading] = useState(false)
+  const [consultationCheckoutError, setConsultationCheckoutError] = useState<AxiosError<ApiErrorResponse> | null>(null)
+
+  // Consultation bookings states
+  const [consultationBookings, setConsultationBookings] = useState<ConsultationBookingsResponse | null>(null)
+  const [fetchingConsultationBookings, setFetchingConsultationBookings] = useState(false)
+  const [consultationBookingsError, setConsultationBookingsError] = useState<AxiosError<ApiErrorResponse> | null>(null)
+
+  // Reactivation & Cleanup states
+  const [reactivateLoading, setReactivateLoading] = useState(false)
+  const [reactivateError, setReactivateError] = useState<AxiosError<ApiErrorResponse> | null>(null)
+
+  const [cleanupLoading, setCleanupLoading] = useState(false)
+  const [cleanupError, setCleanupError] = useState<AxiosError<ApiErrorResponse> | null>(null)
+
   /** Fetch current subscription status */
   const fetchSubscription = useCallback(async () => {
     setFetching(true)
@@ -119,13 +180,6 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
       setFetchingUsage(false)
     }
   }, [])
-
-  useEffect(() => {
-    if (!authLoading && isAuthenticated) {
-      fetchSubscription()
-      fetchUsage()
-    }
-  }, [fetchSubscription, fetchUsage, authLoading, isAuthenticated])
 
   /** Public API: refresh */
   const refresh = useCallback(async () => {
@@ -215,6 +269,93 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
     }
   }, [])
 
+  /** Fetch consultation plans */
+  const fetchConsultationPlans = useCallback(async () => {
+    setFetchingConsultationPlans(true)
+    setConsultationPlansError(null)
+    try {
+      const plans = await subscriptionService.getConsultationPlans()
+      setConsultationPlans(plans)
+    } catch (err: any) {
+      setConsultationPlansError(err)
+    } finally {
+      setFetchingConsultationPlans(false)
+    }
+  }, [])
+
+  /** Start consultation checkout */
+  const startConsultationCheckout = useCallback(
+    async (consultationType: string, selectedDate: string, description?: string) => {
+      setConsultationCheckoutLoading(true)
+      setConsultationCheckoutError(null)
+      try {
+        const response = await subscriptionService.createConsultationCheckout(
+          consultationType,
+          selectedDate,
+          description
+        )
+        await redirectToStripeCheckout(response.checkout_url)
+      } catch (err: any) {
+        setConsultationCheckoutError(err)
+      } finally {
+        setConsultationCheckoutLoading(false)
+      }
+    },
+    []
+  )
+
+  /** Fetch consultation bookings */
+  const fetchConsultationBookings = useCallback(
+    async (page = 1, perPage = 20) => {
+      setFetchingConsultationBookings(true)
+      setConsultationBookingsError(null)
+      try {
+        const bookings = await subscriptionService.getConsultationBookings(page, perPage)
+        setConsultationBookings(bookings)
+      } catch (err: any) {
+        setConsultationBookingsError(err)
+      } finally {
+        setFetchingConsultationBookings(false)
+      }
+    },
+    []
+  )
+
+  /** Reactivate subscription */
+  const reactivateSubscription = useCallback(async () => {
+    setReactivateLoading(true)
+    setReactivateError(null)
+    try {
+      const sub = await subscriptionService.reactivateSubscription()
+      setSubscription(sub)
+    } catch (err: any) {
+      setReactivateError(err)
+    } finally {
+      setReactivateLoading(false)
+    }
+  }, [])
+
+  /** Cleanup subscriptions */
+  const cleanupSubscriptions = useCallback(async () => {
+    setCleanupLoading(true)
+    setCleanupError(null)
+    try {
+      await subscriptionService.cleanupSubscriptions()
+    } catch (err: any) {
+      setCleanupError(err)
+    } finally {
+      setCleanupLoading(false)
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      fetchSubscription()
+      fetchUsage()
+      fetchConsultationPlans()
+    }
+  }, [fetchSubscription, fetchUsage, fetchConsultationPlans, authLoading, isAuthenticated])
+
   return (
     <SubscriptionContext.Provider
       value={{
@@ -241,6 +382,23 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
         portalLoading,
         portalError,
         openBillingPortal,
+        consultationPlans,
+        fetchingConsultationPlans,
+        consultationPlansError,
+        fetchConsultationPlans,
+        consultationCheckoutLoading,
+        consultationCheckoutError,
+        startConsultationCheckout,
+        consultationBookings,
+        fetchingConsultationBookings,
+        consultationBookingsError,
+        fetchConsultationBookings,
+        reactivateLoading,
+        reactivateError,
+        reactivateSubscription,
+        cleanupLoading,
+        cleanupError,
+        cleanupSubscriptions,
       }}
     >
       {children}

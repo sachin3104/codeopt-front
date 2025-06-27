@@ -9,7 +9,12 @@ import type {
   CheckoutResponse, 
   SubscriptionActionResponse,
   BillingPortalResponse,
-  ApiErrorResponse
+  ApiErrorResponse,
+  ConsultationPlansResponse,
+  ConsultationCheckoutResponse,
+  ConsultationBookingStatusResponse,
+  ConsultationBookingsResponse,
+  ConsultationBooking
 } from '../types/subscription'
 
 // Plan types available in the system
@@ -142,4 +147,127 @@ export const subscriptionService = {
       throw err as AxiosError<ApiErrorResponse>
     }
   },
+
+  //
+  // ────────────────────────────────────────────────────────────────────────────────
+  //   Consultation endpoints
+  // ────────────────────────────────────────────────────────────────────────────────
+  /**
+   * Fetch available consultation plans
+   */
+  async getConsultationPlans(): Promise<Plan[]> {
+    try {
+      const { data } = await api.get<ConsultationPlansResponse>(
+        '/api/subscription/consultation/plans'
+      )
+      return data.consultation_plans
+    } catch (err: any) {
+      throw err as AxiosError<ApiErrorResponse>
+    }
+  },
+
+  /**
+   * Create a Stripe checkout session for a consultation booking
+   */
+  async createConsultationCheckout(
+    consultationType: string,
+    selectedDate: string,
+    description?: string
+  ): Promise<ConsultationCheckoutResponse> {
+    try {
+      const { data } = await api.post<ConsultationCheckoutResponse>(
+        '/api/subscription/consultation/create-checkout',
+        {
+          consultation_type: consultationType,
+          selected_date: selectedDate,
+          description
+        }
+      )
+      return data
+    } catch (err: any) {
+      throw err as AxiosError<ApiErrorResponse>
+    }
+  },
+
+  /**
+   * Get the status of a single consultation booking
+   */
+  async getConsultationBookingStatus(
+    bookingId: number
+  ): Promise<ConsultationBooking> {
+    try {
+      const { data } = await api.get<ConsultationBookingStatusResponse>(
+        `/api/subscription/consultation/booking/${bookingId}/status`
+      )
+      return data.booking
+    } catch (err: any) {
+      throw err as AxiosError<ApiErrorResponse>
+    }
+  },
+
+  /**
+   * List consultation bookings for the current user
+   */
+  async getConsultationBookings(
+    page = 1,
+    perPage = 20
+  ): Promise<ConsultationBookingsResponse> {
+    try {
+      const { data } = await api.get<ConsultationBookingsResponse>(
+        '/api/subscription/consultation/bookings',
+        { params: { page, per_page: perPage } }
+      )
+      return data
+    } catch (err: any) {
+      throw err as AxiosError<ApiErrorResponse>
+    }
+  },
+
+  /**
+   * (Dev only) Simulate payment completion for a consultation booking
+   */
+  async simulateConsultationPayment(
+    bookingId: number
+  ): Promise<ConsultationBooking> {
+    try {
+      const { data } = await api.post<ConsultationBookingStatusResponse>(
+        `/api/subscription/consultation/booking/${bookingId}/simulate-payment`
+      )
+      return data.booking
+    } catch (err: any) {
+      throw err as AxiosError<ApiErrorResponse>
+    }
+  },
+
+  //
+  // ────────────────────────────────────────────────────────────────────────────────
+  //   Reactivation & Cleanup
+  // ────────────────────────────────────────────────────────────────────────────────
+  /**
+   * Reactivate a cancelled subscription
+   */
+  async reactivateSubscription(): Promise<Subscription> {
+    try {
+      const { data } = await api.post<SubscriptionActionResponse>(
+        '/api/subscription/reactivate'
+      )
+      return data.subscription
+    } catch (err: any) {
+      throw err as AxiosError<ApiErrorResponse>
+    }
+  },
+
+  /**
+   * Clean up duplicate or stale subscriptions
+   */
+  async cleanupSubscriptions(): Promise<{ cleanup_results: any }> {
+    try {
+      const { data } = await api.post<{ cleanup_results: any }>(
+        '/api/subscription/cleanup'
+      )
+      return data.cleanup_results
+    } catch (err: any) {
+      throw err as AxiosError<ApiErrorResponse>
+    }
+  }
 }

@@ -1,13 +1,13 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Crown, ChevronDown, Zap } from 'lucide-react';
+import { Crown, ChevronDown, Zap, Mail, Calendar } from 'lucide-react';
 import { useSubscription } from '@/hooks/use-subscription';
 
 const PlanDetails: React.FC = () => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const navigate = useNavigate();
-  const { subscription, usageData } = useSubscription();
+  const { subscription, usageData, fetching, fetchingUsage } = useSubscription();
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
@@ -34,16 +34,55 @@ const PlanDetails: React.FC = () => {
     };
   }, [isDropdownOpen]);
 
-  // Don't render if no subscription data
-  if (!subscription || !usageData) {
+  // Don't render if no subscription data and still fetching
+  if (!subscription && fetching) {
+    return null;
+  }
+
+  // Don't render if no subscription data at all
+  if (!subscription) {
     return null;
   }
 
   const { plan } = subscription;
   const isFreePlan = plan.plan_type === 'free';
   
-  // Get remaining requests based on plan type
+  // Get action type display info
+  const getActionTypeInfo = () => {
+    switch (plan.action_type) {
+      case 'subscribe':
+        return {
+          label: 'Subscription',
+          icon: isFreePlan ? <Zap className="w-4 h-4 text-blue-300" /> : <Crown className="w-4 h-4 text-yellow-400" />,
+          color: isFreePlan ? 'text-blue-300' : 'text-yellow-400'
+        };
+      case 'email_contact':
+        return {
+          label: 'Contact',
+          icon: <Mail className="w-4 h-4 text-blue-400" />,
+          color: 'text-blue-400'
+        };
+      case 'book_consultation':
+        return {
+          label: 'Consultation',
+          icon: <Calendar className="w-4 h-4 text-purple-400" />,
+          color: 'text-purple-400'
+        };
+      default:
+        return {
+          label: 'Plan',
+          icon: isFreePlan ? <Zap className="w-4 h-4 text-blue-300" /> : <Crown className="w-4 h-4 text-yellow-400" />,
+          color: isFreePlan ? 'text-blue-300' : 'text-yellow-400'
+        };
+    }
+  };
+
+  const actionTypeInfo = getActionTypeInfo();
+  
+  // Get remaining requests based on plan type and usage data
   const getRemainingRequests = () => {
+    if (!usageData) return null;
+    
     if (isFreePlan) {
       return usageData.plan_limits.max_daily_usage 
         ? usageData.plan_limits.max_daily_usage - usageData.current_usage.daily_usage
@@ -66,11 +105,7 @@ const PlanDetails: React.FC = () => {
       >
         {/* Plan Icon */}
         <div className="flex items-center space-x-1">
-          {plan.plan_type === 'free' ? (
-            <Zap className="w-4 h-4 text-blue-300" />
-          ) : (
-            <Crown className="w-4 h-4 text-yellow-400" />
-          )}
+          {actionTypeInfo.icon}
         </div>
 
         {/* Plan Name */}
@@ -78,8 +113,8 @@ const PlanDetails: React.FC = () => {
           {plan.plan_type}
         </span>
 
-        {/* Remaining Requests */}
-        {remainingRequests !== null && (
+        {/* Remaining Requests - only show if usage data is available */}
+        {usageData && remainingRequests !== null && (
           <div className="flex items-center space-x-1">
             <span className="text-xs text-gray-300">
               {remainingRequests}
@@ -87,6 +122,14 @@ const PlanDetails: React.FC = () => {
             <span className="text-xs text-gray-400">
               left {periodText}
             </span>
+          </div>
+        )}
+
+        {/* Loading indicator */}
+        {fetchingUsage && (
+          <div className="flex items-center space-x-1">
+            <div className="w-2 h-2 bg-blue-400 rounded-full animate-pulse"></div>
+            <span className="text-xs text-gray-400">Loading...</span>
           </div>
         )}
 
@@ -101,55 +144,94 @@ const PlanDetails: React.FC = () => {
             {/* Plan Header */}
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
-                {plan.plan_type === 'free' ? (
-                  <Zap className="w-5 h-5 text-blue-300" />
-                ) : (
-                  <Crown className="w-5 h-5 text-yellow-400" />
-                )}
+                {actionTypeInfo.icon}
                 <span className="text-white font-semibold capitalize">
                   {plan.plan_type} Plan
                 </span>
               </div>
-              {plan.plan_type !== 'free' && (
+              {plan.price > 0 && (
                 <span className="text-sm text-green-400 font-medium">
                   ${plan.price}/{plan.currency === 'usd' ? 'mo' : plan.currency}
                 </span>
               )}
             </div>
 
-            
+            {/* Plan Description */}
+            <div className="mb-4">
+              <p className="text-sm text-white/70 mb-2">{plan.description}</p>
+              <p className="text-xs text-white/50">{actionTypeInfo.label} Plan</p>
+            </div>
 
-            {/* Usage Details */}
+            {/* Plan Limits */}
             <div className="space-y-2 mb-4">
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Used {periodText}:</span>
+                <span className="text-gray-400">Max Input:</span>
                 <span className="text-white">
-                  {isFreePlan 
-                    ? usageData.current_usage.daily_usage 
-                    : usageData.current_usage.monthly_usage
-                  }
+                  {plan.max_code_input_chars ? `${plan.max_code_input_chars.toLocaleString()} chars` : 'Unlimited'}
                 </span>
               </div>
               
-              {remainingRequests !== null && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Remaining:</span>
-                  <span className={`font-medium ${remainingRequests > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                    {remainingRequests}
-                  </span>
-                </div>
-              )}
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-400">Daily Limit:</span>
+                <span className="text-white">
+                  {plan.max_daily_usage ? plan.max_daily_usage : 'Unlimited'}
+                </span>
+              </div>
 
               <div className="flex justify-between text-sm">
-                <span className="text-gray-400">Limit:</span>
+                <span className="text-gray-400">Monthly Limit:</span>
                 <span className="text-white">
-                  {isFreePlan 
-                    ? usageData.plan_limits.max_daily_usage || 'Unlimited'
-                    : usageData.plan_limits.max_monthly_usage || 'Unlimited'
-                  }
+                  {plan.max_monthly_usage ? plan.max_monthly_usage : 'Unlimited'}
                 </span>
               </div>
             </div>
+
+            {/* Usage Details - only show if usage data is available */}
+            {usageData && (
+              <div className="space-y-2 mb-4 pt-4 border-t border-white/10">
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Used {periodText}:</span>
+                  <span className="text-white">
+                    {isFreePlan 
+                      ? usageData.current_usage.daily_usage 
+                      : usageData.current_usage.monthly_usage
+                    }
+                  </span>
+                </div>
+                
+                {remainingRequests !== null && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-400">Remaining:</span>
+                    <span className={`font-medium ${remainingRequests > 0 ? 'text-green-400' : 'text-red-400'}`}>
+                      {remainingRequests}
+                    </span>
+                  </div>
+                )}
+
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-400">Limit:</span>
+                  <span className="text-white">
+                    {isFreePlan 
+                      ? usageData.plan_limits.max_daily_usage || 'Unlimited'
+                      : usageData.plan_limits.max_monthly_usage || 'Unlimited'
+                    }
+                  </span>
+                </div>
+              </div>
+            )}
+
+            {/* Consultation Options */}
+            {plan.consultation_options && plan.consultation_options.length > 0 && (
+              <div className="mb-4 pt-4 border-t border-white/10">
+                <div className="flex items-center space-x-2 mb-2">
+                  <Calendar className="w-4 h-4 text-purple-400" />
+                  <span className="text-purple-400 text-sm font-medium">Consultation Available</span>
+                </div>
+                <p className="text-white/70 text-xs">
+                  {plan.consultation_options.length} consultation option{plan.consultation_options.length > 1 ? 's' : ''} available
+                </p>
+              </div>
+            )}
 
             {/* Action Button */}
             <button

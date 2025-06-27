@@ -12,7 +12,15 @@ export interface Plan {
   max_daily_usage: number | null;
   max_monthly_usage: number | null;
   is_active: boolean;
-  stripe_price_id?: string | null; // ✅ ADDED: This field exists in your backend
+  stripe_price_id?: string | null; 
+  is_subscription: boolean;           
+  action_type: 'subscribe' | 'email_contact' | 'book_consultation';  
+  consultation_options?: {            
+    duration: 'half_hour' | 'one_hour';
+    duration_label: string;
+    price: number;
+    description: string;
+  }[];
 }
 
 export interface Subscription {
@@ -123,4 +131,54 @@ export interface ApiErrorResponse {
   required_plans?: string[];
   usage_info?: any;
   rate_limit_info?: any;
+}
+
+
+// Consultation booking model returned by backend
+export interface ConsultationBooking {
+  id: number;
+  consultation_type: 'half_hour' | 'one_hour';
+  consultation_duration: string;
+  user_email: string;
+  selected_date: string;    // ISO date
+  description?: string;
+  amount: number;
+  currency: string;
+  payment_status: 'pending' | 'completed' | 'failed' | 'cancelled';
+  booking_status: 'pending' | 'confirmed' | 'cancelled';
+  stripe_payment_intent_id?: string;
+  created_at: string;       // ISO timestamp
+  updated_at: string;       // ISO timestamp
+}
+
+
+// Responses for consultation endpoints
+export interface ConsultationPlansResponse {
+  status: string;
+  consultation_plans: Plan[];
+}
+
+export interface ConsultationCheckoutResponse {
+  status: string;
+  booking_id: number;
+  checkout_url: string;
+  booking: ConsultationBooking;
+}
+
+export interface ConsultationBookingStatusResponse {
+  status: string;
+  booking: ConsultationBooking;
+}
+
+export interface ConsultationBookingsResponse {
+  status: string;
+  bookings: ConsultationBooking[];
+  pagination: {
+    page: number;
+    per_page: number;
+    total: number;
+    pages: number;
+    has_next: boolean;
+    has_prev: boolean;
+  };
 } 

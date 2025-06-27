@@ -32,7 +32,7 @@ export default function Header() {
       ref={menuRef}
       className={clsx(
         "fixed top-4 inset-x-8 z-50",
-        "transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]"
+        "transition-all duration-700 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;"
       )}
     >
       {/* Main header bar */}
@@ -43,7 +43,7 @@ export default function Header() {
         "rounded-2xl",
         "border border-white/20",
         "shadow-lg shadow-black/10",
-        "transition-all duration-700 ease-[cubic-bezier(0.4,0,0,1)]",
+        "transition-all duration-700 ease-&lsqb;cubic-bezier(0.4,0,0,1)&rsqb;",
         isMenuOpen ? "scale-[1.02]" : "scale-100"
       )}>
         <Link 
@@ -65,7 +65,7 @@ export default function Header() {
             "relative w-12 h-12",
             "flex items-center justify-center",
             "rounded-xl",
-            "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+            "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
             "group",
             isMenuOpen 
               ? "bg-white/20 shadow-lg shadow-white/10" 
@@ -76,7 +76,7 @@ export default function Header() {
           <div className="relative w-6 h-6">
             <span className={clsx(
               "absolute left-0 w-6 h-0.5 bg-white rounded-full",
-              "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+              "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
               "origin-center",
               isMenuOpen 
                 ? "top-3 rotate-45" 
@@ -84,13 +84,13 @@ export default function Header() {
             )}></span>
             <span className={clsx(
               "absolute left-0 w-6 h-0.5 bg-white rounded-full",
-              "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+              "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
               "top-3",
               isMenuOpen ? "opacity-0 scale-0" : "opacity-100 scale-100"
             )}></span>
             <span className={clsx(
               "absolute left-0 w-6 h-0.5 bg-white rounded-full",
-              "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+              "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
               "origin-center",
               isMenuOpen 
                 ? "top-3 -rotate-45" 
@@ -112,7 +112,7 @@ export default function Header() {
       {/* Animated menu overlay */}
       <div className={clsx(
         "absolute top-full left-0 right-0 mt-4",
-        "transition-all duration-700 ease-[cubic-bezier(0.4,0,0.2,1)]",
+        "transition-all duration-700 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
         isMenuOpen 
           ? "opacity-100 translate-y-0 pointer-events-auto" 
           : "opacity-0 -translate-y-8 pointer-events-none"
@@ -140,7 +140,7 @@ export default function Header() {
                       "px-6 py-4",
                       "text-white text-lg font-medium",
                       "rounded-xl",
-                      "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                      "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
                       "hover:bg-white/20 hover:scale-[1.02]",
                       "cursor-pointer",
                       "overflow-hidden"
@@ -188,7 +188,7 @@ export default function Header() {
                       "px-6 py-4",
                       "text-white text-lg font-medium",
                       "rounded-xl",
-                      "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                      "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
                       "hover:bg-white/20 hover:scale-[1.02]",
                       "cursor-pointer",
                       "overflow-hidden"
@@ -242,7 +242,7 @@ export default function Header() {
                 "px-6 py-4",
                 "text-white text-lg font-medium text-center",
                 "rounded-xl",
-                "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
                 "hover:scale-[1.02]",
                 "cursor-pointer",
                 "overflow-hidden",
@@ -289,7 +289,7 @@ export default function Header() {
                 "px-6 py-4",
                 "text-white text-lg font-medium text-center",
                 "rounded-xl",
-                "transition-all duration-500 ease-[cubic-bezier(0.4,0,0.2,1)]",
+                "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
                 "hover:scale-[1.02]",
                 "cursor-pointer",
                 "overflow-hidden",

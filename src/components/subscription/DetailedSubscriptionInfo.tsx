@@ -7,7 +7,9 @@ import {
   XCircle,
   Clock,
   AlertTriangle,
-  Zap
+  Zap,
+  Mail,
+  Calendar
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/use-subscription';
 import { useAuth } from '@/hooks/use-auth';
@@ -142,6 +144,38 @@ const DetailedSubscriptionInfo: React.FC = () => {
 
   const renewalStatus = getRenewalStatus();
 
+  // Get action type display info
+  const getActionTypeInfo = () => {
+    switch (plan.action_type) {
+      case 'subscribe':
+        return {
+          label: 'Subscription Plan',
+          icon: <CreditCard className="w-4 h-4 text-green-400" />,
+          description: 'Standard subscription with recurring billing'
+        };
+      case 'email_contact':
+        return {
+          label: 'Contact Required',
+          icon: <Mail className="w-4 h-4 text-blue-400" />,
+          description: 'Contact us for custom pricing and setup'
+        };
+      case 'book_consultation':
+        return {
+          label: 'Consultation Required',
+          icon: <Calendar className="w-4 h-4 text-purple-400" />,
+          description: 'Book a consultation to get started'
+        };
+      default:
+        return {
+          label: 'Plan',
+          icon: <CreditCard className="w-4 h-4 text-white" />,
+          description: 'Standard plan'
+        };
+    }
+  };
+
+  const actionTypeInfo = getActionTypeInfo();
+
   return (
     <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-xl p-6">
       
@@ -149,7 +183,7 @@ const DetailedSubscriptionInfo: React.FC = () => {
         {/* Current Plan */}
         <div className="flex items-center space-x-3">
           <div className="w-8 h-8 rounded-full bg-white/10 flex items-center justify-center">
-            <CreditCard className="w-4 h-4 text-white" />
+            {actionTypeInfo.icon}
           </div>
           <div className="flex-1">
             <p className="text-white/70 text-sm">Current Plan</p>
@@ -166,8 +200,53 @@ const DetailedSubscriptionInfo: React.FC = () => {
               </span>
             </div>
             <p className="text-white/60 text-xs mt-1">{plan.description}</p>
+            <p className="text-white/50 text-xs mt-1">{actionTypeInfo.description}</p>
           </div>
         </div>
+
+        {/* Plan Type Information */}
+        <div className="space-y-3">
+          <div className="flex items-center space-x-2">
+            <Zap className="w-4 h-4 text-white" />
+            <p className="text-white/70 text-sm font-medium">Plan Type</p>
+          </div>
+          <div className="grid grid-cols-2 gap-4">
+            <div className="text-center p-3 bg-white/5 rounded-lg">
+              <p className="text-white/70 text-xs">Plan Type</p>
+              <p className="text-white font-medium capitalize">{plan.plan_type}</p>
+            </div>
+            <div className="text-center p-3 bg-white/5 rounded-lg">
+              <p className="text-white/70 text-xs">Action Type</p>
+              <p className="text-white font-medium">{actionTypeInfo.label}</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Consultation Options */}
+        {plan.consultation_options && plan.consultation_options.length > 0 && (
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <Calendar className="w-4 h-4 text-purple-400" />
+              <p className="text-purple-400 text-sm font-medium">Available Consultations</p>
+            </div>
+            <div className="space-y-2">
+              {plan.consultation_options.map((option, index) => (
+                <div key={index} className="p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-purple-400 font-medium text-sm">{option.duration_label}</p>
+                      <p className="text-white/70 text-xs">{option.description}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-purple-400 font-semibold">${option.price}</p>
+                      <p className="text-white/60 text-xs">{option.duration}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
 
         
         {/* Character Limits */}
@@ -207,20 +286,15 @@ const DetailedSubscriptionInfo: React.FC = () => {
                   Remaining: {usageInfo.charactersRemaining?.toLocaleString() || 'Unlimited'}
                 </span>
               </div>
-              <div className="text-center pt-2 border-t border-white/10">
-                <p className="text-white/50 text-xs">
-                  {usageInfo.charactersPerRequest?.toLocaleString()} chars per request × {usageInfo.total || 'Unlimited'} requests
-                </p>
-              </div>
             </div>
           ) : (
             <div className="text-center py-4">
-              <p className="text-white/50 text-sm">Character limit information not available</p>
+              <p className="text-white/50 text-sm">Character usage data not available</p>
             </div>
           )}
         </div>
 
-        {/* Usage Statistics */}
+        {/* Request Usage */}
         <div className="space-y-3">
           <div className="flex items-center space-x-2">
             <BarChart3 className="w-4 h-4 text-white" />
@@ -244,26 +318,19 @@ const DetailedSubscriptionInfo: React.FC = () => {
                       ? 'bg-gradient-to-r from-red-400 to-red-600' 
                       : percentage > 60
                       ? 'bg-gradient-to-r from-yellow-400 to-yellow-600'
-                      : 'bg-gradient-to-r from-blue-400 to-blue-600'
+                      : 'bg-gradient-to-r from-green-400 to-green-600'
                   }`}
                   style={{ width: `${Math.min(percentage, 100)}%` }}
                 ></div>
               </div>
               <div className="flex justify-between text-xs">
-                <span className="text-blue-400">
+                <span className="text-green-400">
                   Completed: {usageInfo.completed}
                 </span>
                 <span className="text-white/60">
                   Remaining: {usageInfo.remaining || 'Unlimited'}
                 </span>
               </div>
-              {usageInfo.charactersPerRequest && (
-                <div className="text-center pt-2 border-t border-white/10">
-                  <p className="text-white/50 text-xs">
-                    Each request can process up to {usageInfo.charactersPerRequest.toLocaleString()} characters
-                  </p>
-                </div>
-              )}
             </div>
           ) : (
             <div className="text-center py-4">
@@ -272,76 +339,35 @@ const DetailedSubscriptionInfo: React.FC = () => {
           )}
         </div>
 
-        {/* Plan Features */}
+        {/* Renewal Status */}
         <div className="space-y-3">
           <div className="flex items-center space-x-2">
-            <Zap className="w-4 h-4 text-white" />
-            <p className="text-white/70 text-sm font-medium">Plan Features</p>
+            <Clock className="w-4 h-4 text-white" />
+            <p className="text-white/70 text-sm font-medium">Renewal Status</p>
           </div>
-          
-          <div className="grid grid-cols-1 gap-2 text-xs">
-            <div className="flex justify-between items-center p-2 bg-white/5 rounded">
-              <span className="text-white/70">Max Code Input Per Request</span>
-              <span className="text-white font-medium">
-                {usageInfo?.charactersPerRequest ? `${usageInfo.charactersPerRequest.toLocaleString()} chars` : 'Unlimited'}
-              </span>
-            </div>
-            <div className="flex justify-between items-center p-2 bg-white/5 rounded">
-              <span className="text-white/70">Total Character Limit</span>
-              <span className="text-white font-medium">
-                {usageInfo?.charactersTotal ? `${usageInfo.charactersTotal.toLocaleString()} chars` : 'Unlimited'}
-              </span>
-            </div>
-            <div className="flex justify-between items-center p-2 bg-white/5 rounded">
-              <span className="text-white/70">Price</span>
-              <span className="text-white font-medium">
-                {isFreePlan ? 'Free' : `${plan.currency.toUpperCase()} ${plan.price}/month`}
-              </span>
-            </div>
-          </div>
-        </div>
-
-        {/* Renewal Information */}
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2 p-3 bg-white/5 rounded-lg border border-white/10">
+          <div className="flex items-center space-x-2 p-3 bg-white/5 rounded-lg">
             {renewalStatus.icon}
             <p className="text-white text-sm">{renewalStatus.message}</p>
           </div>
-          
-          {/* Cancel Subscription Button - only show for active paid subscriptions */}
-          {subscription && !isFreePlan && status === 'active' && !cancel_at_period_end && (
-            <div className="p-3 bg-red-500/10 rounded-lg border border-red-500/20 flex flex-row items-center justify-between min-h-[88px]">
-              <div className="flex flex-col justify-center">
-                <div className="flex items-center space-x-2 mb-1">
-                  <XCircle className="w-4 h-4 text-red-400" />
-                  <span className="text-white/70 text-sm font-semibold">Cancel Subscription</span>
-                </div>
-                <p className="text-white/60 text-xs">
-                  Your subscription will remain active until the end of the current billing period.
-                </p>
-              </div>
-              <div className="flex flex-col items-end h-full">
-                <button
-                  onClick={() => cancelSubscription(false)}
-                  disabled={cancelLoading}
-                  className={`px-4 py-2 rounded-md font-medium transition mb-1 ${
-                    cancelLoading
-                      ? 'bg-red-300 text-white cursor-not-allowed opacity-60'
-                      : 'bg-red-600 text-white hover:bg-red-700'
-                  }`}
-                >
-                  {cancelLoading ? 'Cancelling…' : 'Cancel Subscription'}
-                </button>
-                {cancelError && (
-                  <p className="text-sm text-red-600 mt-1">
-                    {cancelError.response?.data.message || cancelError.message}
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
         </div>
 
+        {/* Cancel Subscription Button */}
+        {!isFreePlan && status === 'active' && (
+          <div className="pt-4 border-t border-white/20">
+            <button
+              onClick={() => cancelSubscription(false)}
+              disabled={cancelLoading}
+              className="w-full py-2 px-4 bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 rounded-md text-red-400 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              {cancelLoading ? 'Cancelling...' : 'Cancel Subscription'}
+            </button>
+            {cancelError && (
+              <p className="mt-2 text-sm text-red-400">
+                {cancelError.response?.data.message || cancelError.message}
+              </p>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
