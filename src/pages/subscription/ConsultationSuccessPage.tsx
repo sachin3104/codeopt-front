@@ -1,17 +1,16 @@
-// src/pages/subscription/SubscriptionSuccessPage.tsx
 import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useSubscription } from '@/hooks/use-subscription'
-import { CheckCircle, AlertCircle, ArrowLeft, Loader2, Calendar, CreditCard, Zap } from 'lucide-react'
+import { CheckCircle, AlertCircle, ArrowLeft, Loader2, Calendar, Clock, User } from 'lucide-react'
 
-const SubscriptionSuccessPage: React.FC = () => {
-  const { subscription, refresh } = useSubscription()
+const ConsultationSuccessPage: React.FC = () => {
+  const { fetchConsultationBookings } = useSubscription()
   const location = useLocation()
   const navigate = useNavigate()
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [subscriptionDetails, setSubscriptionDetails] = useState<any>(null)
+  const [bookingDetails, setBookingDetails] = useState<any>(null)
 
   useEffect(() => {
     const params = new URLSearchParams(location.search)
@@ -25,23 +24,23 @@ const SubscriptionSuccessPage: React.FC = () => {
 
     ;(async () => {
       try {
-        await refresh()
-        toast.success("🎉 Your subscription is now active!")
+        // Fetch the latest consultation bookings to get the updated status
+        await fetchConsultationBookings(1, 5)
+        toast.success("🎉 Your consultation has been booked successfully!")
         
         // Show success message for a few seconds before redirecting
         setTimeout(() => {
           navigate('/user', { replace: true })
         }, 5000)
       } catch (err: any) {
-        setError(err.response?.data?.message || err.message || 'Failed to update subscription.')
+        setError(err.response?.data?.message || err.message || 'Failed to verify consultation booking.')
       } finally {
         setLoading(false)
       }
     })()
-  }, [location.search, refresh, navigate])
+  }, [location.search, fetchConsultationBookings, navigate])
 
-  const formatDate = (dateString: string | null) => {
-    if (!dateString) return 'N/A'
+  const formatDate = (dateString: string) => {
     return new Date(dateString).toLocaleDateString('en-US', {
       weekday: 'long',
       year: 'numeric',
@@ -50,15 +49,8 @@ const SubscriptionSuccessPage: React.FC = () => {
     })
   }
 
-  const getPlanDisplayName = (planType: string) => {
-    switch (planType) {
-      case 'optqo_pro':
-        return 'OPTQO Pro'
-      case 'optqo_ultimate':
-        return 'OPTQO Ultimate'
-      default:
-        return planType
-    }
+  const formatDuration = (duration: string) => {
+    return duration === 'half_hour' ? '30 Minutes' : '60 Minutes'
   }
 
   return (
@@ -67,11 +59,11 @@ const SubscriptionSuccessPage: React.FC = () => {
         {loading && (
           <div className="text-center space-y-4">
             <div className="flex justify-center">
-              <Loader2 className="w-12 h-12 text-blue-400 animate-spin" />
+              <Loader2 className="w-12 h-12 text-purple-400 animate-spin" />
             </div>
             <div className="space-y-2">
-              <h2 className="text-xl font-semibold text-white">Activating Your Subscription</h2>
-              <p className="text-white/70 text-sm">Please wait while we activate your new plan...</p>
+              <h2 className="text-xl font-semibold text-white">Confirming Your Consultation</h2>
+              <p className="text-white/70 text-sm">Please wait while we verify your booking...</p>
             </div>
           </div>
         )}
@@ -84,31 +76,29 @@ const SubscriptionSuccessPage: React.FC = () => {
               </div>
             </div>
             <div className="space-y-4">
-              <h2 className="text-2xl font-semibold text-white">Subscription Activated Successfully!</h2>
+              <h2 className="text-2xl font-semibold text-white">Consultation Booked Successfully!</h2>
               <p className="text-white/70 text-sm">
-                Your subscription has been activated and payment processed. You now have access to all premium features.
+                Your consultation has been confirmed and payment processed. We'll send you a confirmation email with meeting details.
               </p>
               
-              {/* Subscription Summary */}
-              {subscription && (
-                <div className="bg-blue-500/10 p-4 rounded-lg border border-blue-500/20 space-y-3">
-                  <h3 className="text-blue-400 font-medium text-sm">Subscription Details</h3>
-                  <div className="space-y-2 text-left">
-                    <div className="flex items-center space-x-2 text-white/80 text-sm">
-                      <Zap className="w-4 h-4 text-blue-400" />
-                      <span>Plan: {getPlanDisplayName(subscription.plan.plan_type)}</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-white/80 text-sm">
-                      <Calendar className="w-4 h-4 text-blue-400" />
-                      <span>Next Billing: {formatDate(subscription.current_period_end)}</span>
-                    </div>
-                    <div className="flex items-center space-x-2 text-white/80 text-sm">
-                      <CreditCard className="w-4 h-4 text-blue-400" />
-                      <span>Status: {subscription.status.charAt(0).toUpperCase() + subscription.status.slice(1)}</span>
-                    </div>
+              {/* Booking Summary */}
+              <div className="bg-purple-500/10 p-4 rounded-lg border border-purple-500/20 space-y-3">
+                <h3 className="text-purple-400 font-medium text-sm">Booking Summary</h3>
+                <div className="space-y-2 text-left">
+                  <div className="flex items-center space-x-2 text-white/80 text-sm">
+                    <Clock className="w-4 h-4 text-purple-400" />
+                    <span>Duration: {formatDuration('half_hour')}</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-white/80 text-sm">
+                    <Calendar className="w-4 h-4 text-purple-400" />
+                    <span>Date: To be confirmed</span>
+                  </div>
+                  <div className="flex items-center space-x-2 text-white/80 text-sm">
+                    <User className="w-4 h-4 text-purple-400" />
+                    <span>Expert consultation session</span>
                   </div>
                 </div>
-              )}
+              </div>
               
               <p className="text-white/60 text-xs">
                 Redirecting to dashboard in 5 seconds...
@@ -117,7 +107,7 @@ const SubscriptionSuccessPage: React.FC = () => {
             
             <button
               onClick={() => navigate('/user')}
-              className="flex items-center space-x-2 px-6 py-3 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-all duration-200 border border-blue-500/30 hover:border-blue-500/50"
+              className="flex items-center space-x-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg transition-all duration-200 border border-purple-500/30 hover:border-purple-500/50"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Go to Dashboard</span>
@@ -133,13 +123,13 @@ const SubscriptionSuccessPage: React.FC = () => {
               </div>
             </div>
             <div className="space-y-3">
-              <h2 className="text-xl font-semibold text-white">Subscription Activation Failed</h2>
+              <h2 className="text-xl font-semibold text-white">Booking Verification Failed</h2>
               <p className="text-red-400 text-sm bg-red-500/10 p-3 rounded-lg border border-red-500/20">
                 {error}
               </p>
               <p className="text-white/70 text-sm">
-                Don't worry! If your payment was successful, your subscription is likely still active. 
-                Check your dashboard or contact support for assistance.
+                Don't worry! If your payment was successful, your consultation is likely still booked. 
+                Check your email for confirmation or contact support.
               </p>
             </div>
             <div className="space-y-3">
@@ -152,10 +142,10 @@ const SubscriptionSuccessPage: React.FC = () => {
               </button>
               <button
                 onClick={() => navigate('/user')}
-                className="flex items-center space-x-2 px-6 py-3 bg-blue-500/20 hover:bg-blue-500/30 text-blue-400 rounded-lg transition-all duration-200 border border-blue-500/30 hover:border-blue-500/50 w-full justify-center"
+                className="flex items-center space-x-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg transition-all duration-200 border border-purple-500/30 hover:border-purple-500/50 w-full justify-center"
               >
-                <CreditCard className="w-4 h-4" />
-                <span>Check My Subscription</span>
+                <User className="w-4 h-4" />
+                <span>Check My Bookings</span>
               </button>
             </div>
           </div>
@@ -165,4 +155,4 @@ const SubscriptionSuccessPage: React.FC = () => {
   )
 }
 
-export default SubscriptionSuccessPage
+export default ConsultationSuccessPage 

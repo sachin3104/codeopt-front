@@ -50,7 +50,12 @@ export const auth = {
     try {
       const response = await api.get<{ status: string; user: User }>('/api/auth/user')
       return response.data.user
-    } catch (err) {
+    } catch (err: any) {
+      // If it's a 401, user is not authenticated - this is expected
+      if (err.response?.status === 401) {
+        return null
+      }
+      // For other errors, still return null but don't trigger global logout
       return null
     }
   },

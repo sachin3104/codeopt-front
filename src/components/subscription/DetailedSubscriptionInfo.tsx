@@ -48,7 +48,7 @@ const DetailedSubscriptionInfo: React.FC = () => {
   }
 
   const { plan, status, current_period_end, cancel_at_period_end, days_until_renewal } = subscription;
-  const isFreePlan = plan.plan_type === 'free';
+  const isFreePlan = plan.plan_type === 'optqo_free';
 
   // Get usage data from context
   const currentUsage = usageData?.current_usage;
@@ -188,7 +188,10 @@ const DetailedSubscriptionInfo: React.FC = () => {
           <div className="flex-1">
             <p className="text-white/70 text-sm">Current Plan</p>
             <div className="flex items-center space-x-2">
-              <p className="text-white font-medium">{plan.name}</p>
+              <div>
+                <p className="text-white font-medium">{plan.name}</p>
+                <p className="text-gray-400 text-sm">{actionTypeInfo.label}</p>
+              </div>
               <span className={`px-2 py-1 text-xs rounded-full ${
                 status === 'active' 
                   ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
@@ -213,7 +216,7 @@ const DetailedSubscriptionInfo: React.FC = () => {
           <div className="grid grid-cols-2 gap-4">
             <div className="text-center p-3 bg-white/5 rounded-lg">
               <p className="text-white/70 text-xs">Plan Type</p>
-              <p className="text-white font-medium capitalize">{plan.plan_type}</p>
+              <p className="text-white font-medium">{plan.name}</p>
             </div>
             <div className="text-center p-3 bg-white/5 rounded-lg">
               <p className="text-white/70 text-xs">Action Type</p>
@@ -250,7 +253,7 @@ const DetailedSubscriptionInfo: React.FC = () => {
 
         
         {/* Character Limits */}
-        <div className="space-y-3">
+        {/* <div className="space-y-3">
           <div className="flex items-center space-x-2">
             <FileText className="w-4 h-4 text-white" />
             <p className="text-white/70 text-sm font-medium">Character Usage</p>
@@ -292,7 +295,7 @@ const DetailedSubscriptionInfo: React.FC = () => {
               <p className="text-white/50 text-sm">Character usage data not available</p>
             </div>
           )}
-        </div>
+        </div> */}
 
         {/* Request Usage */}
         <div className="space-y-3">

@@ -9,20 +9,30 @@ export default function AdminLogin() {
   const navigate = useNavigate();
   const [isCheckingAuth, setIsCheckingAuth] = useState(true);
 
+  // DEBUG: Log component mount
+  useEffect(() => {
+    console.log('🔍 AdminLogin: Component mounted')
+  }, [])
+
   // Check if admin is already logged in
   useEffect(() => {
     const checkExistingAuth = async () => {
+      console.log('🔍 AdminLogin: Checking existing admin auth...')
       try {
         const response = await checkAdminAuth();
+        console.log('🔍 AdminLogin: Admin auth check response:', response.data)
         
         if (response.data.authenticated && response.data.admin) {
           // Already logged in, redirect to dashboard
+          console.log('✅ AdminLogin: Admin already authenticated, redirecting to dashboard')
           navigate('/admin/dashboard', { replace: true });
           return;
+        } else {
+          console.log('🔍 AdminLogin: Admin not authenticated, showing login form')
         }
       } catch (error) {
         // Not authenticated, stay on login page
-        console.log('Not authenticated, showing login form');
+        console.log('🔍 AdminLogin: Admin auth check failed (expected when not logged in):', error)
       } finally {
         setIsCheckingAuth(false);
       }
@@ -33,14 +43,14 @@ export default function AdminLogin() {
 
   // Handle successful login
   const handleLoginSuccess = (admin: AdminUser) => {
-    console.log('Login successful:', admin);
+    console.log('✅ AdminLogin: Login successful:', admin);
     // Redirect to admin dashboard
     navigate('/admin/dashboard', { replace: true });
   };
 
   // Handle login error
   const handleLoginError = (error: string) => {
-    console.error('Login error:', error);
+    console.error('❌ AdminLogin: Login error:', error);
     // Error is already handled in the form component
   };
 

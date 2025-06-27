@@ -19,9 +19,9 @@ import type {
 
 // Plan types available in the system
 export enum PlanType {
-  FREE = 'free',
-  DEVELOPER = 'developer',
-  PROFESSIONAL = 'professional',
+  FREE = 'optqo_free',
+  DEVELOPER = 'optqo_pro',
+  PROFESSIONAL = 'optqo_ultimate',
 }
 
 // Subscription API wrapper

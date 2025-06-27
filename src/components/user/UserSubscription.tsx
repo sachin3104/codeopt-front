@@ -35,7 +35,7 @@ const UserSubscription: React.FC = () => {
   }
 
   const { plan, status } = subscription;
-  const isFreePlan = plan.plan_type === 'free';
+  const isFreePlan = plan.plan_type === 'optqo_free';
 
   // Get usage data from context
   const currentUsage = usageData?.current_usage;
@@ -117,16 +117,12 @@ const UserSubscription: React.FC = () => {
           <div className="flex-1">
             <p className="text-white/70 text-sm">Current Plan</p>
             <div className="flex items-center space-x-2">
-              <p className="text-white font-medium">{plan.name}</p>
-              <span className={`px-2 py-1 text-xs rounded-full ${
-                status === 'active' 
-                  ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                  : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-              }`}>
-                {status}
-              </span>
+              {actionTypeInfo.icon}
+              <div>
+                <p className="text-white font-medium">{plan.name}</p>
+                <p className="text-gray-400 text-sm">{actionTypeInfo.label}</p>
+              </div>
             </div>
-            <p className="text-white/60 text-xs mt-1">{actionTypeInfo.label}</p>
           </div>
         </div>
 
@@ -134,7 +130,7 @@ const UserSubscription: React.FC = () => {
         <div className="grid grid-cols-2 gap-4">
           <div className="text-center p-3 bg-white/5 rounded-lg">
             <p className="text-white/70 text-xs">Plan Type</p>
-            <p className="text-white font-medium capitalize">{plan.plan_type}</p>
+            <p className="text-white font-medium">{plan.name}</p>
           </div>
           <div className="text-center p-3 bg-white/5 rounded-lg">
             <p className="text-white/70 text-xs">Price</p>

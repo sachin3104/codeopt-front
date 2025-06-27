@@ -2,7 +2,8 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, CreditCard } from 'lucide-react';
 import DetailedSubscriptionInfo from './DetailedSubscriptionInfo';
-import PlansList from './PlansList';
+import NormalPlans from './NormalPlans';
+import PremiumPlans from './PremiumPlans';
 
 const SubscriptionLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -31,7 +32,8 @@ const SubscriptionLayout: React.FC = () => {
       {/* Content */}
       <div className="flex-1 space-y-8">
         <DetailedSubscriptionInfo />
-        <PlansList />
+        <NormalPlans />
+        <PremiumPlans />
       </div>
     </div>
   );

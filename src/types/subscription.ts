@@ -3,7 +3,7 @@
 
 export interface Plan {
   id: number;
-  plan_type: 'free' | 'developer' | 'professional';
+  plan_type: 'optqo_free' | 'optqo_pro' | 'optqo_ultimate';
   name: string;
   description: string;
   price: number;

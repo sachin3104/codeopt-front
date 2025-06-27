@@ -1,5 +1,5 @@
 import React from 'react';
-import { BarChart3, Calendar, Activity, FileText, TrendingUp } from 'lucide-react';
+import { BarChart3, Calendar, Activity, FileText, TrendingUp, CreditCard } from 'lucide-react';
 import { useSubscription } from '@/hooks/use-subscription';
 
 const UserUsageGraph: React.FC = () => {
@@ -38,7 +38,7 @@ const UserUsageGraph: React.FC = () => {
   // Get current usage data
   const currentUsage = usageData?.current_usage;
   const planLimits = usageData?.plan_limits;
-  const isFreePlan = subscription.plan.plan_type === 'free';
+  const isFreePlan = subscription.plan.plan_type === 'optqo_free';
 
   if (!usageData || !currentUsage) {
     return (
@@ -90,8 +90,10 @@ const UserUsageGraph: React.FC = () => {
                 <p className="text-white font-medium">-</p>
               </div>
               <div className="text-center">
-                <p className="text-white/70 text-xs">Plan Type</p>
-                <p className="text-white font-medium capitalize">{subscription.plan.plan_type}</p>
+                <div className="flex items-center space-x-2">
+                  <CreditCard className="w-4 h-4 text-white" />
+                  <p className="text-white font-medium">{subscription.plan.name}</p>
+                </div>
               </div>
             </div>
           </div>
@@ -216,8 +218,10 @@ const UserUsageGraph: React.FC = () => {
               </p>
             </div>
             <div className="text-center">
-              <p className="text-white/70 text-xs">Plan Type</p>
-              <p className="text-white font-medium capitalize">{subscription.plan.plan_type}</p>
+              <div className="flex items-center space-x-2">
+                <CreditCard className="w-4 h-4 text-white" />
+                <p className="text-white font-medium">{subscription.plan.name}</p>
+              </div>
             </div>
           </div>
         </div>

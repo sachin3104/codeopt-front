@@ -12,9 +12,14 @@ const PUBLIC_ROUTES = [
   '/signup',
   '/auth/success',
   '/admin/login',
-  '/admin/dashboard',
   '/subscription/success',
   '/subscription/cancel'
+];
+
+// Define which routes are admin routes (use admin auth, not regular user auth)
+const ADMIN_ROUTES = [
+  '/admin/login',
+  '/admin/dashboard'
 ];
 
 // Define which routes are protected (need auth)
@@ -23,8 +28,18 @@ const PROTECTED_ROUTE_PATTERNS = [
   '/subscription'
 ];
 
+// Helper function to check if current route is an admin route
+const isAdminRoute = (pathname: string): boolean => {
+  return ADMIN_ROUTES.includes(pathname) || pathname.startsWith('/admin/');
+};
+
 // Helper function to check if current route needs authentication
 const isProtectedRoute = (pathname: string): boolean => {
+  // Admin routes are handled separately
+  if (isAdminRoute(pathname)) {
+    return false;
+  }
+  
   // Check if it's explicitly a public route
   if (PUBLIC_ROUTES.includes(pathname)) {
     return false;

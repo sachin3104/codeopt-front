@@ -3,6 +3,7 @@
 import React, { memo } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
+import { LogOut } from 'lucide-react';
 
 interface PrivateRouteProps {
   children: JSX.Element;
@@ -24,7 +25,7 @@ PrivateRouteLoader.displayName = 'PrivateRouteLoader';
 
 // OPTIMIZED: PrivateRoute with auth + approval gating
 const PrivateRoute: React.FC<PrivateRouteProps> = memo(({ children }) => {
-  const { loading, isAuthenticated, user } = useAuth();
+  const { loading, isAuthenticated, user, logout } = useAuth();
   const location = useLocation();
 
   // 1. Loading user/session
@@ -46,12 +47,21 @@ const PrivateRoute: React.FC<PrivateRouteProps> = memo(({ children }) => {
           <div className="backdrop-blur-xl bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-xl p-6 shadow-lg text-center max-w-sm mx-auto">
             <h2 className="text-xl font-semibold mb-4 text-white">Account Pending Approval</h2>
             <p className="mb-6 text-white/80">Your account is awaiting admin approval.</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="px-4 py-2 backdrop-blur-sm bg-white/10 hover:bg-white/20 text-white rounded-lg focus:outline-none transition-all duration-200 border border-white/20 hover:border-white/30"
-            >
-              Refresh Status
-            </button>
+            <div className="flex flex-col gap-3">
+              <button
+                onClick={() => window.location.reload()}
+                className="px-4 py-2 backdrop-blur-sm bg-white/10 hover:bg-white/20 text-white rounded-lg focus:outline-none transition-all duration-200 border border-white/20 hover:border-white/30"
+              >
+                Refresh Status
+              </button>
+              <button
+                onClick={logout}
+                className="px-4 py-2 backdrop-blur-sm bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-lg focus:outline-none transition-all duration-200 border border-red-500/30 hover:border-red-500/40 flex items-center justify-center gap-2"
+              >
+                <LogOut size={16} />
+                Logout
+              </button>
+            </div>
           </div>
         </div>
       </>

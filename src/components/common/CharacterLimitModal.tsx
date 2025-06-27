@@ -1,10 +1,16 @@
 import React from 'react'
 import { AlertTriangle, Zap, Crown, Star, Mail, Calendar } from 'lucide-react'
 import { useNavigate } from 'react-router-dom'
-import { PlanType } from '@/api/subscription'
 import { useCharacterLimit, formatCharacterCount } from '@/hooks/use-character-limit'
 import { useSubscription } from '@/hooks/use-subscription'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
+
+// Define PlanType enum locally since it's only used for fallback
+enum PlanType {
+  FREE = 'optqo_free',
+  DEVELOPER = 'optqo_pro',
+  PROFESSIONAL = 'optqo_ultimate',
+}
 
 interface CharacterLimitModalProps {
   isOpen: boolean
@@ -59,8 +65,8 @@ export const CharacterLimitModal: React.FC<CharacterLimitModalProps> = ({
       case 'subscribe':
         return {
           label: 'Subscription Plan',
-          icon: subscription.plan.plan_type === 'free' ? <Star className="w-4 h-4" /> : <Crown className="w-4 h-4" />,
-          color: subscription.plan.plan_type === 'free' ? 'text-gray-400' : 'text-yellow-400'
+          icon: subscription.plan.plan_type === 'optqo_free' ? <Star className="w-4 h-4" /> : <Crown className="w-4 h-4" />,
+          color: subscription.plan.plan_type === 'optqo_free' ? 'text-gray-400' : 'text-yellow-400'
         };
       case 'email_contact':
         return {
@@ -105,7 +111,7 @@ export const CharacterLimitModal: React.FC<CharacterLimitModalProps> = ({
                     {actionTypeInfo.icon}
                   </span>
                   <span className="text-sm font-medium text-white capitalize">
-                    {subscription?.plan?.plan_type || 'free'} Plan
+                    {subscription?.plan?.name} Plan
                   </span>
                   <span className="text-xs text-white/60">({actionTypeInfo.label})</span>
                 </>
@@ -115,7 +121,7 @@ export const CharacterLimitModal: React.FC<CharacterLimitModalProps> = ({
                     {getPlanIcon(planType || PlanType.FREE)}
                   </span>
                   <span className="text-sm font-medium text-white capitalize">
-                    {planType || 'free'} Plan
+                    {planType || 'optqo_free'} Plan
                   </span>
                 </>
               )}
@@ -124,7 +130,7 @@ export const CharacterLimitModal: React.FC<CharacterLimitModalProps> = ({
             {subscription?.plan ? (
               <>
                 <p className="text-sm text-white/90 mb-2">
-                  You are using the <span className="font-semibold capitalize">{subscription.plan.plan_type}</span> plan which allows you to use up to{' '}
+                  You are using the <span className="font-semibold">{subscription.plan.name}</span> plan which allows you to use up to{' '}
                   <span className="font-semibold text-blue-400">{formatCharacterCount(limit)} characters</span>.
                 </p>
                 <p className="text-sm text-red-300">
@@ -141,7 +147,7 @@ export const CharacterLimitModal: React.FC<CharacterLimitModalProps> = ({
             ) : (
               <>
                 <p className="text-sm text-white/90 mb-2">
-                  You are using the <span className="font-semibold capitalize">{planType || 'free'}</span> plan which allows you to use up to{' '}
+                  You are using the <span className="font-semibold">{planType || 'optqo_free'}</span> plan which allows you to use up to{' '}
                   <span className="font-semibold text-blue-400">{formatCharacterCount(limit)} characters</span>.
                 </p>
                 <p className="text-sm text-red-300">

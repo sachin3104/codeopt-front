@@ -70,8 +70,8 @@ export function isUnlimitedPlan(subscription?: any): boolean {
 export function getPlanDisplayInfo(subscription?: any) {
   if (!subscription?.plan) {
     return {
-      name: 'Free',
-      type: 'free',
+      name: 'OPTQO FREE',
+      type: 'optqo_free',
       actionType: 'subscribe',
       hasUnlimitedChars: true,
       limit: 0

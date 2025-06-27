@@ -40,31 +40,39 @@ export type {
  * @param username - Admin username or email
  * @param password - Admin password
  */
-export const adminLogin = (username: string, password: string) =>
-  api.post<AdminLoginResponse>('/api/admin/auth/login', {
+export const adminLogin = (username: string, password: string) => {
+  console.log('🔍 adminLogin: Making request with username:', username)
+  return api.post<AdminLoginResponse>('/api/admin/auth/login', {
     username,
     password,
   });
+};
 
 /**
  * Log out admin (clears HttpOnly cookie on the server)
  */
-export const adminLogout = () =>
-  api.post<AdminLogoutResponse>('/api/admin/auth/logout');
+export const adminLogout = () => {
+  console.log('🔍 adminLogout: Making request')
+  return api.post<AdminLogoutResponse>('/api/admin/auth/logout');
+};
 
 /**
  * Fetch the currently logged-in admin (if any)
  * Relies on the HttpOnly cookie that was set by adminLogin()
  */
-export const fetchCurrentAdmin = () =>
-  api.get<AdminUserResponse>('/api/admin/auth/me');
+export const fetchCurrentAdmin = () => {
+  console.log('🔍 fetchCurrentAdmin: Making request')
+  return api.get<AdminUserResponse>('/api/admin/auth/me');
+};
 
 /**
  * Check if the current admin session is authenticated
  * Useful for checking auth status without fetching full admin data
  */
-export const checkAdminAuth = () =>
-  api.get<AdminAuthResponse>('/api/admin/auth/check');
+export const checkAdminAuth = () => {
+  console.log('🔍 checkAdminAuth: Making request')
+  return api.get<AdminAuthResponse>('/api/admin/auth/check');
+};
 
 /**
  * User Management Endpoints

@@ -45,9 +45,9 @@ const PlanDetails: React.FC = () => {
   }
 
   const { plan } = subscription;
-  const isFreePlan = plan.plan_type === 'free';
+  const isFreePlan = plan.plan_type === 'optqo_free';
   
-  // Get action type display info
+  // Get action type display info based on backend data
   const getActionTypeInfo = () => {
     switch (plan.action_type) {
       case 'subscribe':
@@ -108,9 +108,9 @@ const PlanDetails: React.FC = () => {
           {actionTypeInfo.icon}
         </div>
 
-        {/* Plan Name */}
-        <span className="text-sm font-medium text-white capitalize">
-          {plan.plan_type}
+        {/* Plan Name - use dynamic name from backend */}
+        <span className="text-sm font-medium text-white">
+          {plan.name}
         </span>
 
         {/* Remaining Requests - only show if usage data is available */}
@@ -145,8 +145,8 @@ const PlanDetails: React.FC = () => {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center space-x-2">
                 {actionTypeInfo.icon}
-                <span className="text-white font-semibold capitalize">
-                  {plan.plan_type} Plan
+                <span className="text-white font-semibold">
+                  {plan.name}
                 </span>
               </div>
               {plan.price > 0 && (

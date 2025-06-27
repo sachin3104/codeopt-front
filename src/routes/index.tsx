@@ -32,6 +32,9 @@ import BlogsPage from '@/pages/footer/BlogsPage';
 // Subscription & Dashboard pages
 import SubscriptionSuccessPage from '@/pages/subscription/SubscriptionSuccessPage';
 import SubscriptionPage from '@/pages/subscription/SubscriptionPage';       // subscription management UI
+import ConsultationSuccessPage from '@/pages/subscription/ConsultationSuccessPage';
+import ConsultationCancelPage from '@/pages/subscription/ConsultationCancelPage';
+import SubscriptionCancelPage from '@/pages/subscription/SubscriptionCancelPage';
 
 // User pages
 import UserPage from '@/pages/user/UserPage';
@@ -85,6 +88,36 @@ const AppRoutes: React.FC = () => {
         element={
           <PrivateRoute>
             <SubscriptionSuccessPage />
+          </PrivateRoute>
+        }
+      />
+
+      {/* Stripe checkout cancel callback */}
+      <Route
+        path="/subscription/cancel"
+        element={
+          <PrivateRoute>
+            <SubscriptionCancelPage />
+          </PrivateRoute>
+        }
+      />
+
+      {/* Consultation booking success callback */}
+      <Route
+        path="/consultation/success"
+        element={
+          <PrivateRoute>
+            <ConsultationSuccessPage />
+          </PrivateRoute>
+        }
+      />
+
+      {/* Consultation booking cancel callback */}
+      <Route
+        path="/consultation/cancel"
+        element={
+          <PrivateRoute>
+            <ConsultationCancelPage />
           </PrivateRoute>
         }
       />
