@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import { X } from 'lucide-react'
 import { useCode } from '@/hooks/use-code'
 import { useConvert } from '@/hooks/use-convert'
@@ -17,21 +18,19 @@ export interface LanguageSelectModalProps {
   isOpen: boolean
   /** Close callback */
   onClose: () => void
-  /** Called with detected or selected source and chosen target */
-  onConvert: (from: string, to: string) => Promise<void>
 }
 
 const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
   isOpen,
   onClose,
-  onConvert,
 }) => {
+  const navigate = useNavigate()
   const { code } = useCode()
   const detected = useDetectedLanguage(code)
   const {
+    run: convertRun,
     isLoading: isConverting,
     error: convertError,
-    clear: clearConvert,
   } = useConvert()
 
   // Local state for source + target
@@ -42,7 +41,6 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
   // Reset state whenever modal opens
   useEffect(() => {
     if (!isOpen) return
-    clearConvert()
     setErrorState('')
 
     // Auto-detect or default to python
@@ -52,13 +50,14 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
     // Pick a default target different from source
     const fallback = SUPPORTED_LANGUAGES.find(l => l.value !== src)
     setTargetLanguage(fallback?.value || '')
-  }, [isOpen, detected, clearConvert])
+  }, [isOpen, detected])
 
   const handleConvert = async () => {
     setErrorState('')
     try {
-      await onConvert(sourceLanguage, targetLanguage)
+      await convertRun(sourceLanguage, targetLanguage)
       onClose()
+      navigate('/results/convert')
     } catch (err: any) {
       setErrorState(err.message || 'Conversion failed')
     }

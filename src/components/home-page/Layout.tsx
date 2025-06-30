@@ -5,24 +5,18 @@ import CodeEditor from '../common/editor/CodeEditor'
 import { Background } from '@/components/common/background'
 import { ActionMenu } from '../common/actions/CommonActionButtons'
 import LanguageSelectModal from '../common/actions/LanguageSelectModal'
-import { useConvert } from '@/hooks/use-convert'
 import { useAuth } from '@/hooks/use-auth'
+import { useConvert } from '@/hooks/use-convert'
 
 const Layout: React.FC = () => {
   const [showConvertModal, setShowConvertModal] = useState(false)
   const navigate = useNavigate()
   const { user } = useAuth()
-  const {
-    run: convertRun,
-    isLoading: isConverting,
-    error: convertError,
-    clear: clearConvert,
-  } = useConvert()
+  const { clear: clearConvert } = useConvert()
 
-  // Handler invoked when modal's Convert button is clicked
-  const handleConvert = async (from: string, to: string) => {
-    await convertRun(from, to)
-    navigate('/results/convert')
+  const openConvertModal = async () => {
+    clearConvert()         // wipe out the _old_ result only once, when we open
+    setShowConvertModal(true)
   }
 
   return (
@@ -35,7 +29,6 @@ const Layout: React.FC = () => {
       <LanguageSelectModal
         isOpen={showConvertModal}
         onClose={() => setShowConvertModal(false)}
-        onConvert={handleConvert}
       />
 
       {/* Main Content - Centered with equal distance from all sides */}
@@ -66,7 +59,7 @@ const Layout: React.FC = () => {
                 actions={['analyze', 'optimize', 'convert', 'document']}
                 variant="homepage"  // or omit since it's default
                 onOverrides={{
-                  convert: async () => setShowConvertModal(true),
+                  convert: openConvertModal,
                 }}
               />
             </div>

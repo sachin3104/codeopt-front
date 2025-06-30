@@ -40,12 +40,14 @@ import React, {
       setInitialized(true)
     }, [])
   
-    useEffect(() => {
-      if (result) sessionStorage.setItem('convertedCode', JSON.stringify(result))
-      else        sessionStorage.removeItem('convertedCode')
-    }, [result])
-  
-    const run = async (from: string, to: string) => {
+      useEffect(() => {
+    if (result) sessionStorage.setItem('convertedCode', JSON.stringify(result))
+    else        sessionStorage.removeItem('convertedCode')
+  }, [result])
+
+
+
+  const run = async (from: string, to: string) => {
       if (!code) {
         setError('Please enter code to convert.')
         return
@@ -69,6 +71,7 @@ import React, {
         }
       } catch (e: any) {
         setError(e.message || 'Code conversion failed.')
+        throw e
       } finally {
         setLoading(false)
         hide()

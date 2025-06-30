@@ -34,7 +34,7 @@ const ConvertLayout: React.FC = () => {
     if (initialized && !isConverting && !convertedCode) {
       navigate('/', { replace: true });
     }
-  }, [initialized, isConverting, convertedCode, navigate]);
+  }, [initialized, isConverting, convertedCode, convertError, navigate]);
 
   const handleGoHome = () => {
     clearConvert();
@@ -42,15 +42,7 @@ const ConvertLayout: React.FC = () => {
     navigate('/', { replace: true });
   };
 
-  // Debug log for component state
-  useEffect(() => {
-    console.log('ConvertLayout mounted/updated:', {
-      hasCode: !!convertedCode,
-      isConverting,
-      convertedCodeValue: convertedCode,
-      convertError
-    });
-  }, [convertedCode, isConverting, convertError]);
+
 
   // Loading state
   if (isConverting) {

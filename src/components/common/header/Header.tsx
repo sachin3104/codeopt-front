@@ -17,7 +17,12 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
   const [showConvertModal, setShowConvertModal] = useState(false);
   const { logout } = useAuth();
   const navigate = useNavigate();
-  const { run: runConvert } = useConvert();
+  const { run: runConvert, clear: clearConvert } = useConvert();
+
+  const openConvertModal = async () => {
+    clearConvert()         // wipe out the _old_ result only once, when we open
+    setShowConvertModal(true)
+  }
 
   const handleLogoClick = () => {
     navigate('/');
@@ -40,7 +45,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
             actions={['optimize', 'convert', 'document']}
             variant="layout"
             onOverrides={{
-              convert: async () => setShowConvertModal(true),
+              convert: openConvertModal,
             }}
           />
         );
@@ -50,7 +55,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
             actions={['convert', 'document']}
             variant="layout"
             onOverrides={{
-              convert: async () => setShowConvertModal(true),
+              convert: openConvertModal,
             }}
           />
         );
@@ -107,7 +112,6 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
       <LanguageSelectModal
         isOpen={showConvertModal}
         onClose={() => setShowConvertModal(false)}
-        onConvert={handleConvert}
       />
     </>
   );
