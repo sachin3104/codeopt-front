@@ -3,6 +3,7 @@ import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { useSubscription } from '@/hooks/use-subscription'
 import { CheckCircle, AlertCircle, ArrowLeft, Loader2, Calendar, Clock, User } from 'lucide-react'
+import { Background } from '@/components/common/background'
 
 const ConsultationSuccessPage: React.FC = () => {
   const { fetchConsultationBookings } = useSubscription()
@@ -30,7 +31,7 @@ const ConsultationSuccessPage: React.FC = () => {
         
         // Show success message for a few seconds before redirecting
         setTimeout(() => {
-          navigate('/user', { replace: true })
+          navigate('/', { replace: true })
         }, 5000)
       } catch (err: any) {
         setError(err.response?.data?.message || err.message || 'Failed to verify consultation booking.')
@@ -54,8 +55,9 @@ const ConsultationSuccessPage: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-xl p-8 max-w-md w-full mx-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Background />
+      <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-xl p-8 max-w-md w-full">
         {loading && (
           <div className="text-center space-y-4">
             <div className="flex justify-center">
@@ -106,8 +108,8 @@ const ConsultationSuccessPage: React.FC = () => {
             </div>
             
             <button
-              onClick={() => navigate('/user')}
-              className="flex items-center space-x-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg transition-all duration-200 border border-purple-500/30 hover:border-purple-500/50"
+              onClick={() => navigate('/')}
+              className="flex items-center space-x-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg transition-all duration-200 border border-purple-500/30 hover:border-purple-500/50 backdrop-blur-md"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Go to Dashboard</span>
@@ -135,14 +137,14 @@ const ConsultationSuccessPage: React.FC = () => {
             <div className="space-y-3">
               <button
                 onClick={() => navigate('/subscription')}
-                className="flex items-center space-x-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-200 border border-white/20 hover:border-white/30 w-full justify-center"
+                className="flex items-center space-x-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-200 border border-white/20 hover:border-white/30 w-full justify-center backdrop-blur-md"
               >
                 <ArrowLeft className="w-4 h-4" />
                 <span>Back to Plans</span>
               </button>
               <button
-                onClick={() => navigate('/user')}
-                className="flex items-center space-x-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg transition-all duration-200 border border-purple-500/30 hover:border-purple-500/50 w-full justify-center"
+                onClick={() => navigate('/')}
+                className="flex items-center space-x-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg transition-all duration-200 border border-purple-500/30 hover:border-purple-500/50 w-full justify-center backdrop-blur-md"
               >
                 <User className="w-4 h-4" />
                 <span>Check My Bookings</span>

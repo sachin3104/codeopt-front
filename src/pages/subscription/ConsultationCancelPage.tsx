@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom'
 import { toast } from 'sonner'
 import { XCircle, ArrowLeft, RefreshCw, Calendar, Clock } from 'lucide-react'
+import { Background } from '@/components/common/background'
 
 const ConsultationCancelPage: React.FC = () => {
   const location = useLocation()
@@ -27,8 +28,9 @@ const ConsultationCancelPage: React.FC = () => {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-xl p-8 max-w-md w-full mx-4">
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <Background />
+      <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-xl p-8 max-w-md w-full">
         <div className="text-center space-y-6">
           <div className="flex justify-center">
             <div className="w-16 h-16 rounded-full bg-orange-500/20 flex items-center justify-center border border-orange-500/30">
@@ -67,7 +69,7 @@ const ConsultationCancelPage: React.FC = () => {
           <div className="space-y-3">
             <button
               onClick={handleTryAgain}
-              className="flex items-center space-x-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg transition-all duration-200 border border-purple-500/30 hover:border-purple-500/50 w-full justify-center"
+              className="flex items-center space-x-2 px-6 py-3 bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 rounded-lg transition-all duration-200 border border-purple-500/30 hover:border-purple-500/50 w-full justify-center backdrop-blur-md"
             >
               <RefreshCw className="w-4 h-4" />
               <span>Try Again</span>
@@ -75,7 +77,7 @@ const ConsultationCancelPage: React.FC = () => {
             
             <button
               onClick={handleGoHome}
-              className="flex items-center space-x-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-200 border border-white/20 hover:border-white/30 w-full justify-center"
+              className="flex items-center space-x-2 px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-lg transition-all duration-200 border border-white/20 hover:border-white/30 w-full justify-center backdrop-blur-md"
             >
               <ArrowLeft className="w-4 h-4" />
               <span>Back to Home</span>

@@ -1,9 +1,8 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, User } from 'lucide-react';
+import DetailedSubscriptionInfo from './DetailedSubscriptionInfo';
 import UserDetails from './UserDetails';
-import UserSubscription from './UserSubscription';
-import UserUsageGraph from './UserUsageGraph';
 
 const UserLayout: React.FC = () => {
   const navigate = useNavigate();
@@ -36,17 +35,14 @@ const UserLayout: React.FC = () => {
           <div className="w-full">
             <UserDetails />
           </div>
-
-          {/* User Subscription Card */}
-          <div className="w-full">
-            <UserSubscription />
-          </div>
         </div>
 
-        {/* Usage Graph - Full Width */}
+        {/* User Subscription Card */}
         <div className="w-full">
-          <UserUsageGraph />
+          <DetailedSubscriptionInfo />
         </div>
+
+        
       </div>
     </div>
   );

@@ -57,11 +57,11 @@ const FlowchartComparison: React.FC = () => {
   console.log('Optimized Workflow:', optimizedWorkflow);
 
   return (
-    <div className="grid grid-cols-2 gap-6">
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* Original Code Flowchart */}
-      <Card className="bg-black/10 backdrop-blur-xl border border-white/10">
+      <Card className="bg-black/10 backdrop-blur-xl border border-white/10 min-h-[340px]">
         <CardHeader>
-          <CardTitle className="text-white/90 flex items-center">
+          <CardTitle className="text-xl font-semibold text-white/90 flex items-center">
             <GitCompare className="w-4 h-4 text-blue-400/80 mr-2" />
             Original Code Flow
           </CardTitle>
@@ -74,9 +74,9 @@ const FlowchartComparison: React.FC = () => {
       </Card>
 
       {/* Optimized Code Flowchart */}
-      <Card className="bg-black/10 backdrop-blur-xl border border-white/10">
+      <Card className="bg-black/10 backdrop-blur-xl border border-white/10 min-h-[340px]">
         <CardHeader>
-          <CardTitle className="text-white/90 flex items-center">
+          <CardTitle className="text-xl font-semibold text-white/90 flex items-center">
             <GitCompare className="w-4 h-4 text-emerald-400/80 mr-2" />
             Optimized Code Flow
           </CardTitle>

@@ -34,19 +34,19 @@ const DetailedChanges: React.FC<DetailedChangesProps> = ({ changes }) => {
       {Object.entries(changesByCategory).map(([category, categoryChanges], index) => (
         <Card 
           key={index} 
-          className="border border-amber-700/30 bg-amber-950/10 transition-all duration-300 hover:shadow-md"
+          className="bg-black/10 backdrop-blur-xl border border-white/10 transition-all duration-300 hover:shadow-md min-h-[340px]"
         >
           <CardHeader className="pb-2">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-sm font-medium flex items-center gap-2">
-                <AlertTriangle size={16} className="text-amber-500" />
+              <CardTitle className="text-lg font-semibold text-white/90 flex items-center gap-2">
+                <AlertTriangle size={16} className="text-blue-400/80" />
                 {category}
               </CardTitle>
-              <span className="text-xs px-2 py-0.5 bg-amber-500/20 text-amber-400 rounded-full">
+              <span className="text-xs px-2 py-0.5 bg-blue-400/20 text-blue-400/90 rounded-full">
                 {categoryChanges.length} {categoryChanges.length === 1 ? 'change' : 'changes'}
               </span>
             </div>
-            <CardDescription className="text-xs">
+            <CardDescription className="text-xs text-white/70">
               {categoryChanges.length} optimization {categoryChanges.length === 1 ? 'change' : 'changes'} applied
             </CardDescription>
           </CardHeader>
@@ -54,24 +54,24 @@ const DetailedChanges: React.FC<DetailedChangesProps> = ({ changes }) => {
             <Accordion type="single" collapsible className="w-full">
               {categoryChanges.map((change, issueIndex) => (
                 <AccordionItem key={issueIndex} value={`issue-${issueIndex}`}>
-                  <AccordionTrigger className="text-sm">{change.issue}</AccordionTrigger>
+                  <AccordionTrigger className="text-sm text-white/80">{change.issue}</AccordionTrigger>
                   <AccordionContent>
                     <div className="space-y-3 text-sm">
                       <div>
-                        <div className="font-medium text-xs text-muted-foreground mb-1">PRIORITY</div>
-                        <div className="bg-secondary/50 px-3 py-1 rounded-sm">{change.priority || 'NA'}</div>
+                        <div className="font-medium text-xs text-white/60 mb-1">PRIORITY</div>
+                        <div className="bg-white/5 px-3 py-1 rounded-sm text-white/80">{change.priority || 'NA'}</div>
                       </div>
                       <div>
-                        <div className="font-medium text-xs text-muted-foreground mb-1">CODE LOCATION</div>
-                        <div className="bg-secondary/50 px-3 py-1 rounded-sm">{change.location || 'NA'}</div>
+                        <div className="font-medium text-xs text-white/60 mb-1">CODE LOCATION</div>
+                        <div className="bg-white/5 px-3 py-1 rounded-sm text-white/80">{change.location || 'NA'}</div>
                       </div>
                       <div>
-                        <div className="font-medium text-xs text-muted-foreground mb-1">IMPROVEMENT</div>
-                        <p className="text-primary">{change.improvement || 'NA'}</p>
+                        <div className="font-medium text-xs text-white/60 mb-1">IMPROVEMENT</div>
+                        <p className="text-white/90">{change.improvement || 'NA'}</p>
                       </div>
                       <div>
-                        <div className="font-medium text-xs text-muted-foreground mb-1">STATUS</div>
-                        <div className="bg-secondary/50 px-3 py-1 rounded-sm">{change.status || 'NA'}</div>
+                        <div className="font-medium text-xs text-white/60 mb-1">STATUS</div>
+                        <div className="bg-white/5 px-3 py-1 rounded-sm text-white/80">{change.status || 'NA'}</div>
                       </div>
                     </div>
                   </AccordionContent>

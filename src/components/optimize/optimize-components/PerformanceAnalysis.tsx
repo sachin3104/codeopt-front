@@ -1,4 +1,6 @@
 import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Activity } from 'lucide-react';
 import { useOptimize } from '@/hooks/use-optimize';
 
 const PerformanceAnalysis: React.FC = () => {
@@ -7,6 +9,8 @@ const PerformanceAnalysis: React.FC = () => {
   if (!optimizationResult) {
     return null;
   }
+
+  console.log(optimizationResult);
 
   // Helper to get metric values or fallback to 'NA'
   const getMetric = (path: string[], fallback = 'NA') => {
@@ -43,11 +47,11 @@ const PerformanceAnalysis: React.FC = () => {
   const metrics = [
     {
       label: 'Execution Time',
-      before: getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'original']) !== 'NA' && getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'optimized']) !== 'NA' ? `${getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'original'])}s → ${getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'optimized'])}s` : 'NA',
+      before: getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'original']) !== 'NA' && getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'optimized']) !== 'NA' ? `${getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'original'])} seconds → ${getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'optimized'])} seconds` : 'NA',
       original: getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'original']),
       optimized: getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'optimized']),
       barColor: 'bg-blue-500',
-      unit: 's',
+      unit: ' seconds',
       isLowerBetter: true,
     },
     {
@@ -97,9 +101,14 @@ const PerformanceAnalysis: React.FC = () => {
   };
 
   return (
-    <div className="bg-black/10 backdrop-blur-xl border border-white/10 rounded-xl p-6 flex flex-col justify-between h-full min-h-[340px]">
-      <h3 className="font-semibold text-white mb-6">Performance Analysis</h3>
-      <div className="space-y-6 flex-1 flex flex-col justify-center">
+    <Card className="bg-black/10 backdrop-blur-xl border border-white/10 min-h-[340px]">
+      <CardHeader>
+        <CardTitle className="text-xl font-semibold text-white/90 flex items-center">
+          <Activity className="w-4 h-4 text-blue-400/80 mr-2" />
+          Performance Analysis
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6 flex-1 flex flex-col justify-center">
         {metrics.map((metric, idx) => {
           const changeInfo = getChangeInfo(metric.original, metric.optimized, metric.unit, metric.isLowerBetter);
           const barWidth = getBarWidth(metric.original, metric.optimized);
@@ -128,8 +137,8 @@ const PerformanceAnalysis: React.FC = () => {
             </div>
           );
         })}
-      </div>
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 

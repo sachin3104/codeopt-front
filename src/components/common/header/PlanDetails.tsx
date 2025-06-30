@@ -94,8 +94,18 @@ const PlanDetails: React.FC = () => {
     }
   };
 
+  const getTotalRequests = () => {
+    if (!usageData) return null;
+    
+    if (isFreePlan) {
+      return usageData.plan_limits.max_daily_usage;
+    } else {
+      return usageData.plan_limits.max_monthly_usage;
+    }
+  };
+
   const remainingRequests = getRemainingRequests();
-  const periodText = isFreePlan ? 'today' : 'this month';
+  const totalRequests = getTotalRequests();
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -103,10 +113,6 @@ const PlanDetails: React.FC = () => {
         onClick={toggleDropdown}
         className="flex items-center space-x-2 px-3 py-2 rounded-lg text-white backdrop-blur-md transition-all duration-300 bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:from-black/50 hover:via-black/40 hover:to-black/30 border border-white/20 hover:border-white/30"
       >
-        {/* Plan Icon */}
-        <div className="flex items-center space-x-1">
-          {actionTypeInfo.icon}
-        </div>
 
         {/* Plan Name - use dynamic name from backend */}
         <span className="text-sm font-medium text-white">
@@ -114,13 +120,10 @@ const PlanDetails: React.FC = () => {
         </span>
 
         {/* Remaining Requests - only show if usage data is available */}
-        {usageData && remainingRequests !== null && (
+        {usageData && remainingRequests !== null && totalRequests !== null && (
           <div className="flex items-center space-x-1">
             <span className="text-xs text-gray-300">
-              {remainingRequests}
-            </span>
-            <span className="text-xs text-gray-400">
-              left {periodText}
+              ({remainingRequests}/{totalRequests})
             </span>
           </div>
         )}
@@ -190,7 +193,7 @@ const PlanDetails: React.FC = () => {
             {usageData && (
               <div className="space-y-2 mb-4 pt-4 border-t border-white/10">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Used {periodText}:</span>
+                  <span className="text-gray-400">Used {isFreePlan ? 'today' : 'this month'}:</span>
                   <span className="text-white">
                     {isFreePlan 
                       ? usageData.current_usage.daily_usage 
@@ -199,11 +202,11 @@ const PlanDetails: React.FC = () => {
                   </span>
                 </div>
                 
-                {remainingRequests !== null && (
+                {remainingRequests !== null && totalRequests !== null && (
                   <div className="flex justify-between text-sm">
                     <span className="text-gray-400">Remaining:</span>
                     <span className={`font-medium ${remainingRequests > 0 ? 'text-green-400' : 'text-red-400'}`}>
-                      {remainingRequests}
+                      ({remainingRequests}/{totalRequests})
                     </span>
                   </div>
                 )}
@@ -236,9 +239,8 @@ const PlanDetails: React.FC = () => {
             {/* Action Button */}
             <button
               onClick={handleSubscriptionClick}
-              className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white backdrop-blur-md transition-all duration-300 bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:from-black/50 hover:via-black/40 hover:to-black/30 text-sm font-medium"
+              className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-white backdrop-blur-md transition-all duration-300 bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:from-black/50 hover:via-black/40 hover:to-black/30 text-sm font-medium border border-white/20 hover:border-white/40"
             >
-              <Crown className="w-4 h-4" />
               Manage Subscription
             </button>
           </div>

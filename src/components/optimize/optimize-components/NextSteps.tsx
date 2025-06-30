@@ -1,5 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowRight, Clock, Target } from 'lucide-react';
 import { useOptimize } from '@/hooks/use-optimize';
 
 const NextSteps: React.FC = () => {
@@ -24,15 +25,21 @@ const NextSteps: React.FC = () => {
   })) || [];
 
   return (
-    <Card className="bg-black/10 backdrop-blur-xl border border-white/10">
+    <Card className="bg-black/10 backdrop-blur-xl border border-white/10 min-h-[340px]">
       <CardHeader>
-        <CardTitle className="text-white/90">Recommended Next Steps</CardTitle>
+        <CardTitle className="text-xl font-semibold text-white/90 flex items-center">
+          <ArrowRight className="w-4 h-4 text-blue-400/80 mr-2" />
+          Recommended Next Steps
+        </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="grid grid-cols-2 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {/* Immediate Actions */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white/90">Immediate Actions</h4>
+            <h4 className="text-lg font-semibold text-white/90 flex items-center">
+              <Clock className="w-4 h-4 text-emerald-400/80 mr-2" />
+              Immediate Actions
+            </h4>
             <ul className="space-y-4">
               {immediateActions.length > 0 ? (
                 immediateActions.map((action) => (
@@ -49,7 +56,10 @@ const NextSteps: React.FC = () => {
 
           {/* Future Optimizations */}
           <div className="space-y-4">
-            <h4 className="text-lg font-semibold text-white/90">Future Optimizations</h4>
+            <h4 className="text-lg font-semibold text-white/90 flex items-center">
+              <Target className="w-4 h-4 text-violet-400/80 mr-2" />
+              Future Optimizations
+            </h4>
             <ul className="space-y-4">
               {futureOptimizations.length > 0 ? (
                 futureOptimizations.map((optimization) => (

@@ -1,4 +1,5 @@
 import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Clock, Database, Cpu, HardDrive, Zap, TrendingUp, TrendingDown } from 'lucide-react';
 import { useOptimize } from '@/hooks/use-optimize';
 
@@ -44,7 +45,7 @@ const PerformanceGains: React.FC = () => {
   const metrics = [
     {
       icon: Clock,
-      iconColor: 'text-blue-500',
+      iconColor: 'text-blue-400/80',
       value: getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'optimized']) !== 'NA' ? `${getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'optimized'])}s` : 'NA',
       label: 'Execution Time',
       original: getMetric(['performance_analysis', 'performance_metrics', 'execution_time', 'original']),
@@ -54,7 +55,7 @@ const PerformanceGains: React.FC = () => {
     },
     {
       icon: Database,
-      iconColor: 'text-green-500',
+      iconColor: 'text-emerald-400/80',
       value: getMetric(['performance_analysis', 'performance_metrics', 'memory_usage', 'optimized']) !== 'NA' ? `${getMetric(['performance_analysis', 'performance_metrics', 'memory_usage', 'optimized'])}MB` : 'NA',
       label: 'Memory Usage',
       original: getMetric(['performance_analysis', 'performance_metrics', 'memory_usage', 'original']),
@@ -64,7 +65,7 @@ const PerformanceGains: React.FC = () => {
     },
     {
       icon: Cpu,
-      iconColor: 'text-purple-500',
+      iconColor: 'text-violet-400/80',
       value: getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) !== 'NA' ? `${Math.round(getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'optimized']) * 100)}%` : 'NA',
       label: 'CPU Utilization',
       original: getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'original']) !== 'NA' ? (getMetric(['performance_analysis', 'performance_metrics', 'cpu_utilization', 'original']) * 100) : 'NA',
@@ -74,7 +75,7 @@ const PerformanceGains: React.FC = () => {
     },
     {
       icon: HardDrive,
-      iconColor: 'text-orange-500',
+      iconColor: 'text-amber-400/80',
       value: getMetric(['performance_analysis', 'performance_metrics', 'io_operations', 'optimized']) !== 'NA' ? `${getMetric(['performance_analysis', 'performance_metrics', 'io_operations', 'optimized'])}` : 'NA',
       label: 'I/O Operations',
       original: getMetric(['performance_analysis', 'performance_metrics', 'io_operations', 'original']),
@@ -85,38 +86,42 @@ const PerformanceGains: React.FC = () => {
   ];
 
   return (
-    <div className="bg-black/10 backdrop-blur-xl border border-white/10 rounded-xl p-6">
-      <h3 className="font-semibold text-white mb-6 flex items-center">
-        <Zap className="w-4 h-4 text-yellow-400 mr-2" />
-        Performance Gains Achieved
-      </h3>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {metrics.map((metric, idx) => {
-          const changeInfo = getChangeInfo(metric.original, metric.optimized, metric.unit, metric.isLowerBetter);
-          return (
-            <div className="text-center flex flex-col justify-center items-center p-3" key={idx}>
-              <metric.icon className={`w-5 h-5 ${metric.iconColor} mx-auto mb-2`} />
-              <div className="text-xl font-bold text-white/90 mb-1">{metric.value}</div>
-              <div className="text-xs text-white/70 mb-1">{metric.label}</div>
-              {changeInfo ? (
-                <div className="text-xs flex items-center gap-1">
-                  {changeInfo.isImprovement ? (
-                    <TrendingDown className="w-3 h-3 text-emerald-400" />
-                  ) : (
-                    <TrendingUp className="w-3 h-3 text-red-400" />
-                  )}
-                  <span className={changeInfo.isImprovement ? 'text-emerald-400/90' : 'text-red-400/90'}>
-                    {changeInfo.sign}{changeInfo.percentageChange}%
-                  </span>
-                </div>
-              ) : (
-                <div className="text-xs text-white/50">NA</div>
-              )}
-            </div>
-          );
-        })}
-      </div>
-    </div>
+    <Card className="bg-black/10 backdrop-blur-xl border border-white/10">
+      <CardHeader>
+        <CardTitle className="text-xl font-semibold text-white/90 flex items-center">
+          <Zap className="w-4 h-4 text-blue-400/80 mr-2" />
+          Performance Gains Achieved
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {metrics.map((metric, idx) => {
+            const changeInfo = getChangeInfo(metric.original, metric.optimized, metric.unit, metric.isLowerBetter);
+            return (
+              <div className="text-center flex flex-col justify-center items-center p-3" key={idx}>
+                <metric.icon className={`w-5 h-5 ${metric.iconColor} mx-auto mb-2`} />
+                <div className="text-xl font-bold text-white/90 mb-1">{metric.value}</div>
+                <div className="text-xs text-white/70 mb-1">{metric.label}</div>
+                {changeInfo ? (
+                  <div className="text-xs flex items-center gap-1">
+                    {changeInfo.isImprovement ? (
+                      <TrendingDown className="w-3 h-3 text-emerald-400" />
+                    ) : (
+                      <TrendingUp className="w-3 h-3 text-red-400" />
+                    )}
+                    <span className={changeInfo.isImprovement ? 'text-emerald-400/90' : 'text-red-400/90'}>
+                      {changeInfo.sign}{changeInfo.percentageChange}%
+                    </span>
+                  </div>
+                ) : (
+                  <div className="text-xs text-white/50">NA</div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -1,19 +1,14 @@
 // src/components/analysis/AnalyseLayout.tsx
-import React, { useState, useEffect } from 'react'
+import React, { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, AlertTriangle } from 'lucide-react'
+import { AlertTriangle } from 'lucide-react'
 
 import CodeEditor from '../common/editor/CodeEditor'
 import AnalysisDetails from './AnalysisDetails'
-import AnalysisResultTabs from './AnalysisResultTabs'
-import { ActionMenu } from '../common/actions/CommonActionButtons'
-import LanguageSelectModal from '../common/actions/LanguageSelectModal'
+import { OptimizationOpportunities, FunctionalityAnalysis } from './analyze-components'
 
 import { useCode } from '@/hooks/use-code'
 import { useAnalyze } from '@/hooks/use-analyze'
-import { useOptimize } from '@/hooks/use-optimize'
-import { useConvert } from '@/hooks/use-convert'
-import { useDocument } from '@/hooks/use-document'
 
 const AnalyseLayout: React.FC = () => {
   const navigate = useNavigate()
@@ -29,35 +24,8 @@ const AnalyseLayout: React.FC = () => {
     initialized
   } = useAnalyze()
 
-  // --- Optimization context ---
-  const {
-    isLoading: isOptimizing,
-    error: optimizeError,
-    clear: clearOptimize,
-    run: runOptimize
-  } = useOptimize()
-
-  // --- Conversion context ---
-  const {
-    isLoading: isConverting,
-    error: convertError,
-    clear: clearConvert,
-    run: runConvert
-  } = useConvert()
-
-  // --- Documentation context ---
-  const {
-    isLoading: isDocumenting,
-    error: documentError,
-    clear: clearDocument,
-    run: runDocument
-  } = useDocument()
-
   // Combined error
-  const error = analyzeError || optimizeError || convertError || documentError
-
-  // Convert modal
-  const [showConvertModal, setShowConvertModal] = useState(false)
+  const error = analyzeError
 
   // If we landed here without having run analyze yet, kick it off
   useEffect(() => {
@@ -66,28 +34,14 @@ const AnalyseLayout: React.FC = () => {
     }
   }, [initialized, code, isAnalyzing, analysisResult, runAnalyze])
 
+  console.log(analysisResult)
+
   // Redirect home if not analyzing and still no result
   useEffect(() => {
     if (initialized && !isAnalyzing && !analysisResult) {
       navigate('/', { replace: true })
     }
   }, [initialized, isAnalyzing, analysisResult, navigate])
-
-  // Handler for convert modal
-  const handleConvert = async (from: string, to: string) => {
-    try {
-      await runConvert(from, to)
-      navigate('/results/convert')
-    } catch {/* error will show via convertError */}
-  }
-
-  const handleGoHome = () => {
-    clearAnalyze()
-    clearOptimize()
-    clearConvert()
-    clearDocument()
-    navigate('/', { replace: true })
-  }
 
   // Loading state
   if (isAnalyzing) {
@@ -126,50 +80,23 @@ const AnalyseLayout: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 h-full flex flex-col">
-      {/* Header with ActionMenu */}
-      <div className="flex items-center justify-between w-full">
-        <h2 className="text-xl font-semibold text-white">Code Analysis Results</h2>
-        <div className="flex items-center gap-4">
-          {/* Use ActionMenu for the three actions */}
-          <ActionMenu
-            actions={['optimize', 'convert', 'document']}
-            variant="layout"
-            onOverrides={{
-              convert: async () => setShowConvertModal(true),
-            }}
-          />
-          
-          {/* Back to Home button */}
-          <button
-            onClick={handleGoHome}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-white backdrop-blur-md transition-all duration-300 bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:from-black/50 hover:via-black/40 hover:to-black/30 border border-white/20 hover:border-white/30"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Home</span>
-          </button>
-        </div>
-      </div>
-
+    <div className="flex flex-col min-h-screen space-y-4">
       {/* Content */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 flex-1 min-h-0">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
         <div className="flex flex-col">
           <div className="flex-1 min-h-0">
-            <CodeEditor value={code} isReadOnly height="100%" />
+            {/* Wrapper div with dashboard component styling */}
+            <div className="bg-black/10 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden h-full">
+              <CodeEditor value={code} isReadOnly height="100%" variant="results" title="Analyzed Code" />
+            </div>
           </div>
         </div>
         <AnalysisDetails analysisResult={analysisResult} />
       </div>
 
-      {/* Tabs */}
-      <AnalysisResultTabs />
-
-      {/* Convert Modal */}
-      <LanguageSelectModal
-        isOpen={showConvertModal}
-        onClose={() => setShowConvertModal(false)}
-        onConvert={handleConvert}
-      />
+      {/* Analysis Results */}
+      <OptimizationOpportunities />
+      <FunctionalityAnalysis />
 
       {/* Combined toast */}
       {error && (
@@ -177,6 +104,7 @@ const AnalyseLayout: React.FC = () => {
           <span>{error}</span>
         </div>
       )}
+
     </div>
   )
 }

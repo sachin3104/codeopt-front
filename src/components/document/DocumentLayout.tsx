@@ -89,24 +89,18 @@ const DocumentResultLayout: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6 h-full flex flex-col">
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-white">Documented Code</h2>
-        <button 
-          onClick={handleGoHome}
-          className="flex items-center gap-2 px-4 py-2 rounded-lg text-white backdrop-blur-md transition-all duration-300 bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:from-black/50 hover:via-black/40 hover:to-black/30 border border-white/20 hover:border-white/30"
-        >
-          <ArrowLeft className="w-4 h-4" />
-          <span>Back to Home</span>
-        </button>
-      </div>
-
+    <div className="space-y-4 h-full flex flex-col">
       <div className="p-0 flex-1 min-h-[calc(100vh-12rem)] flex flex-col">
-        <CodeEditor 
-          value={normalizedCode} 
-          isReadOnly={true} 
-          height="calc(100vh - 14rem)"
-        />
+        {/* Wrapper div with dashboard component styling */}
+        <div className="bg-black/10 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden h-[750px]">
+          <CodeEditor 
+            value={normalizedCode} 
+            isReadOnly={true} 
+            height="100%"
+            variant="results"
+            title="Documented Code"
+          />
+        </div>
       </div>
 
       {/* Error toast */}

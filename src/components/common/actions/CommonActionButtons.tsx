@@ -7,7 +7,10 @@ import { useConvert } from '@/hooks/use-convert'
 import { useDocument } from '@/hooks/use-document'
 import { useCode } from '@/hooks/use-code'
 import { useCharacterLimit } from '@/hooks/use-character-limit'
+import { useRemainingRequests } from '@/hooks/use-remaining-requests'
 import { CharacterLimitModal } from '../CharacterLimitModal'
+import { RequestLimitModal } from './RequestLimitModal'
+import { StarBorder } from '@/components/ui/StarBorder'
 
 // Valid actions
 export type ActionKey = 'analyze' | 'optimize' | 'convert' | 'document'
@@ -19,6 +22,7 @@ export type ActionVariant = 'homepage' | 'layout'
 interface ActionDescriptor {
   label: string
   icon: React.ComponentType<any>
+  subname: string
   isLoading: boolean
   run: () => Promise<void>
 }
@@ -39,7 +43,8 @@ export function useActionDescriptors(
 
   const descriptors: Record<ActionKey, ActionDescriptor> = {
     analyze: {
-      label: 'Analyze',
+      label: 'Code Sage',
+      subname: 'Analyse',
       icon: BarChart3,
       isLoading: isAnalyzing,
       run: async () => {
@@ -49,7 +54,8 @@ export function useActionDescriptors(
     },
 
     optimize: {
-      label: 'Optimize',
+      label: 'Optimus',
+      subname: 'Optimize',
       icon: Zap,
       isLoading: isOptimizing,
       run: async () => {
@@ -59,7 +65,8 @@ export function useActionDescriptors(
     },
 
     convert: {
-      label: 'Convert',
+      label: 'Transform',
+      subname: 'Convert',
       icon: FileCode,
       isLoading: isConverting,
       run: async () => {
@@ -72,7 +79,8 @@ export function useActionDescriptors(
     },
 
     document: {
-      label: 'Document',
+      label: 'Scribe',
+      subname: 'Document',
       icon: FileText,
       isLoading: isDocumenting,
       run: async () => {
@@ -111,6 +119,32 @@ const getIconSize = (variant: ActionVariant) => {
   return variant === 'homepage' ? 'w-6 h-6' : 'w-4 h-4'
 }
 
+// Homepage Action Button with StarBorder
+const HomepageActionButton: React.FC<{
+  onClick: () => void
+  disabled: boolean
+  icon: React.ComponentType<any>
+  label: string
+  subname: string
+}> = ({ onClick, disabled, icon: Icon, label, subname }) => {
+  return (
+    <StarBorder
+      as="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="w-60 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+      color="#878686"
+      speed={disabled ? "0s" : "8s"}
+    >
+      <div className="flex items-center justify-center gap-2 text-white font-medium">
+        <Icon className="w-5 h-5" />
+        <span>{label}</span>
+        <span className="text-gray-400 text-sm">{subname}</span>
+      </div>
+    </StarBorder>
+  )
+}
+
 interface ActionButtonProps {
   action: ActionKey
   variant?: ActionVariant
@@ -126,12 +160,21 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
   onOverride 
 }) => {
   const [showLimitModal, setShowLimitModal] = useState(false)
+  const [showRequestLimitModal, setShowRequestLimitModal] = useState(false)
   const { code } = useCode()
   const { isOverLimit } = useCharacterLimit(code)
+  const { hasRemainingRequests } = useRemainingRequests()
   const descriptors = useActionDescriptors(onOverride ? { [action]: onOverride } : {})
   const { label, icon: Icon, isLoading, run } = descriptors[action]
 
+  // Check if code is empty or only contains whitespace
+  const isCodeEmpty = !code || code.trim().length === 0
+
   const handleAction = async () => {
+    if (!hasRemainingRequests) {
+      setShowRequestLimitModal(true)
+      return
+    }
     if (isOverLimit) {
       setShowLimitModal(true)
       return
@@ -139,12 +182,39 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
     await run()
   }
 
+  // Use HomepageActionButton for homepage variant
+  if (variant === 'homepage') {
+    return (
+      <>
+        <HomepageActionButton
+          onClick={handleAction}
+          disabled={isLoading || isCodeEmpty}
+          icon={Icon}
+          label={label}
+          subname={descriptors[action].subname}
+        />
+
+        <CharacterLimitModal
+          isOpen={showLimitModal}
+          onClose={() => setShowLimitModal(false)}
+          currentCode={code}
+        />
+
+        <RequestLimitModal
+          isOpen={showRequestLimitModal}
+          onClose={() => setShowRequestLimitModal(false)}
+        />
+      </>
+    )
+  }
+
+  // Use regular button for layout variant
   return (
     <>
       <button
         onClick={handleAction}
-        disabled={isLoading}
-        className={getButtonStyles(variant, isLoading)}
+        disabled={isLoading || isCodeEmpty}
+        className={getButtonStyles(variant, isLoading || isCodeEmpty)}
       >
         <Icon className={getIconSize(variant)} />
         <span>{isLoading ? `${label}…` : label}</span>
@@ -154,6 +224,11 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
         isOpen={showLimitModal}
         onClose={() => setShowLimitModal(false)}
         currentCode={code}
+      />
+
+      <RequestLimitModal
+        isOpen={showRequestLimitModal}
+        onClose={() => setShowRequestLimitModal(false)}
       />
     </>
   )
@@ -177,11 +252,20 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
   onOverrides 
 }) => {
   const [showLimitModal, setShowLimitModal] = useState(false)
+  const [showRequestLimitModal, setShowRequestLimitModal] = useState(false)
   const { code } = useCode()
   const { isOverLimit } = useCharacterLimit(code)
+  const { hasRemainingRequests } = useRemainingRequests()
   const descriptors = useActionDescriptors(onOverrides)
 
+  // Check if code is empty or only contains whitespace
+  const isCodeEmpty = !code || code.trim().length === 0
+
   const handleAction = async (run: () => Promise<void>) => {
+    if (!hasRemainingRequests) {
+      setShowRequestLimitModal(true)
+      return
+    }
     if (isOverLimit) {
       setShowLimitModal(true)
       return
@@ -204,12 +288,28 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
         <div className={innerContainerStyles}>
           {actions.map(key => {
             const { label, icon: Icon, isLoading, run } = descriptors[key]
+            
+            // Use HomepageActionButton for homepage variant
+            if (variant === 'homepage') {
+              return (
+                <HomepageActionButton
+                  key={key}
+                  onClick={() => handleAction(run)}
+                  disabled={isLoading || isCodeEmpty}
+                  icon={Icon}
+                  label={label}
+                  subname={descriptors[key].subname}
+                />
+              )
+            }
+
+            // Use regular button for layout variant
             return (
               <button
                 key={key}
                 onClick={() => handleAction(run)}
-                disabled={isLoading}
-                className={getButtonStyles(variant, isLoading)}
+                disabled={isLoading || isCodeEmpty}
+                className={getButtonStyles(variant, isLoading || isCodeEmpty)}
               >
                 <Icon className={getIconSize(variant)} />
                 <span>{isLoading ? `${label}…` : label}</span>
@@ -223,6 +323,11 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
         isOpen={showLimitModal}
         onClose={() => setShowLimitModal(false)}
         currentCode={code}
+      />
+
+      <RequestLimitModal
+        isOpen={showRequestLimitModal}
+        onClose={() => setShowRequestLimitModal(false)}
       />
     </>
   )

@@ -57,31 +57,37 @@ const SyncCodeEditors: React.FC<SyncCodeEditorsProps> = ({
   return (
     <div className="grid grid-cols-2 gap-4 h-full">
       <div className="h-full flex flex-col">
-        
         <div className="flex-1 min-h-0">
-          <CodeEditor
-            value={originalCode}
-            isReadOnly={isReadOnly}
-            height="100%"
-            title={originalTitle}
-            onEditorMount={(editor) => {
-              leftEditorRef.current = editor;
-            }}
-          />
+          {/* Wrapper div with dashboard component styling */}
+          <div className="bg-black/10 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden h-full">
+            <CodeEditor
+              value={originalCode}
+              isReadOnly={isReadOnly}
+              height="100%"
+              title={originalTitle}
+              variant="results"
+              onEditorMount={(editor) => {
+                leftEditorRef.current = editor;
+              }}
+            />
+          </div>
         </div>
       </div>
       <div className="h-full flex flex-col">
-        
         <div className="flex-1 min-h-0">
-          <CodeEditor
-            value={convertedCode}
-            isReadOnly={isReadOnly}
-            height="100%"
-            title={convertedTitle}
-            onEditorMount={(editor) => {
-              rightEditorRef.current = editor;
-            }}
-          />
+          {/* Wrapper div with dashboard component styling */}
+          <div className="bg-black/10 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden h-full">
+            <CodeEditor
+              value={convertedCode}
+              isReadOnly={isReadOnly}
+              height="100%"
+              title={convertedTitle}
+              variant="results"
+              onEditorMount={(editor) => {
+                rightEditorRef.current = editor;
+              }}
+            />
+          </div>
         </div>
       </div>
     </div>

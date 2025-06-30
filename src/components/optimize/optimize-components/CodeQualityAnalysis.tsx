@@ -1,6 +1,6 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Code2, Zap, Eye, TestTube2 } from 'lucide-react';
+import { Code2, Zap, Eye, TestTube2, Shield } from 'lucide-react';
 import { useOptimize } from '@/hooks/use-optimize';
 
 const CodeQualityAnalysis: React.FC = () => {
@@ -14,17 +14,9 @@ const CodeQualityAnalysis: React.FC = () => {
   const codeQualityMetrics = optimizationResult.code_quality_analysis?.code_quality_metrics;
   const overallScore = codeQualityMetrics?.overall_score?.optimized ?? 0;
 
+  console.log(codeQualityMetrics);
 
   const qualityMetrics = [
-    {
-      name: 'Maintainability',
-      icon: Code2,
-      color: 'bg-blue-400/80',
-      before: codeQualityMetrics?.maintainability?.original ?? 'NA',
-      after: codeQualityMetrics?.maintainability?.optimized ?? 'NA',
-      improvement: codeQualityMetrics?.maintainability?.improvement_percentage ?? 'NA',
-      costSavings: 'NA'
-    },
     {
       name: 'Performance',
       icon: Zap,
@@ -44,6 +36,24 @@ const CodeQualityAnalysis: React.FC = () => {
       costSavings: 'NA'
     },
     {
+      name: 'Maintainability',
+      icon: Code2,
+      color: 'bg-blue-400/80',
+      before: codeQualityMetrics?.maintainability?.original ?? 'NA',
+      after: codeQualityMetrics?.maintainability?.optimized ?? 'NA',
+      improvement: codeQualityMetrics?.maintainability?.improvement_percentage ?? 'NA',
+      costSavings: 'NA'
+    },
+    {
+      name: 'Security',
+      icon: Shield,
+      color: 'bg-red-400/80',
+      before: codeQualityMetrics?.security_vulnerability?.original ?? 'NA',
+      after: codeQualityMetrics?.security_vulnerability?.optimized ?? 'NA',
+      improvement: codeQualityMetrics?.security_vulnerability?.improvement_percentage ?? 'NA',
+      costSavings: 'NA'
+    },
+    {
       name: 'Test Coverage',
       icon: TestTube2,
       color: 'bg-amber-400/80',
@@ -54,31 +64,24 @@ const CodeQualityAnalysis: React.FC = () => {
     }
   ];
 
-  const getScoreLabel = (score: number) => {
-    if (score >= 8) return { text: 'Excellent', bg: 'bg-green-100/20', textColor: 'text-green-400' };
-    if (score >= 6) return { text: 'Good', bg: 'bg-emerald-100/20', textColor: 'text-emerald-400' };
-    if (score >= 4) return { text: 'Fair', bg: 'bg-yellow-100/20', textColor: 'text-yellow-400' };
-    return { text: 'Poor', bg: 'bg-red-100/20', textColor: 'text-red-400' };
-  };
-
   const getScoreLevel = (score: number) => {
-    if (score >= 8) return { text: 'High', bg: 'bg-green-500/20', textColor: 'text-green-400' };
+    if (score >= 7.5) return { text: 'High', bg: 'bg-green-500/20', textColor: 'text-green-400' };
     if (score >= 5) return { text: 'Medium', bg: 'bg-yellow-500/20', textColor: 'text-yellow-400' };
     return { text: 'Low', bg: 'bg-red-500/20', textColor: 'text-red-400' };
   };
 
   const getScoreColor = (score: number) => {
-    if (score >= 8) return 'text-green-400';
+    if (score >= 7.5) return 'text-green-400';
     if (score >= 5) return 'text-yellow-400';
     return 'text-red-400';
   };
 
   return (
-    <Card className="bg-black/10 backdrop-blur-xl border border-white/10 h-full min-h-[340px] flex flex-col">
+    <Card className="bg-black/10 backdrop-blur-xl border border-white/10 min-h-[340px] flex flex-col">
       <CardHeader>
-        <CardTitle className="text-white/90 flex items-center justify-between">
+        <CardTitle className="text-xl font-semibold text-white/90 flex items-center justify-between">
           <div className="flex items-center">
-            <Code2 className="w-4 h-4 text-amber-400/80 mr-2" />
+            <Code2 className="w-4 h-4 text-blue-400/80 mr-2" />
             Code Quality Improvements
           </div>
           <div className="text-sm text-white/70">

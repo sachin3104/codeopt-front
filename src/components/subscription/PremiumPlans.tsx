@@ -4,6 +4,7 @@ import type { Plan } from '@/types/subscription';
 import { useSubscription } from '@/hooks/use-subscription';
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/types/subscription';
+import ExpertConsultationModal from './ExpertConsultationModal';
 
 const PremiumPlans: React.FC = () => {
   const {
@@ -11,9 +12,6 @@ const PremiumPlans: React.FC = () => {
     fetchingConsultationPlans,
     consultationPlansError,
     fetchConsultationPlans,
-    consultationCheckoutLoading,
-    consultationCheckoutError,
-    startConsultationCheckout,
   } = useSubscription();
 
   const [plans, setPlans] = useState<Plan[]>([]);
@@ -24,11 +22,6 @@ const PremiumPlans: React.FC = () => {
   // Consultation booking states
   const [showConsultationModal, setShowConsultationModal] = useState(false);
   const [selectedConsultationPlan, setSelectedConsultationPlan] = useState<Plan | null>(null);
-  const [consultationForm, setConsultationForm] = useState({
-    consultationType: 'half_hour',
-    selectedDate: '',
-    description: ''
-  });
 
   useEffect(() => {
     setLoading(true);
@@ -64,12 +57,6 @@ const PremiumPlans: React.FC = () => {
           // Open consultation booking modal
           if (plan.consultation_options && plan.consultation_options.length > 0) {
             setSelectedConsultationPlan(plan);
-            // Initialize form with first available consultation option
-            setConsultationForm({
-              consultationType: plan.consultation_options[0].duration,
-              selectedDate: '',
-              description: ''
-            });
             setShowConsultationModal(true);
           } else {
             alert('No consultation options available for this plan.');
@@ -87,40 +74,9 @@ const PremiumPlans: React.FC = () => {
     }
   };
 
-  const handleConsultationSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
-    if (!selectedConsultationPlan) return;
-
-    try {
-      await startConsultationCheckout(
-        consultationForm.consultationType,
-        consultationForm.selectedDate,
-        consultationForm.description
-      );
-      // User will be redirected to Stripe checkout
-      setShowConsultationModal(false);
-      setConsultationForm({
-        consultationType: 'half_hour',
-        selectedDate: '',
-        description: ''
-      });
-    } catch (error) {
-      console.error('Consultation booking error:', error);
-    }
-  };
-
-  const getMinDate = () => {
-    const tomorrow = new Date();
-    tomorrow.setDate(tomorrow.getDate() + 1);
-    return tomorrow.toISOString().split('T')[0];
-  };
-
-  const getConsultationOptions = (plan: Plan) => {
-    if (!plan.consultation_options || plan.consultation_options.length === 0) {
-      return [];
-    }
-    return plan.consultation_options;
+  const handleCloseConsultationModal = () => {
+    setShowConsultationModal(false);
+    setSelectedConsultationPlan(null);
   };
 
   if (loading) {
@@ -221,99 +177,12 @@ const PremiumPlans: React.FC = () => {
         })}
       </div>
 
-      {/* Consultation Booking Modal */}
-      {showConsultationModal && selectedConsultationPlan && (
-        <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-          <div className="bg-gray-900/95 border border-white/20 rounded-xl p-6 w-full max-w-md">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold text-white">
-                Book {selectedConsultationPlan.name} Consultation
-              </h3>
-              <button
-                onClick={() => setShowConsultationModal(false)}
-                className="text-white/70 hover:text-white"
-              >
-                ✕
-              </button>
-            </div>
-
-            <form onSubmit={handleConsultationSubmit} className="space-y-4">
-              {/* Consultation Type Selection */}
-              <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  Consultation Duration:
-                </label>
-                <select
-                  value={consultationForm.consultationType}
-                  onChange={(e) => setConsultationForm({
-                    ...consultationForm,
-                    consultationType: e.target.value
-                  })}
-                  className="w-full bg-gray-800/50 border border-white/20 rounded-md px-3 py-2 text-white focus:outline-none focus:border-purple-500"
-                  required
-                >
-                  {getConsultationOptions(selectedConsultationPlan).map((option, index) => (
-                    <option key={index} value={option.duration}>
-                      {option.duration_label}: ${option.price} - {option.description}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Date Selection */}
-              <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  Preferred Date:
-                </label>
-                <input
-                  type="date"
-                  value={consultationForm.selectedDate}
-                  onChange={(e) => setConsultationForm({
-                    ...consultationForm,
-                    selectedDate: e.target.value
-                  })}
-                  min={getMinDate()}
-                  className="w-full bg-gray-800/50 border border-white/20 rounded-md px-3 py-2 text-white focus:outline-none focus:border-purple-500"
-                  required
-                />
-              </div>
-
-              {/* Description */}
-              <div>
-                <label className="block text-white/80 text-sm font-medium mb-2">
-                  Description (Optional):
-                </label>
-                <textarea
-                  value={consultationForm.description}
-                  onChange={(e) => setConsultationForm({
-                    ...consultationForm,
-                    description: e.target.value
-                  })}
-                  placeholder="Describe what you need help with..."
-                  rows={4}
-                  className="w-full bg-gray-800/50 border border-white/20 rounded-md px-3 py-2 text-white focus:outline-none focus:border-purple-500 resize-none"
-                />
-              </div>
-
-              {/* Error Display */}
-              {consultationCheckoutError && (
-                <div className="text-red-400 text-sm">
-                  {consultationCheckoutError.response?.data.message || consultationCheckoutError.message}
-                </div>
-              )}
-
-              {/* Submit Button */}
-              <button
-                type="submit"
-                disabled={consultationCheckoutLoading}
-                className="w-full bg-purple-500/20 hover:bg-purple-500/30 text-purple-400 border border-purple-500/30 py-2 rounded-md font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                {consultationCheckoutLoading ? 'Creating Booking...' : 'Book Consultation'}
-              </button>
-            </form>
-          </div>
-        </div>
-      )}
+      {/* Expert Consultation Modal */}
+      <ExpertConsultationModal
+        isOpen={showConsultationModal}
+        onClose={handleCloseConsultationModal}
+        selectedPlan={selectedConsultationPlan}
+      />
     </div>
   );
 };

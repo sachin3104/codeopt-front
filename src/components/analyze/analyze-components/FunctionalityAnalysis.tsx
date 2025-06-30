@@ -1,16 +1,15 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { useOptimize } from '@/hooks/use-optimize';
+import { Card, CardContent } from "@/components/ui/card";
+import { useAnalyze } from '@/hooks/use-analyze';
 
-const ExecutiveSummary: React.FC = () => {
-  const { result: optimizationResult } = useOptimize();
+const FunctionalityAnalysis: React.FC = () => {
+  const { result } = useAnalyze();
 
-  if (!optimizationResult) {
-    return null;
+  // Get functionality analysis from result
+  let functionalityAnalysis: string | null = null;
+  if (result && typeof result.functionality_analysis === 'string') {
+    functionalityAnalysis = result.functionality_analysis;
   }
-
-  // Get summary content from the optimization result
-  const summaryContent = optimizationResult.summary || '';
 
   // Function to check if content looks like a table
   const isTableContent = (text: string): boolean => {
@@ -133,7 +132,7 @@ const ExecutiveSummary: React.FC = () => {
               level === 3 ? 'text-base mt-6 mb-3' : 
               'text-sm mt-4 mb-2'
             }`}>
-            {text}
+            {formatInlineMarkdown(text)}
           </div>
         );
         continue;
@@ -242,46 +241,76 @@ const ExecutiveSummary: React.FC = () => {
 
   // Function to format inline markdown (bold, italic, code)
   const formatInlineMarkdown = (text: string): React.ReactNode => {
-    const parts = text.split(/(\*\*.*?\*\*|\*.*?\*|`.*?`)/g);
+    // More robust regex that handles nested and overlapping patterns
+    const parts: React.ReactNode[] = [];
+    let lastIndex = 0;
     
-    return parts.map((part, index) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return (
-          <strong key={index} className="font-semibold text-white/90">
-            {part.slice(2, -2)}
+    // Combined regex for all inline patterns
+    const regex = /(\*\*[^*]+\*\*|\*[^*]+\*|`[^`]+`)/g;
+    let match;
+    
+    while ((match = regex.exec(text)) !== null) {
+      // Add text before the match
+      if (match.index > lastIndex) {
+        parts.push(text.substring(lastIndex, match.index));
+      }
+      
+      const matchedText = match[0];
+      
+      if (matchedText.startsWith('**') && matchedText.endsWith('**')) {
+        parts.push(
+          <strong key={`bold-${match.index}`} className="font-bold text-white">
+            {matchedText.slice(2, -2)}
           </strong>
         );
-      } else if (part.startsWith('*') && part.endsWith('*')) {
-        return (
-          <em key={index} className="text-white/70">
-            {part.slice(1, -1)}
+      } else if (matchedText.startsWith('*') && matchedText.endsWith('*') && !matchedText.startsWith('**')) {
+        parts.push(
+          <em key={`italic-${match.index}`} className="italic text-white/90">
+            {matchedText.slice(1, -1)}
           </em>
         );
-      } else if (part.startsWith('`') && part.endsWith('`')) {
-        return (
-          <code key={index} className="bg-white/10 px-1 py-0.5 rounded text-white/90">
-            {part.slice(1, -1)}
+      } else if (matchedText.startsWith('`') && matchedText.endsWith('`')) {
+        parts.push(
+          <code key={`code-${match.index}`} className="bg-white/10 px-1 py-0.5 rounded text-white/90 font-mono text-xs">
+            {matchedText.slice(1, -1)}
           </code>
         );
       }
-      return part;
-    });
+      
+      lastIndex = match.index + matchedText.length;
+    }
+    
+    // Add remaining text
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+    
+    return parts.length > 0 ? parts : text;
   };
 
   return (
-    <Card className="bg-black/10 backdrop-blur-xl border border-white/10 min-h-[340px]">
-      <CardHeader>
-        <CardTitle className="text-xl font-semibold text-white/90">Optimization Executive Summary</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        {summaryContent && (
-          <div className="prose prose-sm max-w-none">
-            {parseMarkdown(summaryContent)}
+    <div>
+      {functionalityAnalysis ? (
+        <Card className="bg-black/10 backdrop-blur-xl border border-white/10 min-h-[340px]">
+          <CardContent className="p-6">
+            <div className="prose prose-sm max-w-none">
+              {parseMarkdown(functionalityAnalysis)}
+            </div>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="text-center py-8">
+          <div className="mx-auto h-12 w-12 text-gray-400 mb-4">
+            <svg className="h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
           </div>
-        )}
-      </CardContent>
-    </Card>
+          <h3 className="text-lg font-medium text-white mb-2">No Functionality Analysis</h3>
+          <p className="text-gray-400">Functionality analysis data is not available.</p>
+        </div>
+      )}
+    </div>
   );
 };
 
-export default ExecutiveSummary; 
+export default FunctionalityAnalysis;

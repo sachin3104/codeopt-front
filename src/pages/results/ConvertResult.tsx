@@ -8,8 +8,8 @@ const ConvertResult: React.FC = () => {
     <div className="min-h-screen relative">
       <Background />
       <div className="relative z-10">
-        <Header />
-        <main className="container mx-auto px-4 pt-24 pb-8">
+        <Header variant="convert" />
+        <main className="container mx-auto px-0 pt-[70px] pb-8">
           <ConvertLayout />
         </main>
       </div>

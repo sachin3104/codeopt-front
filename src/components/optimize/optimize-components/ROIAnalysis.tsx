@@ -1,4 +1,5 @@
 import React from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Timer, Database, DollarSign, TrendingUp, Calculator } from 'lucide-react';
 import { useOptimize } from '@/hooks/use-optimize';
 
@@ -65,9 +66,14 @@ const ROIAnalysis: React.FC = () => {
     {
       icon: TrendingUp,
       iconColor: 'text-amber-400/80',
-      value: getMetric(['resource_savings', 'Expected Annual Shavings']) !== 'NA'
-        ? `${formatDecimal(getMetric(['resource_savings', 'Expected Annual Shavings']))}%`
-        : 'NA',
+      value: (() => {
+        const monthlySavings = getMetric(['resource_savings', 'monthly_server_cost_savings']);
+        if (monthlySavings !== 'NA') {
+          const annualValue = parseFloat(monthlySavings) * 12;
+          return `$${formatDecimal(annualValue)}`;
+        }
+        return 'NA';
+      })(),
       label: 'Estimated Annual Savings',
       sublabel: 'Total ROI',
       barColor: 'bg-amber-400/30'
@@ -75,32 +81,41 @@ const ROIAnalysis: React.FC = () => {
   ];
 
   // Total Value from backend only
-  const totalValue = getMetric(['resource_savings', 'Expected Annual Shavings']) !== 'NA'
-    ? `${formatDecimal(getMetric(['resource_savings', 'Expected Annual Shavings']))}%`
-    : 'NA';
+  const totalValue = (() => {
+    const monthlySavings = getMetric(['resource_savings', 'monthly_server_cost_savings']);
+    if (monthlySavings !== 'NA') {
+      const annualValue = parseFloat(monthlySavings) * 12;
+      return `$${formatDecimal(annualValue)}`;
+    }
+    return 'NA';
+  })();
 
   return (
-    <div className="bg-black/10 backdrop-blur-xl border border-white/10 rounded-xl p-6">
-      <div className="flex items-center justify-between mb-6">
-        <h3 className="font-semibold text-white flex items-center">
-          <Calculator className="w-4 h-4 text-amber-400/80 mr-2" />
-          Resource Savings & ROI
-        </h3>
-        <div className="text-sm text-white/70">
-          Total Value: <span className="text-emerald-400/90 font-bold">{totalValue}</span>
-        </div>
-      </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        {roiMetrics.map((metric, index) => (
-          <div key={index} className="flex flex-col items-center p-3">
-            <metric.icon className={`w-5 h-5 ${metric.iconColor} mb-2`} />
-            <div className="text-xl font-bold text-white/90 mb-1">{metric.value}</div>
-            <div className="text-xs text-emerald-400/90 font-semibold mb-1 text-center">{metric.label}</div>
-            <div className="text-xs text-white/50">{metric.sublabel}</div>
+    <Card className="bg-black/10 backdrop-blur-xl border border-white/10">
+      <CardHeader>
+        <CardTitle className="text-xl font-semibold text-white/90 flex items-center justify-between">
+          <div className="flex items-center">
+            <Calculator className="w-4 h-4 text-blue-400/80 mr-2" />
+            Resource Savings & ROI
           </div>
-        ))}
-      </div>
-    </div>
+          <div className="text-sm text-white/70">
+            Total Value: <span className="text-emerald-400/90 font-bold">{totalValue}</span>
+          </div>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {roiMetrics.map((metric, index) => (
+            <div key={index} className="flex flex-col items-center p-3">
+              <metric.icon className={`w-5 h-5 ${metric.iconColor} mb-2`} />
+              <div className="text-xl font-bold text-white/90 mb-1">{metric.value}</div>
+              <div className="text-xs text-emerald-400/90 font-semibold mb-1 text-center">{metric.label}</div>
+              <div className="text-xs text-white/50">{metric.sublabel}</div>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

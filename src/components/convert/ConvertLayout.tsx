@@ -3,7 +3,6 @@ import { useConvert } from '@/hooks/use-convert';
 import { useDocument } from '@/hooks/use-document';
 import { useNavigate } from 'react-router-dom';
 import SyncCodeEditors from '../common/editor/SyncCodeEditors';
-import { ActionMenu } from '../common/actions/CommonActionButtons';
 import { ArrowLeft } from 'lucide-react';
 import ConvertTabs from './ConvertTabs';
 
@@ -92,28 +91,7 @@ const ConvertLayout: React.FC = () => {
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header Section with ActionMenu */}
-      <div className="flex items-center justify-between">
-        <h2 className="text-xl font-semibold text-white">Conversion Results</h2>
-        <div className="flex items-center gap-4">
-          {/* Use ActionMenu for document button only */}
-          <ActionMenu
-            actions={['document']}
-            variant="layout"
-          />
-          
-          {/* Back to Home button */}
-          <button
-            onClick={handleGoHome}
-            className="flex items-center gap-2 px-4 py-2 rounded-lg text-white backdrop-blur-md transition-all duration-300 bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:from-black/50 hover:via-black/40 hover:to-black/30 border border-white/20 hover:border-white/30"
-          >
-            <ArrowLeft className="w-4 h-4" />
-            <span>Back to Home</span>
-          </button>
-        </div>
-      </div>
-
+    <div className="space-y-4">
       {/* Code Editors Section - Full Width */}
       <div className="w-full h-[600px] overflow-hidden">
         <SyncCodeEditors
