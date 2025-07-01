@@ -19,7 +19,7 @@ const ROIAnalysis: React.FC = () => {
     }
   };
 
-  // Helper to format decimal values to integers only
+  // Helper to format decimal values to integers with thousand separators
   const formatDecimal = (value: any): string => {
     if (value === 'NA' || value === null || value === undefined) {
       return 'NA';
@@ -28,7 +28,7 @@ const ROIAnalysis: React.FC = () => {
     if (isNaN(num)) {
       return 'NA';
     }
-    return Math.round(num).toString();
+    return Math.round(num).toLocaleString();
   };
 
   // ROI metrics from backend only, no calculations or hardcoded labels
