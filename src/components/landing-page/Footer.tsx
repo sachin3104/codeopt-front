@@ -1,6 +1,7 @@
 import { Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import logoUrl from "@/assets/logo.svg";
 
 // Custom Discord Icon
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -48,6 +49,7 @@ export default function Footer() {
             className="flex items-center gap-x-2"
             aria-label="optqo"
           >
+            <img src={logoUrl} alt="Optqo Logo" className="h-8 w-auto" />
             <span className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">
               optqo
             </span>

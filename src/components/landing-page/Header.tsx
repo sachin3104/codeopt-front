@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import clsx from "clsx";
 import { Link } from "react-router-dom";
+import logoUrl from "@/assets/logo.svg";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -49,12 +50,15 @@ export default function Header() {
         <Link 
           to="/" 
           className={clsx(
-            "text-white text-xl font-bold",
-            "hover:text-blue-200 transition-all duration-300",
+            "flex items-center gap-x-2",
+            "hover:opacity-80 transition-opacity duration-300",
             "cursor-pointer relative group"
           )}
         >
-          <span className="relative z-10">optqo</span>
+          <img src={logoUrl} alt="Optqo Logo" className="h-8 w-auto" />
+          <span className="text-2xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent relative z-10">
+            optqo
+          </span>
           <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
         </Link>
         
