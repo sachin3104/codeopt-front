@@ -12,7 +12,7 @@ const SubscriptionPage: React.FC = () => {
         <Header />
         
         <main className="flex-grow pt-16">
-          <div className="max-w-7xl mx-auto px-4 py-8">
+          <div className="max-w-8xl mx-auto px-4 py-8">
             <SubscriptionLayout />
           </div>
         </main>

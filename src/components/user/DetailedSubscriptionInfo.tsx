@@ -2,21 +2,23 @@ import React from 'react';
 import { 
   CreditCard, 
   BarChart3, 
-  FileText,
   CheckCircle,
   XCircle,
   Clock,
   AlertTriangle,
   Zap,
   Mail,
-  Calendar
+  Calendar,
+  ExternalLink
 } from 'lucide-react';
 import { useSubscription } from '@/hooks/use-subscription';
 import { useAuth } from '@/hooks/use-auth';
+import { useNavigate } from 'react-router-dom';
 
 const DetailedSubscriptionInfo: React.FC = () => {
   const { subscription, fetching, usageData, cancelSubscription, cancelLoading, cancelError } = useSubscription();
   const { user } = useAuth();
+  const navigate = useNavigate();
 
   if (fetching) {
     return (
@@ -186,44 +188,16 @@ const DetailedSubscriptionInfo: React.FC = () => {
             {actionTypeInfo.icon}
           </div>
           <div className="flex-1">
-            <p className="text-white/70 text-sm">Current Plan</p>
             <div className="flex items-center space-x-2">
               <div>
                 <p className="text-white font-medium">{plan.name}</p>
                 <p className="text-gray-400 text-sm">{actionTypeInfo.label}</p>
               </div>
-              <span className={`px-2 py-1 text-xs rounded-full ${
-                status === 'active' 
-                  ? 'bg-green-500/20 text-green-400 border border-green-500/30' 
-                  : status === 'cancelled'
-                  ? 'bg-red-500/20 text-red-400 border border-red-500/30'
-                  : 'bg-yellow-500/20 text-yellow-400 border border-yellow-500/30'
-              }`}>
-                {status}
-              </span>
+
             </div>
-            <p className="text-white/60 text-xs mt-1">{plan.description}</p>
-            <p className="text-white/50 text-xs mt-1">{actionTypeInfo.description}</p>
           </div>
         </div>
 
-        {/* Plan Type Information */}
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <Zap className="w-4 h-4 text-white" />
-            <p className="text-white/70 text-sm font-medium">Plan Type</p>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <div className="text-center p-3 bg-white/5 rounded-lg">
-              <p className="text-white/70 text-xs">Plan Type</p>
-              <p className="text-white font-medium">{plan.name}</p>
-            </div>
-            <div className="text-center p-3 bg-white/5 rounded-lg">
-              <p className="text-white/70 text-xs">Action Type</p>
-              <p className="text-white font-medium">{actionTypeInfo.label}</p>
-            </div>
-          </div>
-        </div>
 
         {/* Consultation Options */}
         {plan.consultation_options && plan.consultation_options.length > 0 && (
@@ -251,51 +225,6 @@ const DetailedSubscriptionInfo: React.FC = () => {
           </div>
         )}
 
-        
-        {/* Character Limits */}
-        {/* <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <FileText className="w-4 h-4 text-white" />
-            <p className="text-white/70 text-sm font-medium">Character Usage</p>
-          </div>
-
-          {usageInfo && usageInfo.charactersTotal ? (
-            <div className="space-y-2">
-              <div className="flex justify-between items-center">
-                <p className="text-white/70 text-xs">
-                  {isFreePlan ? 'Daily Characters Used' : 'Monthly Characters Used'}
-                </p>
-                <p className="text-white text-xs">
-                  {usageInfo.charactersUsed.toLocaleString()} / {usageInfo.charactersTotal.toLocaleString()}
-                </p>
-              </div>
-              <div className="w-full bg-white/10 rounded-full h-2">
-                <div 
-                  className={`h-2 rounded-full transition-all duration-300 ${
-                    characterPercentage > 80 
-                      ? 'bg-gradient-to-r from-red-400 to-red-600' 
-                      : characterPercentage > 60
-                      ? 'bg-gradient-to-r from-yellow-400 to-yellow-600'
-                      : 'bg-gradient-to-r from-green-400 to-green-600'
-                  }`}
-                  style={{ width: `${Math.min(characterPercentage, 100)}%` }}
-                ></div>
-              </div>
-              <div className="flex justify-between text-xs">
-                <span className="text-green-400">
-                  Used: {usageInfo.charactersUsed.toLocaleString()}
-                </span>
-                <span className="text-white/60">
-                  Remaining: {usageInfo.charactersRemaining?.toLocaleString() || 'Unlimited'}
-                </span>
-              </div>
-            </div>
-          ) : (
-            <div className="text-center py-4">
-              <p className="text-white/50 text-sm">Character usage data not available</p>
-            </div>
-          )}
-        </div> */}
 
         {/* Request Usage */}
         <div className="space-y-3">
@@ -354,9 +283,19 @@ const DetailedSubscriptionInfo: React.FC = () => {
           </div>
         </div>
 
-        {/* Cancel Subscription Button */}
-        {!isFreePlan && status === 'active' && (
-          <div className="pt-4 border-t border-white/20">
+        {/* Action Buttons */}
+        <div className="pt-4 border-t border-white/20 space-y-3">
+          {/* View Plans Button */}
+          <button
+            onClick={() => navigate('/subscription')}
+            className="w-full py-2 px-4 bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/30 rounded-md text-blue-400 font-medium transition-colors flex items-center justify-center space-x-2"
+          >
+            <ExternalLink className="w-4 h-4" />
+            <span>View Plans</span>
+          </button>
+
+          {/* Cancel Subscription Button */}
+          {!isFreePlan && status === 'active' && !cancel_at_period_end && (
             <button
               onClick={() => cancelSubscription(false)}
               disabled={cancelLoading}
@@ -364,13 +303,14 @@ const DetailedSubscriptionInfo: React.FC = () => {
             >
               {cancelLoading ? 'Cancelling...' : 'Cancel Subscription'}
             </button>
-            {cancelError && (
-              <p className="mt-2 text-sm text-red-400">
-                {cancelError.response?.data.message || cancelError.message}
-              </p>
-            )}
-          </div>
-        )}
+          )}
+          
+          {cancelError && (
+            <p className="text-sm text-red-400">
+              {cancelError.response?.data.message || cancelError.message}
+            </p>
+          )}
+        </div>
       </div>
     </div>
   );

@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
-import { useAuth } from '@/hooks/use-auth';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/use-auth';
 import { ActionMenu } from '../actions/CommonActionButtons';
 import LanguageSelectModal from '../actions/LanguageSelectModal';
 import { useConvert } from '@/hooks/use-convert';
 import UserPlanButton from './UserPlanButton';
+import LogoutModal from './LogoutModal';
 
 // Header variants
 export type HeaderVariant = 'default' | 'analyze' | 'optimize' | 'convert' | 'document';
@@ -15,25 +16,28 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
   const [showConvertModal, setShowConvertModal] = useState(false);
-  const { logout } = useAuth();
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const navigate = useNavigate();
+  const { logout } = useAuth();
   const { run: runConvert, clear: clearConvert } = useConvert();
 
   const openConvertModal = async () => {
-    clearConvert()         // wipe out the _old_ result only once, when we open
-    setShowConvertModal(true)
-  }
+    clearConvert();
+    setShowConvertModal(true);
+  };
 
   const handleLogoClick = () => {
     navigate('/');
   };
 
-  // Handler for convert modal
-  const handleConvert = async (from: string, to: string) => {
+  const handleLogoutConfirm = async () => {
     try {
-      await runConvert(from, to);
-      navigate('/results/convert');
-    } catch {/* error will show via convertError */}
+      await logout();
+      setShowLogoutModal(false);
+      navigate('/');
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
   };
 
   // Get action buttons based on variant
@@ -101,8 +105,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
 
             {/* User Menu */}
             <div className="flex items-center space-x-3">
-              {/* Combined User Plan Button */}
-              <UserPlanButton />
+              <UserPlanButton onLogoutClick={() => setShowLogoutModal(true)} />
             </div>
           </div>
         </div>
@@ -112,6 +115,13 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
       <LanguageSelectModal
         isOpen={showConvertModal}
         onClose={() => setShowConvertModal(false)}
+      />
+
+      {/* Logout Modal - Rendered outside header context */}
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogoutConfirm}
       />
     </>
   );

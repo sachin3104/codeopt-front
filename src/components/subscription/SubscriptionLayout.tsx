@@ -30,10 +30,14 @@ const SubscriptionLayout: React.FC = () => {
       </div>
 
       {/* Content */}
-      <div className="flex-1 space-y-8">
+      <div className="flex-1 flex gap-8">
         {/* <DetailedSubscriptionInfo /> */}
-        <NormalPlans />
-        <PremiumPlans />
+        <div className="w-3/5">
+          <NormalPlans />
+        </div>
+        <div className="w-2/5">
+          <PremiumPlans />
+        </div>
       </div>
     </div>
   );

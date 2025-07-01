@@ -16,7 +16,6 @@ const UserLayout: React.FC = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center space-x-3">
-          <User className="w-6 h-6 text-white" />
           <h2 className="text-xl font-semibold text-white">Profile</h2>
         </div>
         <button 
@@ -30,12 +29,11 @@ const UserLayout: React.FC = () => {
 
       {/* Content */}
       <div className="flex-1 space-y-6">
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* User Details Card */}
-          <div className="w-full">
-            <UserDetails />
-          </div>
+
+        <div className="w-full">
+          <UserDetails />
         </div>
+
 
         {/* User Subscription Card */}
         <div className="w-full">

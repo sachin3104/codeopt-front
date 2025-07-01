@@ -94,7 +94,7 @@ const ExpertConsultationModal: React.FC<ExpertConsultationModalProps> = ({
   if (!isOpen || !selectedPlan) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-[9999]">
       {/* Backdrop */}
       <div 
         className="fixed inset-0 bg-black/50 backdrop-blur-sm"
@@ -102,7 +102,7 @@ const ExpertConsultationModal: React.FC<ExpertConsultationModalProps> = ({
       />
       
       {/* Modal */}
-      <div className="relative z-50 w-full max-w-md p-6 mx-4 rounded-2xl bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 shadow-xl">
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[10000] w-full max-w-md p-6 mx-4 rounded-2xl bg-gradient-to-br from-black/90 via-black/80 to-black/90 border border-white/20 shadow-xl backdrop-blur-xl">
         {/* Close button */}
         <button
           onClick={onClose}
