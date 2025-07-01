@@ -13,6 +13,34 @@ const SUPPORTED_LANGUAGES = [
   { value: 'sql',    label: 'SQL' },
 ]
 
+// Common language display names
+const LANGUAGE_DISPLAY_NAMES: Record<string, string> = {
+  python: 'Python',
+  r: 'R',
+  sas: 'SAS',
+  sql: 'SQL',
+  javascript: 'JavaScript',
+  typescript: 'TypeScript',
+  java: 'Java',
+  csharp: 'C#',
+  cpp: 'C++',
+  c: 'C',
+  php: 'PHP',
+  ruby: 'Ruby',
+  go: 'Go',
+  rust: 'Rust',
+  swift: 'Swift',
+  kotlin: 'Kotlin',
+  scala: 'Scala',
+  perl: 'Perl',
+  html: 'HTML',
+  css: 'CSS',
+  json: 'JSON',
+  xml: 'XML',
+  yaml: 'YAML',
+  markdown: 'Markdown',
+}
+
 export interface LanguageSelectModalProps {
   /** Whether modal is visible */
   isOpen: boolean
@@ -38,19 +66,26 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
   const [targetLanguage, setTargetLanguage] = useState<string>('')
   const [errorState, setErrorState] = useState<string>('')
 
+  // Check if detected language is supported
+  const isSourceSupported = SUPPORTED_LANGUAGES.some(l => l.value === detected)
+
   // Reset state whenever modal opens
   useEffect(() => {
     if (!isOpen) return
     setErrorState('')
 
-    // Auto-detect or default to python
-    const src = detected || 'python'
-    setSourceLanguage(src)
+    // Use the actual detected language
+    setSourceLanguage(detected || '')
 
-    // Pick a default target different from source
-    const fallback = SUPPORTED_LANGUAGES.find(l => l.value !== src)
-    setTargetLanguage(fallback?.value || '')
-  }, [isOpen, detected])
+    // Pick a default target different from source if source is supported
+    if (isSourceSupported && detected) {
+      const fallback = SUPPORTED_LANGUAGES.find(l => l.value !== detected)
+      setTargetLanguage(fallback?.value || '')
+    } else {
+      // If source is not supported, just pick the first supported language as target
+      setTargetLanguage(SUPPORTED_LANGUAGES[0]?.value || '')
+    }
+  }, [isOpen, detected, isSourceSupported])
 
   const handleConvert = async () => {
     setErrorState('')
@@ -64,6 +99,13 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
   }
 
   if (!isOpen) return null
+
+  // Get display name for the detected language
+  const getLanguageDisplayName = (lang: string) => {
+    if (!lang) return 'Unknown'
+    return LANGUAGE_DISPLAY_NAMES[lang.toLowerCase()] || 
+           lang.charAt(0).toUpperCase() + lang.slice(1).toLowerCase()
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -87,19 +129,27 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
         <div className="space-y-6">
           {/* Source dropdown */}
           <div>
-          <label className="block text-sm font-medium text-white/80 mb-3">
-            Detected Source Language
-          </label>
-          <div className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white backdrop-blur-sm">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-              <span className="font-medium">
-                {SUPPORTED_LANGUAGES.find(l => l.value === sourceLanguage)?.label || 'Unknown'}
-              </span>
-              <span className="text-white/60 text-sm ml-auto">Auto-detected</span>
+            <label className="block text-sm font-medium text-white/80 mb-3">
+              Detected Source Language
+            </label>
+            <div className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white backdrop-blur-sm">
+              <div className="flex items-center gap-2">
+                <div className={`w-2 h-2 rounded-full ${isSourceSupported ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
+                <span className="font-medium">
+                  {getLanguageDisplayName(sourceLanguage)}
+                </span>
+                <span className="text-white/60 text-sm ml-auto">
+                  {isSourceSupported ? 'Auto-detected' : 'Not supported'}
+                </span>
+              </div>
             </div>
+            {!isSourceSupported && sourceLanguage && (
+              <p className="mt-2 text-sm text-yellow-400/80">
+                Conversion from {getLanguageDisplayName(sourceLanguage)} is not supported. 
+                Supported languages: Python, R, SAS, SQL.
+              </p>
+            )}
           </div>
-        </div>
 
           {/* Target dropdown */}
           <div>
@@ -109,11 +159,11 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
             <select
               value={targetLanguage}
               onChange={e => setTargetLanguage(e.target.value)}
-              disabled={isConverting}
-              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/10"
+              disabled={isConverting || !isSourceSupported}
+              className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {SUPPORTED_LANGUAGES.filter(l => l.value !== sourceLanguage).map(lang => (
-                <option key={lang.value} value={lang.value}>
+                <option key={lang.value} value={lang.value} className="bg-gray-900">
                   {lang.label}
                 </option>
               ))}
@@ -138,7 +188,7 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
           </button>
           <button
             onClick={handleConvert}
-            disabled={isConverting || !sourceLanguage || !targetLanguage}
+            disabled={isConverting || !sourceLanguage || !targetLanguage || !isSourceSupported}
             className="px-6 py-3 rounded-xl bg-blue-600/90 text-white font-medium hover:bg-blue-600 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed backdrop-blur-sm border border-blue-500/20"
           >
             {isConverting ? 'Converting...' : 'Convert'}

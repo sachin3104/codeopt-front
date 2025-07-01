@@ -9,7 +9,7 @@ const ConvertResult: React.FC = () => {
       <Background />
       <div className="relative z-10">
         <Header variant="convert" />
-        <main className="container mx-auto px-0 pt-[70px] pb-8">
+        <main className="container mx-auto px-4 pt-[70px] pb-8">
           <ConvertLayout />
         </main>
       </div>

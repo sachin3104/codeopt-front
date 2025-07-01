@@ -1,5 +1,6 @@
 import React from "react";
 import { Check, Minus, MoveRight, PhoneCall, Calendar, Mail } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const plans = [
   {
@@ -127,11 +128,13 @@ export default function PricingCards() {
                 </div>
 
                 {/* CTA Button */}
-                <button 
-                  className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-3 py-3 flex items-center justify-center gap-2 mt-auto"
-                >
-                  {plan.buttonText} <plan.buttonIcon className="w-4 h-4" />
-                </button>
+                <Link to="/login" className="w-full mt-auto">
+                  <button 
+                    className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-3 py-3 flex items-center justify-center gap-2"
+                  >
+                    {plan.buttonText} <plan.buttonIcon className="w-4 h-4" />
+                  </button>
+                </Link>
               </div>
             ))}
           </div>

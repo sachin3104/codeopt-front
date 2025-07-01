@@ -96,9 +96,7 @@ const ConvertLayout: React.FC = () => {
       </div>
 
       {/* Convert Tabs Section */}
-      <div className="mt-8">
-        <ConvertTabs />
-      </div>
+      <ConvertTabs />
 
       {/* Combined error toast */}
       {error && (

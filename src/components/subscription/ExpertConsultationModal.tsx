@@ -134,7 +134,7 @@ const ExpertConsultationModal: React.FC<ExpertConsultationModalProps> = ({
                 <option value="half_hour" className="bg-gray-800 text-white">
                   30 minutes ($150)
                 </option>
-                <option value="full_hour" className="bg-gray-800 text-white">
+                <option value="one_hour" className="bg-gray-800 text-white">
                   60 minutes ($300)
                 </option>
               </select>

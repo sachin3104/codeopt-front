@@ -51,7 +51,14 @@ const ConsultationSuccessPage: React.FC = () => {
   }
 
   const formatDuration = (duration: string) => {
-    return duration === 'half_hour' ? '30 Minutes' : '60 Minutes'
+    switch (duration) {
+      case 'half_hour':
+        return '30 Minutes'
+      case 'one_hour':
+        return '60 Minutes'
+      default:
+        return 'Unknown Duration'
+    }
   }
 
   return (

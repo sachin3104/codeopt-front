@@ -89,10 +89,10 @@ const SubscriptionCancelPage: React.FC = () => {
             <p className="text-white/50 text-xs">
               Need help? Contact us at{' '}
               <a 
-                href="mailto:contact@codeopt.com" 
+                href="mailto:support@optqo.ai" 
                 className="text-blue-400 hover:text-blue-300 underline"
               >
-                contact@codeopt.com
+                support@optqo.ai
               </a>
             </p>
           </div>

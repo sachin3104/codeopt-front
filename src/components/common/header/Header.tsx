@@ -85,7 +85,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
           ? 'bg-gradient-to-br from-black/40 via-black/30 to-black/20 border-b border-white/20' 
           : ''
       }`}>
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
             {/* Logo */}
             <div
