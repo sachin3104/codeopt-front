@@ -26,20 +26,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Check if current route is an admin route
   const isAdminRoute = location.pathname.startsWith('/admin/')
 
-  // DEBUG: Log route changes
-  useEffect(() => {
-    console.log('🔍 AuthContext Route Debug:', {
-      pathname: location.pathname,
-      isAdminRoute,
-      currentUser: user,
-      isAuthenticated,
-      loading
-    })
-  }, [location.pathname, isAdminRoute, user, isAuthenticated, loading])
+  // Route changes are handled automatically
 
   // Clear client-side state and redirect
   const doLogout = async () => {
-    console.log('🚨 AuthContext: doLogout called')
     try {
       await auth.logout()
     } catch {
@@ -49,13 +39,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(null)
     setIsAuthenticated(false)
     sessionStorage.clear()
-    console.log('🚨 AuthContext: Redirecting to /login')
     navigate('/login', { replace: true })
   }
 
   // Handle 401s globally
   useEffect(() => {
-    console.log('🔍 AuthContext: Registering unauthorized handler')
     registerUnauthorized(doLogout)
     // (no need to unregister unless you want to avoid dupes)
   }, [])
@@ -63,11 +51,8 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   // Initialize auth state on mount
   useEffect(() => {
     const init = async () => {
-      console.log('🔍 AuthContext: Initializing auth state, isAdminRoute:', isAdminRoute)
-      
       // Skip auth check on admin routes to prevent conflicts
       if (isAdminRoute) {
-        console.log('✅ AuthContext: Skipping auth check on admin route')
         setUser(null)
         setIsAuthenticated(false)
         setLoading(false)
@@ -75,26 +60,20 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
 
       try {
-        console.log('🔍 AuthContext: Checking user auth...')
         const ok = await auth.checkAuth()
-        console.log('🔍 AuthContext: Auth check result:', ok)
         
         if (ok) {
-          console.log('🔍 AuthContext: User is authenticated, fetching user data...')
           const current = await auth.getCurrentUser()
-          console.log('🔍 AuthContext: Current user:', current)
           setUser(current)
           setIsAuthenticated(!!current)
         } else {
           // User is not authenticated - this is normal for public routes
-          console.log('🔍 AuthContext: User is not authenticated (normal for public routes)')
           setUser(null)
           setIsAuthenticated(false)
         }
       } catch (error) {
         // If auth check fails, assume user is not authenticated
         // This is expected behavior for public routes
-        console.log('🔍 AuthContext: Auth check failed (expected for public routes):', error)
         setUser(null)
         setIsAuthenticated(false)
       } finally {
@@ -105,7 +84,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }, [isAdminRoute])
 
   const login = async (params: LoginParams) => {
-    console.log('🔍 AuthContext: Login called')
     setLoading(true)
     const current = await auth.login(params)
     
@@ -118,7 +96,6 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }
 
   const signup = async (params: SignupParams) => {
-    console.log('🔍 AuthContext: Signup called')
     setLoading(true)
     const current = await auth.signup(params)
     setUser(current)
@@ -127,12 +104,10 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   }
 
   const loginWithGoogle = async () => {
-    console.log('🔍 AuthContext: Google login called')
     await auth.loginWithGoogle()
   }
 
   const logout = async () => {
-    console.log('🔍 AuthContext: Logout called')
     await doLogout()
   }
 

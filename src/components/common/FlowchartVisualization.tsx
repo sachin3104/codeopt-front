@@ -213,15 +213,11 @@ const FlowchartVisualization: React.FC<FlowchartVisualizationProps> = ({ workflo
 
   // Convert the API data to React Flow format
   const convertWorkflowToReactFlow = useCallback((workflow: WorkflowData) => {
-    console.log('=== FlowchartVisualization Debug ===');
-    console.log('Input workflow data:', workflow);
-    
     let nodeArray: Node[] = [];
     let edgeArray: Edge[] = [];
     
     // Convert nodes array to React Flow node data
     if (workflow.steps && Array.isArray(workflow.steps)) {
-      console.log('Converting steps to nodes:', workflow.steps);
       nodeArray = workflow.steps.map(step => ({
         id: step.id,
         type: 'custom',
@@ -235,13 +231,10 @@ const FlowchartVisualization: React.FC<FlowchartVisualizationProps> = ({ workflo
         sourcePosition: Position.Bottom,
         targetPosition: Position.Top,
       }));
-    } else {
-      console.log('No valid steps array found in workflow data');
     }
     
     // Mark optimizable nodes
     if (workflow.optimizable_steps && Array.isArray(workflow.optimizable_steps)) {
-      console.log('Processing optimizable steps:', workflow.optimizable_steps);
       nodeArray.forEach(node => {
         const optimizableStep = workflow.optimizable_steps?.find(step => step.id === node.id);
         if (optimizableStep) {
@@ -253,7 +246,6 @@ const FlowchartVisualization: React.FC<FlowchartVisualizationProps> = ({ workflo
     
     // Convert edges to React Flow edge data
     if (workflow.dependencies && Array.isArray(workflow.dependencies)) {
-      console.log('Converting dependencies to edges:', workflow.dependencies);
       edgeArray = workflow.dependencies.map((dep, index) => ({
         id: `edge-${index}`,
         source: dep.from,
@@ -270,8 +262,6 @@ const FlowchartVisualization: React.FC<FlowchartVisualizationProps> = ({ workflo
           color: '#8E9196',
         },
       }));
-    } else {
-      console.log('No valid dependencies array found in workflow data');
     }
 
     // Update edge colors based on optimizable nodes
@@ -293,24 +283,17 @@ const FlowchartVisualization: React.FC<FlowchartVisualizationProps> = ({ workflo
       }
     });
     
-    console.log('Final converted nodes:', nodeArray);
-    console.log('Final converted edges:', edgeArray);
-    
     return { nodeArray, edgeArray };
   }, []);
 
   // Convert workflow data and apply layout
   const { initialNodes, initialEdges } = useMemo(() => {
     if (!workflow) {
-      console.log('No workflow data provided to FlowchartVisualization');
       return { initialNodes: [], initialEdges: [] };
     }
     
     const { nodeArray, edgeArray } = convertWorkflowToReactFlow(workflow);
     const { nodes, edges } = getLayoutedElements(nodeArray, edgeArray);
-    
-    console.log('Final layouted nodes:', nodes);
-    console.log('Final layouted edges:', edges);
     
     return { initialNodes: nodes, initialEdges: edges };
   }, [workflow, convertWorkflowToReactFlow]);
@@ -350,7 +333,6 @@ const FlowchartVisualization: React.FC<FlowchartVisualizationProps> = ({ workflo
   }, [isFullscreen, toggleFullscreen]);
 
   if (!workflow) {
-    console.log('No workflow data in FlowchartVisualization render');
     return null;
   }
   

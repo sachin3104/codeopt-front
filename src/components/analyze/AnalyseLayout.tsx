@@ -34,7 +34,7 @@ const AnalyseLayout: React.FC = () => {
     }
   }, [initialized, code, isAnalyzing, analysisResult, runAnalyze])
 
-  console.log(analysisResult)
+  // Analysis result loaded
 
   // Redirect home if not analyzing and still no result
   useEffect(() => {

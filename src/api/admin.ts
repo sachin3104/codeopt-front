@@ -41,7 +41,6 @@ export type {
  * @param password - Admin password
  */
 export const adminLogin = (username: string, password: string) => {
-  console.log('🔍 adminLogin: Making request with username:', username)
   return api.post<AdminLoginResponse>('/api/admin/auth/login', {
     username,
     password,
@@ -52,7 +51,6 @@ export const adminLogin = (username: string, password: string) => {
  * Log out admin (clears HttpOnly cookie on the server)
  */
 export const adminLogout = () => {
-  console.log('🔍 adminLogout: Making request')
   return api.post<AdminLogoutResponse>('/api/admin/auth/logout');
 };
 
@@ -61,7 +59,6 @@ export const adminLogout = () => {
  * Relies on the HttpOnly cookie that was set by adminLogin()
  */
 export const fetchCurrentAdmin = () => {
-  console.log('🔍 fetchCurrentAdmin: Making request')
   return api.get<AdminUserResponse>('/api/admin/auth/me');
 };
 
@@ -70,7 +67,6 @@ export const fetchCurrentAdmin = () => {
  * Useful for checking auth status without fetching full admin data
  */
 export const checkAdminAuth = () => {
-  console.log('🔍 checkAdminAuth: Making request')
   return api.get<AdminAuthResponse>('/api/admin/auth/check');
 };
 

@@ -61,7 +61,7 @@ const ExpertConsultationModal: React.FC<ExpertConsultationModalProps> = ({
         description: ''
       });
     } catch (error) {
-      console.error('Consultation booking error:', error);
+      // Consultation booking error
     }
   };
 

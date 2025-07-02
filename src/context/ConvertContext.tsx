@@ -67,7 +67,6 @@ import React, {
           await refreshSubscription()
         } catch (refreshError) {
           // Silently handle refresh errors to avoid breaking the main flow
-          console.warn('Failed to refresh subscription data:', refreshError)
         }
       } catch (e: any) {
         setError(e.message || 'Code conversion failed.')

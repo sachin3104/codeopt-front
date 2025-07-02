@@ -28,7 +28,7 @@ const NormalPlans: React.FC = () => {
       .then((allPlans) => {
         // Filter only plans with 'subscribe' action type
         const normalPlans = allPlans.filter(plan => plan.action_type === 'subscribe');
-        console.log('Available plans:', normalPlans.map(p => ({ name: p.name, plan_type: p.plan_type })));
+        // Available plans loaded
         setPlans(normalPlans);
       })
       .catch(setError)
@@ -67,7 +67,6 @@ const NormalPlans: React.FC = () => {
       }
     } catch (error) {
       // Error is handled by the context
-      console.error('Plan selection error:', error);
     } finally {
       setSelectedPlan(null);
     }
@@ -90,16 +89,7 @@ const NormalPlans: React.FC = () => {
     }
   };
 
-  // Add logging to debug
-  useEffect(() => {
-    if (subscription) {
-      console.log('Current subscription:', {
-        planType: subscription.plan.plan_type,
-        planName: subscription.plan.name,
-        planLevel: getPlanLevel(subscription.plan.plan_type)
-      });
-    }
-  }, [subscription]);
+
 
   // Helper function to determine if a plan should be disabled
   const isPlanDisabled = (plan: Plan) => {
@@ -159,8 +149,7 @@ const NormalPlans: React.FC = () => {
     return <div className="text-center py-8 text-red-600">{error.response?.data.message || error.message}</div>;
   }
 
-  console.log('Plans:', plans);
-  console.log('Subscription:', subscription);
+  // Plans and subscription data loaded
   
   return (
     <div className="space-y-6">

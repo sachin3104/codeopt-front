@@ -23,7 +23,7 @@ const DocumentButton: React.FC<DocumentButtonProps> = ({ convertedCode }) => {
       // Use the converted code as input for documentation
       await handleDocument();
     } catch (err) {
-      console.error('Documentation failed:', err);
+      // Documentation failed
     }
   };
 

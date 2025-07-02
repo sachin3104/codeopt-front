@@ -34,19 +34,6 @@ api.interceptors.response.use(
     const status = error.response?.status
     const url = error.config?.url || ''
 
-    // DEBUG: Log the request that caused the error
-    console.log('🔍 API Error Debug:', {
-      status,
-      url,
-      method: error.config?.method,
-      isUserAuthCheck: url.includes('/api/auth/check'),
-      isUserAuthUser: url.includes('/api/auth/user'),
-      isAdminAuthCheck: url.includes('/api/admin/auth/check'),
-      isAdminAuthMe: url.includes('/api/admin/auth/me'),
-      isAdminAuthLogin: url.includes('/api/admin/auth/login'),
-      isAdminAuthLogout: url.includes('/api/admin/auth/logout'),
-    })
-
     // Don't trigger logout for regular user auth check requests (expected 401 when not logged in)
     // But DO trigger logout for admin auth failures
     const isUserAuthCheck = url.includes('/api/auth/check')
@@ -64,13 +51,12 @@ api.interceptors.response.use(
     const isAuthEndpoint = isUserAuthEndpoint || isAdminAuthEndpoint
     
     if (status === 401 && !alreadyLoggingOut && !isAuthEndpoint) {
-      console.log('🚨 Triggering logout due to 401 on non-auth endpoint:', url)
       alreadyLoggingOut = true
       toast.error('Session expired. Please log in again.')
       unauthorizedHandlers.forEach(fn => fn())
     }
     else if (status === 401 && isAuthEndpoint) {
-      console.log('✅ Ignoring 401 on auth endpoint (expected behavior):', url)
+      // Ignore 401 on auth endpoint (expected behavior)
     }
     else if (status === 403) {
       toast.error('Access denied.')

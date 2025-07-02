@@ -20,7 +20,7 @@ export default function AdminHeader({ admin, onLogout }: AdminHeaderProps) {
       await adminLogout();
       onLogout();
     } catch (error) {
-      console.error('Logout failed:', error);
+      // Logout failed
       // Even if logout fails, redirect user for security
       onLogout();
     } finally {

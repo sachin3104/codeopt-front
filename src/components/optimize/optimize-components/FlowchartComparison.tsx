@@ -8,15 +8,7 @@ import { type WorkflowData, type CodeFlowchart } from '@/types/api';
 const FlowchartComparison: React.FC = () => {
   const { result: optimizationResult } = useOptimize();
 
-  useEffect(() => {
-    console.log('=== FlowchartComparison Debug ===');
-    console.log('Optimization Result:', optimizationResult);
-    console.log('Optimized Code Flowchart:', optimizationResult?.code_flowcharts?.optimized_code_flowchart);
-    console.log('Original Code Flowchart:', optimizationResult?.code_flowcharts?.original_code_flowchart);
-  }, [optimizationResult]);
-
   if (!optimizationResult) {
-    console.log('Missing optimization result');
     return null;
   }
 
@@ -27,34 +19,23 @@ const FlowchartComparison: React.FC = () => {
   // Transform the workflow data to match the expected format
   const transformWorkflowData = (data: CodeFlowchart | undefined) => {
     if (!data) {
-      console.log('No workflow data provided');
       return { steps: [], dependencies: [], optimizable_steps: [] };
     }
-    
-    console.log('Transforming workflow data:', data);
-    
     // Transform optimizable_steps from string array to object array
     const transformedOptimizableSteps = (data.optimizable_steps || []).map(stepId => ({
       id: stepId,
       reason: 'Optimization opportunity identified'
     }));
-    
     const transformed = {
       steps: data.steps || [],
       dependencies: data.dependencies || [],
       optimizable_steps: transformedOptimizableSteps
     };
-    
-    console.log('Transformed workflow data:', transformed);
     return transformed;
   };
 
   const originalWorkflow = transformWorkflowData(originalFlowchart);
   const optimizedWorkflow = transformWorkflowData(optimizedFlowchart);
-
-  console.log('=== Final Workflow Data ===');
-  console.log('Original Workflow:', originalWorkflow);
-  console.log('Optimized Workflow:', optimizedWorkflow);
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

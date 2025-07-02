@@ -37,7 +37,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
       setShowLogoutModal(false);
       navigate('/');
     } catch (error) {
-      console.error('Logout failed:', error);
+      // Logout failed
     }
   };
 

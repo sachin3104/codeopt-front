@@ -74,7 +74,6 @@ export const AnalyzeProvider: React.FC<{ children: ReactNode }> = ({ children })
         await refreshSubscription()
       } catch (refreshError) {
         // Silently handle refresh errors to avoid breaking the main flow
-        console.warn('Failed to refresh subscription data:', refreshError)
       }
     } catch (e: any) {
       setError(e.message || 'Analysis failed.')

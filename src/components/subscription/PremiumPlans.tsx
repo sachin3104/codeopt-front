@@ -65,11 +65,10 @@ const PremiumPlans: React.FC = () => {
           break;
           
         default:
-          console.warn('Unknown action type:', plan.action_type);
+          // Unknown action type
       }
     } catch (error) {
       // Error is handled by the context
-      console.error('Plan selection error:', error);
     } finally {
       setSelectedPlan(null);
     }

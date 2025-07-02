@@ -29,7 +29,7 @@ export default function AdminLoginForm({ onLoginSuccess, onLoginError }: AdminLo
     
     // Ensure we're working with the correct field names
     if (name !== 'username' && name !== 'password') {
-      console.warn(`Unexpected field name: ${name}`);
+      // Unexpected field name
       return;
     }
     

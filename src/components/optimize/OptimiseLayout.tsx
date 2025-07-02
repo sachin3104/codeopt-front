@@ -49,7 +49,7 @@ const OptimiseLayout: React.FC = () => {
   // Combined error
   const error = optimizeError || convertError || documentError;
 
-  console.log(optimizationResult);
+  // Optimization result loaded
 
   // If we landed here without having run optimize yet, go back home
   useEffect(() => {

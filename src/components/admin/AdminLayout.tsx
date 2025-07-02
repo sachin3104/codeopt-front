@@ -44,61 +44,46 @@ export default function AdminLayout() {
   const [pendingAction, setPendingAction] = useState<BulkActionData | null>(null);
   const [isPerformingAction, setIsPerformingAction] = useState(false);
 
-  // DEBUG: Log component mount
-  useEffect(() => {
-    console.log('🔍 AdminLayout: Component mounted')
-  }, [])
+  // Component mounted
 
   // Initialize dashboard data
   useEffect(() => {
     const initializeDashboard = async () => {
-      console.log('🔍 AdminLayout: Initializing dashboard...')
       try {
         setIsLoading(true);
         setError(null);
 
         // Fetch current admin profile
-        console.log('🔍 AdminLayout: Fetching current admin...')
         const adminResponse = await fetchCurrentAdmin();
-        console.log('🔍 AdminLayout: Admin response:', adminResponse.data)
         
         if (adminResponse.data.status === 'success' && adminResponse.data.admin) {
-          console.log('✅ AdminLayout: Admin authenticated, setting admin data')
           setAdmin(adminResponse.data.admin);
           
           // Fetch user statistics
           try {
-            console.log('🔍 AdminLayout: Fetching user stats...')
             const statsResponse = await getUserStats();
             if (statsResponse.data.status === 'success') {
-              console.log('✅ AdminLayout: User stats loaded')
               setStats(statsResponse.data.stats);
             }
           } catch (statsError) {
-            console.warn('⚠️ AdminLayout: Failed to fetch user stats:', statsError);
+            // Failed to fetch user stats
           }
 
           // Fetch users
           try {
-            console.log('🔍 AdminLayout: Fetching users...')
             const usersResponse = await getUsers();
             if (usersResponse.data.status === 'success') {
-              console.log('✅ AdminLayout: Users loaded')
               setUsers(usersResponse.data.users);
             }
           } catch (usersError) {
-            console.warn('⚠️ AdminLayout: Failed to fetch users:', usersError);
+            // Failed to fetch users
           }
         } else {
-          console.log('❌ AdminLayout: Admin not authenticated, redirecting to login')
           navigate('/admin/login', { replace: true });
           return;
         }
       } catch (err: any) {
-        console.error('❌ AdminLayout: Dashboard initialization failed:', err);
-        
         if (err.response?.status === 401) {
-          console.log('❌ AdminLayout: 401 error, redirecting to admin login')
           navigate('/admin/login', { replace: true });
           return;
         }
@@ -116,7 +101,6 @@ export default function AdminLayout() {
 
   // Handle logout
   const handleLogout = () => {
-    console.log('🔍 AdminLayout: Logout called')
     setAdmin(null);
     setStats(null);
     navigate('/admin/login', { replace: true });
@@ -184,11 +168,10 @@ export default function AdminLayout() {
             setStats(statsResponse.data.stats);
           }
         } catch (statsError) {
-          console.warn('Failed to reload stats:', statsError);
+          // Failed to reload stats
         }
       }
     } catch (err: any) {
-      console.error(`Failed to ${action} user:`, err);
       setActionError(err.response?.data?.message || `Failed to ${action} user`);
     } finally {
       setActionLoadingUsers(prev => {
@@ -246,13 +229,12 @@ export default function AdminLayout() {
             setStats(statsResponse.data.stats);
           }
         } catch (error) {
-          console.warn('Failed to reload data:', error);
+          // Failed to reload data
         }
         
         setSelectedUsers(new Set());
       }
     } catch (err: any) {
-      console.error('Bulk action failed:', err);
       setActionError(err.response?.data?.message || 'Bulk action failed');
     } finally {
       setIsPerformingAction(false);

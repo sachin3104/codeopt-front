@@ -50,7 +50,6 @@ const AuthSuccessPage: React.FC = () => {
         // If still loading, the effect will run again when loading changes
 
       } catch (error) {
-        console.error('OAuth success handling failed:', error);
         setStatus('error');
         setMessage('Authentication failed. Please try again.');
 
