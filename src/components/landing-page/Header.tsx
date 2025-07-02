@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import clsx from "clsx";
 import { Link } from "react-router-dom";
-import logoUrl from "@/assets/logo.svg";
+import logoUrl from "@/assets/logo_name.png";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -21,11 +21,12 @@ export default function Header() {
   }, []);
 
   const menuItems = [
-    { href: "#features", label: "Product", delay: 0 },
+    
     { href: "/pricing", label: "Pricing", delay: 50 },
     { href: "/contact", label: "Contact Us", delay: 100 },
-    { href: "#community", label: "Community", delay: 150 },
+    { href: "https://discord.gg/jUZRnjeG5X", label: "Community", delay: 150 },
     { href: "/blogs", label: "Blogs", delay: 200 },
+    { href: "/about", label: "About Us", delay: 250 },
   ];
 
   return (
@@ -39,7 +40,7 @@ export default function Header() {
       {/* Main header bar */}
       <div className={clsx(
         "flex items-center justify-between",
-        "px-6 py-4",
+        "px-6 py-2",
         "backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20",
         "rounded-2xl",
         "border border-white/20",
@@ -55,10 +56,7 @@ export default function Header() {
             "cursor-pointer relative group"
           )}
         >
-          <img src={logoUrl} alt="Optqo Logo" className="h-8 w-auto" />
-          <span className="text-2xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent relative z-10">
-            optqo
-          </span>
+          <img src={logoUrl} alt="Optqo Logo" className="h-20 w-auto" />
           <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
         </Link>
         

@@ -90,8 +90,8 @@ export default function ContactPage() {
                       
                       <div className="space-y-3">
                         <a 
-                          href="https://discord.gg/optqo" 
-                          target="_blank" 
+                          href="https://discord.gg/jUZRnjeG5X" 
+                          target="_blank"   
                           rel="noopener noreferrer"
                           className="flex items-center gap-3 p-3 backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:bg-white/10 transition-all duration-300 rounded-lg text-white border border-white/20"
                         >
@@ -103,7 +103,7 @@ export default function ContactPage() {
                         </a>
                         
                         <a 
-                          href="https://twitter.com/optqo" 
+                          href="https://x.com/optqo_ai" 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="flex items-center gap-3 p-3 backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:bg-white/10 transition-all duration-300 rounded-lg text-white border border-white/20"
@@ -116,7 +116,7 @@ export default function ContactPage() {
                         </a>
                         
                         <a 
-                          href="https://linkedin.com/company/optqo" 
+                          href="https://www.linkedin.com/company/optqo-ai" 
                           target="_blank" 
                           rel="noopener noreferrer"
                           className="flex items-center gap-3 p-3 backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 hover:bg-white/10 transition-all duration-300 rounded-lg text-white border border-white/20"

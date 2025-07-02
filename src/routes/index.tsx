@@ -28,6 +28,7 @@ import PrivacyPolicyPage from '@/pages/footer/PrivacyPolicyPage';
 import TermsOfServicePage from '@/pages/footer/TermsOfServicePage';
 import CookiePolicyPage from '@/pages/footer/CookiePolicyPage';
 import BlogsPage from '@/pages/footer/BlogsPage';
+import AboutUsPage from '@/pages/footer/AboutUsPage';
 
 // Subscription & Dashboard pages
 import SubscriptionSuccessPage from '@/pages/subscription/SubscriptionSuccessPage';
@@ -56,6 +57,7 @@ const AppRoutes: React.FC = () => {
       <Route path="/pricing" element={<FooterPricingPage />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/blogs" element={<BlogsPage />} />
+      <Route path="/about" element={<AboutUsPage />} />
       <Route path="/privacy" element={<PrivacyPolicyPage />} />
       <Route path="/terms" element={<TermsOfServicePage />} />
       <Route path="/cookies" element={<CookiePolicyPage />} />

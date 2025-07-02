@@ -1,7 +1,7 @@
 import { Linkedin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import logoUrl from "@/assets/logo.svg";
+import logoUrl from "@/assets/logo_name.png";
 
 // Custom Discord Icon
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -41,20 +41,17 @@ const InstagramIcon = ({ className }: { className?: string }) => (
 
 export default function Footer() {
   return (
-    <footer className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border-t border-white/20 pb-6 pt-16 lg:pb-8 lg:pt-24">
+    <footer className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border-t border-white/20 pb-6 pt-16 lg:pb-8 lg:pt-16">
       <div className="max-w-7xl mx-auto px-4">
-        <div className="md:flex md:items-start md:justify-between">
+        <div className="md:flex md:items-center md:justify-between">
           <Link
             to="/"
             className="flex items-center gap-x-2"
             aria-label="optqo"
           >
-            <img src={logoUrl} alt="Optqo Logo" className="h-8 w-auto" />
-            <span className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">
-              optqo
-            </span>
+            <img src={logoUrl} alt="Optqo Logo" className="h-24 w-auto" />
           </Link>
-          <ul className="flex list-none mt-6 md:mt-0 space-x-3">
+          <ul className="flex list-none mt-6 md:mt-0 space-x-3 items-center">
             <li>
               <Button
                 variant="secondary"
@@ -97,7 +94,7 @@ export default function Footer() {
                 asChild
               >
                 <a 
-                  href="https://www.linkedin.com/company/optqo.ai" 
+                  href="https://www.linkedin.com/company/optqo-ai" 
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
@@ -106,7 +103,7 @@ export default function Footer() {
                 </a>
               </Button>
             </li>
-            <li>
+            {/* <li>
               <Button
                 variant="secondary"
                 size="icon"
@@ -122,7 +119,7 @@ export default function Footer() {
                   <InstagramIcon className="h-5 w-5" />
                 </a>
               </Button>
-            </li>
+            </li> */}
           </ul>
         </div>
 

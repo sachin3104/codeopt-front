@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/use-auth';
-import logoUrl from '@/assets/logo.svg';
+import logoUrl from '@/assets/logo_name.png';
 import { ActionMenu } from '../actions/CommonActionButtons';
 import LanguageSelectModal from '../actions/LanguageSelectModal';
 import { useConvert } from '@/hooks/use-convert';
@@ -92,12 +92,7 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
               className="flex-shrink-0 flex items-center cursor-pointer"
               onClick={handleLogoClick}
             >
-              <img src={logoUrl} alt="Optqo Logo" className="h-8 w-auto mr-2" />
-              <h1
-                className="text-2xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent hover:opacity-80 transition-opacity"
-              >
-                optqo
-              </h1>
+              <img src={logoUrl} alt="Optqo Logo" className="h-20 w-auto mr-2" />
             </div>
 
             {/* Center Action Buttons - Only for results variants */}
