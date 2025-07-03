@@ -1,4 +1,10 @@
 import { motion } from "motion/react";
+import {
+  BarChart2,
+  Code,
+  FileCode,
+  FileText,
+} from "lucide-react";
 
 export default function HeroSection() {
   return (
@@ -37,7 +43,7 @@ export default function HeroSection() {
               {/* Code Sage */}
               <div className="flex flex-col items-center">
                 <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-full p-3 md:p-4 hover:bg-white/10 transition-all duration-300">
-                  <div className="text-xl md:text-2xl">🧠</div>
+                  <BarChart2 className="h-6 w-6 text-white" />
                 </div>
                 <h3 className="text-xs md:text-sm font-semibold text-white mt-2">Code Sage</h3>
                 <p className="text-xs text-neutral-300">Understand</p>
@@ -46,7 +52,7 @@ export default function HeroSection() {
               {/* Optimus */}
               <div className="flex flex-col items-center">
                 <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-full p-3 md:p-4 hover:bg-white/10 transition-all duration-300">
-                  <div className="text-xl md:text-2xl">⚙️</div>
+                  <Code className="h-6 w-6 text-white" />
                 </div>
                 <h3 className="text-xs md:text-sm font-semibold text-white mt-2">Optimus</h3>
                 <p className="text-xs text-neutral-300">Optimize</p>
@@ -55,7 +61,7 @@ export default function HeroSection() {
               {/* Transform */}
               <div className="flex flex-col items-center">
                 <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-full p-3 md:p-4 hover:bg-white/10 transition-all duration-300">
-                  <div className="text-xl md:text-2xl">🔁</div>
+                  <FileCode className="h-6 w-6 text-white" />
                 </div>
                 <h3 className="text-xs md:text-sm font-semibold text-white mt-2">Transform</h3>
                 <p className="text-xs text-neutral-300">Translate</p>
@@ -64,7 +70,7 @@ export default function HeroSection() {
               {/* Scribe */}
               <div className="flex flex-col items-center">
                 <div className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-full p-3 md:p-4 hover:bg-white/10 transition-all duration-300">
-                  <div className="text-xl md:text-2xl">📄</div>
+                  <FileText className="h-6 w-6 text-white" />
                 </div>
                 <h3 className="text-xs md:text-sm font-semibold text-white mt-2">Scribe</h3>
                 <p className="text-xs text-neutral-300">Document</p>

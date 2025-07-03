@@ -22,7 +22,7 @@ export default function AboutUsPage() {
               <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8 md:p-12 space-y-6">
                 <div className="prose prose-invert max-w-none">
                   <p className="text-white/90 text-lg leading-relaxed">
-                    <span className="font-bold text-blue-300">optqo</span> is the first agentic AI platform built on the legacy of 6th-sense's decades of experience in analytics, risk modeling, fraud prevention, and automation. It helps teams modernize, translate, and document legacy analytics code at scale, using intelligent agents that combine code comprehension with domain expertise.
+                    <span className="font-bold text-blue-300">optqo</span> is the first agentic AI platform built on the legacy of <a href="https://6th-sense.in/" target="_blank" rel="noopener noreferrer" className="text-blue-300 hover:text-blue-200 underline">6th-sense</a>'s decades of experience in analytics, risk modeling, fraud prevention, and automation. It helps teams modernize, translate, and document legacy analytics code at scale, using intelligent agents that combine code comprehension with domain expertise.
                   </p>
 
                   <p className="text-white/90 text-lg leading-relaxed mt-6">

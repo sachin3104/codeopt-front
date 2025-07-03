@@ -43,7 +43,6 @@ export default function Header() {
         "px-6 py-2",
         "backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20",
         "rounded-2xl",
-        "border border-white/20",
         "shadow-lg shadow-black/10",
         "transition-all duration-700 ease-&lsqb;cubic-bezier(0.4,0,0,1)&rsqb;",
         isMenuOpen ? "scale-[1.02]" : "scale-100"
@@ -122,7 +121,6 @@ export default function Header() {
         <div className={clsx(
           "backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20",
           "rounded-2xl",
-          "border border-white/20",
           "shadow-xl shadow-black/20",
           "p-6",
           "overflow-hidden"
