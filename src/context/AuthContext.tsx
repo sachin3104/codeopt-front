@@ -12,6 +12,7 @@ export interface AuthContextType {
   signup: (params: SignupParams) => Promise<void>
   loginWithGoogle: () => Promise<void>
   logout: () => Promise<void>
+  refreshUser: () => Promise<boolean>
 }
 
 export const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -111,8 +112,35 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     await doLogout()
   }
 
+  // Add this method to refresh user data
+  const refreshUser = async () => {
+    try {
+      const current = await auth.getCurrentUser();
+      if (current) {
+        setUser(current);
+        setIsAuthenticated(true);
+        return true;
+      }
+      return false;
+    } catch (error) {
+      console.error('Failed to refresh user:', error);
+      return false;
+    }
+  };
+
   return (
-    <AuthContext.Provider value={{ user, isAuthenticated, loading, login, signup, loginWithGoogle, logout }}>
+    <AuthContext.Provider 
+      value={{ 
+        user, 
+        isAuthenticated, 
+        loading, 
+        login, 
+        signup, 
+        loginWithGoogle, 
+        logout,
+        refreshUser
+      }}
+    >
       {children}
     </AuthContext.Provider>
   )

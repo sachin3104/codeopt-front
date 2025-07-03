@@ -13,7 +13,7 @@ interface LocationState {
 }
 
 const AuthSuccessPage: React.FC = () => {
-  const { user, loading } = useAuth();
+  const { user, loading, isAuthenticated, refreshUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [status, setStatus] = useState<'loading' | 'success' | 'error'>('loading');
@@ -25,31 +25,45 @@ const AuthSuccessPage: React.FC = () => {
         setStatus('loading');
         setMessage('Verifying your authentication...');
 
-        // Wait for AuthContext to naturally refresh user data
-        // The OAuth callback should have already set the cookie
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        // Try to refresh user data multiple times with exponential backoff
+        let attempts = 0;
+        const maxAttempts = 5;
+        let authenticated = false;
+        
+        while (attempts < maxAttempts && !authenticated) {
+          // Wait with exponential backoff
+          const delay = Math.min(1000 * Math.pow(1.5, attempts), 5000);
+          await new Promise(resolve => setTimeout(resolve, delay));
+          
+          // Try to refresh user data
+          authenticated = await refreshUser();
+          attempts++;
+          
+          if (authenticated) {
+            break;
+          }
+        }
 
-        // Check if user data is available (AuthContext will handle the refresh)
-        if (user) {
+        if (authenticated) {
           setStatus('success');
           setMessage('Authentication successful! Redirecting...');
 
           // Wait a bit to show success message
-          await new Promise(resolve => setTimeout(resolve, 2000));
+          await new Promise(resolve => setTimeout(resolve, 1500));
 
-          // Get the original path the user was trying to access
-          const state = location.state as LocationState;
-          const from = state?.from?.pathname || '/';
-
-          // Redirect to the original path or home
-          navigate(from, { replace: true });
-        } else if (!loading) {
-          // If not loading and no user, there was an error
+          // Check for stored redirect path
+          const redirectPath = sessionStorage.getItem('authRedirect');
+          sessionStorage.removeItem('authRedirect');
+          
+          // Redirect to stored path or home
+          const destination = redirectPath || '/';
+          navigate(destination, { replace: true });
+        } else {
           throw new Error('Authentication verification failed');
         }
-        // If still loading, the effect will run again when loading changes
 
       } catch (error) {
+        console.error('Auth success error:', error);
         setStatus('error');
         setMessage('Authentication failed. Please try again.');
 
@@ -60,8 +74,17 @@ const AuthSuccessPage: React.FC = () => {
       }
     };
 
-    handleAuthSuccess();
-  }, [user, loading, navigate, location.state]);
+    // Only run if we're not already authenticated
+    if (!user || !isAuthenticated) {
+      handleAuthSuccess();
+    } else {
+      // If already authenticated, redirect immediately
+      setStatus('success');
+      const redirectPath = sessionStorage.getItem('authRedirect');
+      sessionStorage.removeItem('authRedirect');
+      navigate(redirectPath || '/', { replace: true });
+    }
+  }, [navigate, user, isAuthenticated, refreshUser]); // Add back the dependencies
 
   // Manual redirect function for error state
   const handleRedirect = () => {

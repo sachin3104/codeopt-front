@@ -7,6 +7,8 @@ import type {
   CheckAuthResponse 
 } from '../types/auth'
 
+const BASE = (import.meta.env.VITE_API_URL as string || '').replace(/\/+$/, '')
+
 // Authentication API methods
 export const auth = {
   /**
@@ -31,8 +33,14 @@ export const auth = {
    * which will then redirect back to /auth/success on completion.
    */
   loginWithGoogle: async (): Promise<void> => {
+    // Store the current location so we can redirect back after auth
+    const currentPath = window.location.pathname;
+    if (currentPath !== '/login' && currentPath !== '/auth/success') {
+      sessionStorage.setItem('authRedirect', currentPath);
+    }
+    
     // Redirect to backend OAuth endpoint
-    window.location.href = '/api/auth/google'
+    window.location.href = `${BASE}/api/auth/google`;
   },
 
   /**
