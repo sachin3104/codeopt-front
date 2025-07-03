@@ -32,8 +32,12 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   // If a `value` prop is passed, use it; otherwise the shared `code`
   const displayCode = value !== undefined ? value : code;
 
-  // detect lang on every code change
-  const detectedLang = useDetectedLanguage(displayCode);
+  // detect lang on every code change (async)
+  const {
+    language: detectedLang,
+    loading: isDetectingLanguage,
+    error: detectLanguageError
+  } = useDetectedLanguage(displayCode);
 
   // Character limit information - fetched from backend via use-subscription
   const { currentCount, limit, isOverLimit, percentageUsed } = useCharacterLimit(displayCode);
@@ -53,6 +57,12 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   const getCharacterCountStyle = () => {
     return 'text-white/60'
   }
+
+  // Capitalize first letter (or show "Unknown")
+  const getLanguageDisplayName = (lang: string) =>
+    lang
+      ? lang.charAt(0).toUpperCase() + lang.slice(1).toLowerCase()
+      : 'Unknown'
 
   // Get character count text with formatting
   const getCharacterCountText = () => {
@@ -108,8 +118,20 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
         {variant === 'homepage' ? (
           <>
             <div className="flex items-center space-x-4 text-white/60">
-              {/* <span>Lines: {displayCode.split('\n').length}</span>
-              <span>Chars: {displayCode.length}</span> */}
+              {/* Language detection status */}
+              {displayCode.trim() && (
+                <div className="flex items-center gap-2">
+                  {isDetectingLanguage ? (
+                    <>
+                      <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div>
+                    </>
+                  ) : detectedLang ? (
+                    <>
+                      <span className="text-xs">{getLanguageDisplayName(detectedLang)}</span>
+                    </>
+                  ) : null}
+                </div>
+              )}
             </div>
             {/* Only show character count when there's actual content */}
             {displayCode.trim() && (

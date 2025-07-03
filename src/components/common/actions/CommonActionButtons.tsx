@@ -8,8 +8,10 @@ import { useDocument } from '@/hooks/use-document'
 import { useCode } from '@/hooks/use-code'
 import { useCharacterLimit } from '@/hooks/use-character-limit'
 import { useRemainingRequests } from '@/hooks/use-remaining-requests'
+import { useDetectedLanguage } from '@/hooks/use-detected-language'
 import { CharacterLimitModal } from '../CharacterLimitModal'
 import { RequestLimitModal } from './RequestLimitModal'
+import { LanguageNotSupportedModal } from './LanguageNotSupportedModal'
 import { StarBorder } from '@/components/ui/StarBorder'
 
 // Valid actions
@@ -17,6 +19,25 @@ export type ActionKey = 'analyze' | 'optimize' | 'convert' | 'document'
 
 // Design variants
 export type ActionVariant = 'homepage' | 'layout'
+
+// Supported languages list
+const SUPPORTED_LANGUAGES = [
+  'MATLAB',
+  'SPSS', 
+  'EVIEWS',
+  'STATA',
+  'JULIA',
+  'SAS',
+  'PYTHON',
+  'R'
+]
+
+// Helper function to check if language is supported
+const isLanguageSupported = (language: string): boolean => {
+  return SUPPORTED_LANGUAGES.some(
+    supportedLang => supportedLang.toLowerCase() === language.toLowerCase()
+  )
+}
 
 // Descriptor for each action
 interface ActionDescriptor {
@@ -40,6 +61,7 @@ export function useActionDescriptors(
   const { run: documentIt, isLoading: isDocumenting } = useDocument()
   const { code } = useCode()
   const { isOverLimit } = useCharacterLimit(code)
+  const { language: detectedLanguage } = useDetectedLanguage(code)
 
   const descriptors: Record<ActionKey, ActionDescriptor> = {
     analyze: {
@@ -161,9 +183,11 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
 }) => {
   const [showLimitModal, setShowLimitModal] = useState(false)
   const [showRequestLimitModal, setShowRequestLimitModal] = useState(false)
+  const [showLanguageModal, setShowLanguageModal] = useState(false)
   const { code } = useCode()
   const { isOverLimit } = useCharacterLimit(code)
   const { hasRemainingRequests } = useRemainingRequests()
+  const { language: detectedLanguage } = useDetectedLanguage(code)
   const descriptors = useActionDescriptors(onOverride ? { [action]: onOverride } : {})
   const { label, icon: Icon, isLoading, run } = descriptors[action]
 
@@ -179,6 +203,13 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
       setShowLimitModal(true)
       return
     }
+    
+    // Check if detected language is supported
+    if (detectedLanguage && !isLanguageSupported(detectedLanguage)) {
+      setShowLanguageModal(true)
+      return
+    }
+    
     await run()
   }
 
@@ -203,6 +234,12 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
         <RequestLimitModal
           isOpen={showRequestLimitModal}
           onClose={() => setShowRequestLimitModal(false)}
+        />
+
+        <LanguageNotSupportedModal
+          isOpen={showLanguageModal}
+          onClose={() => setShowLanguageModal(false)}
+          detectedLanguage={detectedLanguage}
         />
       </>
     )
@@ -230,6 +267,12 @@ export const ActionButton: React.FC<ActionButtonProps> = ({
         isOpen={showRequestLimitModal}
         onClose={() => setShowRequestLimitModal(false)}
       />
+
+      <LanguageNotSupportedModal
+        isOpen={showLanguageModal}
+        onClose={() => setShowLanguageModal(false)}
+        detectedLanguage={detectedLanguage}
+      />
     </>
   )
 }
@@ -253,9 +296,11 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
 }) => {
   const [showLimitModal, setShowLimitModal] = useState(false)
   const [showRequestLimitModal, setShowRequestLimitModal] = useState(false)
+  const [showLanguageModal, setShowLanguageModal] = useState(false)
   const { code } = useCode()
   const { isOverLimit } = useCharacterLimit(code)
   const { hasRemainingRequests } = useRemainingRequests()
+  const { language: detectedLanguage } = useDetectedLanguage(code)
   const descriptors = useActionDescriptors(onOverrides)
 
   // Check if code is empty or only contains whitespace
@@ -270,6 +315,13 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
       setShowLimitModal(true)
       return
     }
+    
+    // Check if detected language is supported
+    if (detectedLanguage && !isLanguageSupported(detectedLanguage)) {
+      setShowLanguageModal(true)
+      return
+    }
+    
     await run()
   }
 
@@ -328,6 +380,12 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
       <RequestLimitModal
         isOpen={showRequestLimitModal}
         onClose={() => setShowRequestLimitModal(false)}
+      />
+
+      <LanguageNotSupportedModal
+        isOpen={showLanguageModal}
+        onClose={() => setShowLanguageModal(false)}
+        detectedLanguage={detectedLanguage}
       />
     </>
   )

@@ -5,41 +5,26 @@ import { useCode } from '@/hooks/use-code'
 import { useConvert } from '@/hooks/use-convert'
 import { useDetectedLanguage } from '@/hooks/use-detected-language'
 
-// Supported languages list
-const SUPPORTED_LANGUAGES = [
+// Source languages (what users can convert FROM)
+const SOURCE_LANGUAGES = [
+  { value: 'matlab', label: 'MATLAB' },
+  { value: 'spss',   label: 'SPSS' },
+  { value: 'eviews', label: 'EVIEWS' },
+  { value: 'stata',  label: 'STATA' },
+  { value: 'julia',  label: 'JULIA' },
+  { value: 'sas',    label: 'SAS' },
+  { value: 'python', label: 'PYTHON' },
+  { value: 'r',      label: 'R' },
+]
+
+// Target languages (what users can convert TO)
+const TARGET_LANGUAGES = [
   { value: 'python', label: 'Python' },
   { value: 'r',      label: 'R' },
   { value: 'sas',    label: 'SAS' },
-  { value: 'sql',    label: 'SQL' },
 ]
 
-// Common language display names
-const LANGUAGE_DISPLAY_NAMES: Record<string, string> = {
-  python: 'Python',
-  r: 'R',
-  sas: 'SAS',
-  sql: 'SQL',
-  javascript: 'JavaScript',
-  typescript: 'TypeScript',
-  java: 'Java',
-  csharp: 'C#',
-  cpp: 'C++',
-  c: 'C',
-  php: 'PHP',
-  ruby: 'Ruby',
-  go: 'Go',
-  rust: 'Rust',
-  swift: 'Swift',
-  kotlin: 'Kotlin',
-  scala: 'Scala',
-  perl: 'Perl',
-  html: 'HTML',
-  css: 'CSS',
-  json: 'JSON',
-  xml: 'XML',
-  yaml: 'YAML',
-  markdown: 'Markdown',
-}
+
 
 export interface LanguageSelectModalProps {
   /** Whether modal is visible */
@@ -54,7 +39,11 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
 }) => {
   const navigate = useNavigate()
   const { code } = useCode()
-  const detected = useDetectedLanguage(code)
+  const {
+    language: detectedLanguage,
+    loading: isDetectingLanguage,
+    error: detectLanguageError
+  } = useDetectedLanguage(code)
   const {
     run: convertRun,
     isLoading: isConverting,
@@ -62,12 +51,12 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
   } = useConvert()
 
   // Local state for source + target
-  const [sourceLanguage, setSourceLanguage] = useState<string>(detected || '')
+  const [sourceLanguage, setSourceLanguage] = useState<string>(detectedLanguage || '')
   const [targetLanguage, setTargetLanguage] = useState<string>('')
   const [errorState, setErrorState] = useState<string>('')
 
   // Check if detected language is supported
-  const isSourceSupported = SUPPORTED_LANGUAGES.some(l => l.value === detected)
+  const isSourceSupported = SOURCE_LANGUAGES.some(l => l.value === detectedLanguage)
 
   // Reset state whenever modal opens
   useEffect(() => {
@@ -75,17 +64,17 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
     setErrorState('')
 
     // Use the actual detected language
-    setSourceLanguage(detected || '')
+    setSourceLanguage(detectedLanguage || '')
 
     // Pick a default target different from source if source is supported
-    if (isSourceSupported && detected) {
-      const fallback = SUPPORTED_LANGUAGES.find(l => l.value !== detected)
+    if (isSourceSupported && detectedLanguage) {
+      const fallback = TARGET_LANGUAGES.find(l => l.value !== detectedLanguage)
       setTargetLanguage(fallback?.value || '')
     } else {
       // If source is not supported, just pick the first supported language as target
-      setTargetLanguage(SUPPORTED_LANGUAGES[0]?.value || '')
+      setTargetLanguage(TARGET_LANGUAGES[0]?.value || '')
     }
-  }, [isOpen, detected, isSourceSupported])
+  }, [isOpen, detectedLanguage, isSourceSupported])
 
   const handleConvert = async () => {
     setErrorState('')
@@ -100,12 +89,11 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
 
   if (!isOpen) return null
 
-  // Get display name for the detected language
-  const getLanguageDisplayName = (lang: string) => {
-    if (!lang) return 'Unknown'
-    return LANGUAGE_DISPLAY_NAMES[lang.toLowerCase()] || 
-           lang.charAt(0).toUpperCase() + lang.slice(1).toLowerCase()
-  }
+  // Capitalize first letter (or show "Unknown")
+  const getLanguageDisplayName = (lang: string) =>
+    lang
+      ? lang.charAt(0).toUpperCase() + lang.slice(1).toLowerCase()
+      : 'Unknown'
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center">
@@ -134,19 +122,29 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
             </label>
             <div className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white backdrop-blur-sm">
               <div className="flex items-center gap-2">
-                <div className={`w-2 h-2 rounded-full ${isSourceSupported ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
-                <span className="font-medium">
-                  {getLanguageDisplayName(sourceLanguage)}
-                </span>
-                <span className="text-white/60 text-sm ml-auto">
-                  {isSourceSupported ? 'Auto-detected' : 'Not supported'}
-                </span>
+                {isDetectingLanguage ? (
+                  <>
+                    <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div>
+                    <span className="font-medium">Detecting language...</span>
+                    <span className="text-white/60 text-sm ml-auto">Please wait</span>
+                  </>
+                ) : (
+                  <>
+                    <div className={`w-2 h-2 rounded-full ${isSourceSupported ? 'bg-green-400' : 'bg-yellow-400'}`}></div>
+                    <span className="font-medium">
+                      {getLanguageDisplayName(sourceLanguage)}
+                    </span>
+                    <span className="text-white/60 text-sm ml-auto">
+                      {isSourceSupported ? 'Auto-detected' : 'Not supported'}
+                    </span>
+                  </>
+                )}
               </div>
             </div>
-            {!isSourceSupported && sourceLanguage && (
+            {!isSourceSupported && sourceLanguage && !isDetectingLanguage && (
               <p className="mt-2 text-sm text-yellow-400/80">
                 Conversion from {getLanguageDisplayName(sourceLanguage)} is not supported. 
-                Supported languages: Python, R, SAS, SQL.
+                Supported source languages: MATLAB, SPSS, EVIEWS, STATA, JULIA, SAS, PYTHON, R.
               </p>
             )}
           </div>
@@ -162,7 +160,7 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
               disabled={isConverting || !isSourceSupported}
               className="w-full px-4 py-3 rounded-xl bg-white/5 border border-white/10 text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 backdrop-blur-sm transition-all duration-300 hover:bg-white/10 disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {SUPPORTED_LANGUAGES.filter(l => l.value !== sourceLanguage).map(lang => (
+              {TARGET_LANGUAGES.filter(l => l.value !== sourceLanguage).map(lang => (
                 <option key={lang.value} value={lang.value} className="bg-gray-900">
                   {lang.label}
                 </option>
@@ -171,9 +169,9 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
           </div>
 
           {/* Error display */}
-          {(convertError || errorState) && (
+          {(convertError || errorState || detectLanguageError) && (
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm backdrop-blur-sm">
-              {convertError || errorState}
+              {convertError || errorState || detectLanguageError}
             </div>
           )}
         </div>

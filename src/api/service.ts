@@ -8,6 +8,15 @@ import type {
 } from '../types/api'
 
 
+
+export interface DetectLanguageResponse {
+  status: 'success' | 'error'
+  language: string
+  message: string
+}
+
+
+
 // Analyze code
 export const analyzeCode = async (
   code: string
@@ -89,3 +98,24 @@ export const convertCode = async (
     throw new Error(message)
   }
 }
+
+
+export const detectLanguage = async (
+  code: string
+): Promise<DetectLanguageResponse> => {
+  if (!code) {
+    throw new Error('No code provided for language detection')
+  }
+
+  try {
+    const { data } = await api.post<DetectLanguageResponse>(
+      '/api/detect-language',
+      { code }
+    )
+    return data
+  } catch (err: any) {
+    const message = err.response?.data?.message || err.message
+    throw new Error(message)
+  }
+}
+
