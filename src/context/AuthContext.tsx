@@ -2,7 +2,7 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import { useNavigate, useLocation } from 'react-router-dom'
 import { registerUnauthorized } from '@/api/client'
 import { auth } from '@/api/auth'
-import type { User, LoginParams, SignupParams } from '@/types/auth'
+import type { User, LoginParams, SignupParams, SignupResult } from '@/types/auth'
 
 export interface AuthContextType {
   user: User | null
@@ -10,6 +10,7 @@ export interface AuthContextType {
   loading: boolean
   login: (params: LoginParams) => Promise<void>
   signup: (params: SignupParams) => Promise<void>
+  verifySignupOtp: (otpCode: string) => Promise<void>
   loginWithGoogle: () => Promise<void>
   logout: () => Promise<void>
   refreshUser: () => Promise<boolean>
@@ -23,6 +24,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   const [user, setUser] = useState<User | null>(null)
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false)
   const [loading, setLoading] = useState<boolean>(true)
+  const [pendingOtp, setPendingOtp] = useState<{
+    email: string
+    endpoint: string
+    extra: { username: string; password: string }
+  } | null>(null)
 
   // Check if current route is an admin route
   const isAdminRoute = location.pathname.startsWith('/admin/')
@@ -39,6 +45,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     // clear in-memory state
     setUser(null)
     setIsAuthenticated(false)
+    setPendingOtp(null)
     sessionStorage.clear()
     navigate('/login', { replace: true })
   }
@@ -98,9 +105,39 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const signup = async (params: SignupParams) => {
     setLoading(true)
-    const current = await auth.signup(params)
+    const result = await auth.signup(params)
+
+    if ('next_step' in result) {
+      // stash the info and redirect
+      setPendingOtp({
+        email: result.data.email,
+        endpoint: result.data.verification_endpoint,
+        extra: { username: params.username, password: params.password }
+      })
+      navigate('/auth/verify-otp', { state: { purpose: 'registration' } })
+    } else {
+      setUser(result)
+      setIsAuthenticated(true)
+    }
+    setLoading(false)
+  }
+
+  const verifySignupOtp = async (otpCode: string) => {
+    if (!pendingOtp) {
+      throw new Error('No pending OTP verification')
+    }
+
+    setLoading(true)
+    const current = await auth.verifySignupOtp(
+      pendingOtp.email,
+      otpCode,
+      pendingOtp.extra.username,
+      pendingOtp.extra.password
+    )
+    
     setUser(current)
     setIsAuthenticated(true)
+    setPendingOtp(null)
     setLoading(false)
   }
 
@@ -136,6 +173,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         loading, 
         login, 
         signup, 
+        verifySignupOtp,
         loginWithGoogle, 
         logout,
         refreshUser

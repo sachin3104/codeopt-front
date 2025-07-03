@@ -2,6 +2,7 @@ import api from './client'
 import type { 
   LoginParams, 
   SignupParams, 
+  SignupResult,
   User, 
   AuthResponse, 
   CheckAuthResponse 
@@ -22,9 +23,53 @@ export const auth = {
   /**
    * Register a new user account.
    */
-  signup: async (params: SignupParams): Promise<User> => {
-    const response = await api.post<AuthResponse>('/api/auth/signup', params)
-    return response.data.user
+  signup: async (params: SignupParams): Promise<SignupResult> => {
+    const resp = await api.post<AuthResponse>('/api/auth/signup', params)
+
+    // Check for OTP verification flow - the backend returns next_step inside data.data
+    if (resp.data.data && resp.data.data.next_step === 'verify_otp') {
+      return { 
+        next_step: 'verify_otp', 
+        data: {
+          email: resp.data.data.email,
+          verification_endpoint: resp.data.data.verification_endpoint,
+          expires_in: resp.data.data.expires_in,
+          max_attempts: resp.data.data.max_attempts
+        }
+      }
+    }
+
+    // legacy (no-OTP) case
+    if (resp.data.user) {
+      return resp.data.user
+    }
+
+    throw new Error('Unexpected signup response')
+  },
+
+  /**
+   * Request OTP for signup verification
+   */
+  requestOtp: (email: string) =>
+    api.post('/api/auth/otp/generate', { email, purpose: 'registration' }),
+
+  /**
+   * Verify OTP for signup completion
+   */
+  verifySignupOtp: async (
+    email: string,
+    otp_code: string,
+    username: string,
+    password: string
+  ) => {
+    const resp = await api.post<AuthResponse>('/api/auth/signup/verify', {
+      email,
+      otp_code,
+      username,
+      password
+    })
+    if (resp.data.user) return resp.data.user
+    throw new Error(resp.data.message || 'OTP verification failed')
   },
 
   /**

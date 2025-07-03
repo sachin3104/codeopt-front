@@ -10,7 +10,20 @@ export interface SignupParams {
   password: string
   firstName?: string
   lastName?: string
+  use_otp?: boolean        // optional, defaults to true for mandatory OTP
 }
+
+export type SignupResult = 
+  | User
+  | {
+      next_step: 'verify_otp'
+      data: {
+        email: string
+        verification_endpoint: string
+        expires_in: number
+        max_attempts: number
+      }
+    }
 
 // The shape of a user returned by the backend
 export interface User {
@@ -31,7 +44,20 @@ export interface User {
 export interface AuthResponse {
   status: 'success' | 'error'
   message: string
-  user: User
+  user?: User
+  data?: {
+    email: string
+    verification_endpoint: string
+    expires_in: number
+    max_attempts: number
+    next_step: 'verify_otp'
+  }
+  registration_data?: {
+    email: string
+    first_name: string | null
+    last_name: string | null
+    username: string
+  }
 }
 
 // Response from check endpoint

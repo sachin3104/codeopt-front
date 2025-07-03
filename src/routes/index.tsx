@@ -7,6 +7,7 @@ import PrivateRoute from '@/components/auth/PrivateRoute';
 import LoginPage from '@/pages/auth/LoginPage';
 import SignupPage from '@/pages/auth/SignupPage';
 import AuthSuccessPage from '@/pages/auth/AuthSuccessPage';
+import OTPVerificationPage from '@/pages/auth/OTPVerificationPage';
 
 // Main pages
 import NotFound from '@/pages/NotFound';
@@ -49,6 +50,7 @@ const AppRoutes: React.FC = () => {
       {/* Public authentication routes */}
       <Route path="/login" element={<LoginPage />} />
       <Route path="/signup" element={<SignupPage />} />
+      <Route path="/auth/verify-otp" element={<OTPVerificationPage />} />
       
       {/* OAuth callback route - public but handles authentication */}
       <Route path="/auth/success" element={<AuthSuccessPage />} />

@@ -7,6 +7,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { UserPlus, User, Lock, Mail, AlertCircle, ArrowLeft } from 'lucide-react';
 import { IconBrandGoogle } from '@tabler/icons-react';
 import { Background } from '@/components/common/background';
+import { useValidation } from '@/hooks/useValidation';
 
 const SignupPage: React.FC = () => {
   const { signup, loginWithGoogle } = useAuth();
@@ -14,13 +15,28 @@ const SignupPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const { errors, validateEmail, validatePassword, validateForm } = useValidation();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    
+    // Check if terms are accepted
+    if (!acceptTerms) {
+      setError('Please accept the Terms of Service to continue');
+      return;
+    }
+    
+    // Validate form before submission
+    const validationErrors = validateForm({ email, password });
+    if (Object.keys(validationErrors).length > 0) {
+      return; // Don't submit if there are validation errors
+    }
+    
     try {
-      await signup({ username, email, password });
-      navigate('/'); // protected home
+      await signup({ username, email, password, use_otp: true });
+      // Navigation will be handled by the AuthContext based on OTP flow
     } catch (err: any) {
       setError(err.message || 'Signup failed');
     }
@@ -57,12 +73,23 @@ const SignupPage: React.FC = () => {
 
             <button 
               type="button" 
-              className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-3 mb-6 flex items-center justify-center gap-2 text-white transition-all duration-300"
+              className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-3 mb-2 flex items-center justify-center gap-2 text-white transition-all duration-300"
               onClick={loginWithGoogle}
             >
               <IconBrandGoogle className="h-5 w-5" />
               <span>Continue with Google</span>
             </button>
+            
+            <div className="text-xs text-white/60 text-center mb-6">
+              By continuing with Google, you accept our{' '}
+              <Link to="/terms" className="text-white hover:text-white/80 transition-colors underline">
+                Terms of Service
+              </Link>
+              {' '}and{' '}
+              <Link to="/privacy" className="text-white hover:text-white/80 transition-colors underline">
+                Privacy Policy
+              </Link>
+            </div>
 
             <div className="relative flex items-center justify-center mb-6">
               <div className="absolute inset-0 flex items-center">
@@ -94,12 +121,21 @@ const SignupPage: React.FC = () => {
                   <input
                     type="email"
                     value={email}
-                    onChange={e => setEmail(e.target.value)}
+                    onChange={e => {
+                      setEmail(e.target.value);
+                      validateEmail(e.target.value);
+                    }}
                     className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors"
                     placeholder="Enter your email"
                     required
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {errors.email}
+                  </p>
+                )}
               </div>
               
               <div>
@@ -109,12 +145,41 @@ const SignupPage: React.FC = () => {
                   <input
                     type="password"
                     value={password}
-                    onChange={e => setPassword(e.target.value)}
+                    onChange={e => {
+                      setPassword(e.target.value);
+                      validatePassword(e.target.value);
+                    }}
                     className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors"
                     placeholder="Create a password"
                     required
                   />
                 </div>
+                {errors.password && (
+                  <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {errors.password}
+                  </p>
+                )}
+              </div>
+              
+              <div className="flex items-start gap-3 mb-4">
+                <input
+                  type="checkbox"
+                  id="accept-terms"
+                  checked={acceptTerms}
+                  onChange={(e) => setAcceptTerms(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-white/20 bg-white/5 text-white focus:ring-white/20 focus:ring-offset-0"
+                />
+                <label htmlFor="accept-terms" className="text-xs text-white/60 leading-relaxed">
+                  I accept the{' '}
+                  <Link to="/terms" className="text-white hover:text-white/80 transition-colors underline">
+                    Terms of Service
+                  </Link>
+                  {' '}and{' '}
+                  <Link to="/privacy" className="text-white hover:text-white/80 transition-colors underline">
+                    Privacy Policy
+                  </Link>
+                </label>
               </div>
               
               <button 

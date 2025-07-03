@@ -4,6 +4,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { LogIn, User, Lock, AlertCircle, ArrowLeft } from 'lucide-react';
 import {IconBrandGoogle} from '@tabler/icons-react';
 import { Background } from '@/components/common/background';
+import { useValidation } from '@/hooks/useValidation';
 
 const LoginPage: React.FC = () => {
   const { login, loginWithGoogle } = useAuth();
@@ -11,9 +12,17 @@ const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const { errors, validateEmail, validatePassword, validateForm } = useValidation();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    
+    // Validate form before submission
+    const validationErrors = validateForm({ email: username, password });
+    if (Object.keys(validationErrors).length > 0) {
+      return; // Don't submit if there are validation errors
+    }
+    
     try {
       await login({ username, password });
       navigate('/'); // protected home
@@ -53,12 +62,23 @@ const LoginPage: React.FC = () => {
 
             <button 
               type="button" 
-              className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-3 mb-6 flex items-center justify-center gap-2 text-white transition-all duration-300"
+              className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-3 mb-2 flex items-center justify-center gap-2 text-white transition-all duration-300"
               onClick={loginWithGoogle}
             >
               <IconBrandGoogle className="h-5 w-5" />
               <span>Continue with Google</span>
             </button>
+            
+            <div className="text-xs text-white/60 text-center mb-6">
+              By continuing with Google, you accept our{' '}
+              <Link to="/terms" className="text-white hover:text-white/80 transition-colors underline">
+                Terms of Service
+              </Link>
+              {' '}and{' '}
+              <Link to="/privacy" className="text-white hover:text-white/80 transition-colors underline">
+                Privacy Policy
+              </Link>
+            </div>
 
             <div className="relative flex items-center justify-center mb-6">
               <div className="absolute inset-0 flex items-center">
@@ -75,12 +95,21 @@ const LoginPage: React.FC = () => {
                   <input
                     type="text"
                     value={username}
-                    onChange={e => setUsername(e.target.value)}
+                    onChange={e => {
+                      setUsername(e.target.value);
+                      validateEmail(e.target.value);
+                    }}
                     className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors"
                     placeholder="Enter your username"
                     required
                   />
                 </div>
+                {errors.email && (
+                  <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {errors.email}
+                  </p>
+                )}
               </div>
               
               <div>
@@ -90,12 +119,21 @@ const LoginPage: React.FC = () => {
                   <input
                     type="password"
                     value={password}
-                    onChange={e => setPassword(e.target.value)}
+                    onChange={e => {
+                      setPassword(e.target.value);
+                      validatePassword(e.target.value);
+                    }}
                     className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors"
                     placeholder="Enter your password"
                     required
                   />
                 </div>
+                {errors.password && (
+                  <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="h-4 w-4" />
+                    {errors.password}
+                  </p>
+                )}
               </div>
               
               <button 
