@@ -134,7 +134,7 @@ export default function PricingCards() {
                 {/* CTA Button */}
                 <Link to="/login" className="w-full mt-auto">
                   <button 
-                    className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-lg sm:rounded-xl text-white px-3 py-2.5 sm:py-3 flex items-center justify-center gap-2 text-sm sm:text-base"
+                    className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-lg sm:rounded-xl text-white px-0 py-2.5 sm:py-3 flex items-center justify-center gap-2 text-sm sm:text-base"
                   >
                     {plan.buttonText} <plan.buttonIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
