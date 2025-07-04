@@ -1,9 +1,10 @@
 // File: src/context/AppProvider.tsx
-import React, { ReactNode } from 'react';
+import React, { ReactNode, createContext, useContext, useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { AuthProvider } from './AuthContext';
 import { useAuth } from '../hooks/use-auth';
 import { SubscriptionProvider } from './SubscriptionContext';
+import { detectLanguage, DetectLanguageResponse } from '@/api/service';
 
 // Define which routes are public (don't need auth)
 const PUBLIC_ROUTES = [
@@ -78,13 +79,132 @@ const SmartAuthWrapper: React.FC<{ children: ReactNode }> = ({ children }) => {
   return <>{children}</>;
 };
 
+// Global cache for language detection
+const globalLanguageCache = new Map<string, string>();
+
+interface LanguageDetectionContextType {
+  language: string;
+  loading: boolean;
+  error: string | null;
+  detectLanguage: (code: string) => void;
+  clearCache: () => void;
+}
+
+const LanguageDetectionContext = createContext<LanguageDetectionContextType | null>(null);
+
+export const useLanguageDetection = () => {
+  const context = useContext(LanguageDetectionContext);
+  if (!context) {
+    throw new Error('useLanguageDetection must be used within LanguageDetectionProvider');
+  }
+  return context;
+};
+
+interface LanguageDetectionProviderProps {
+  children: React.ReactNode;
+}
+
+const LanguageDetectionProvider: React.FC<LanguageDetectionProviderProps> = ({ children }) => {
+  const [language, setLanguage] = useState<string>('');
+  const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
+  const [currentCode, setCurrentCode] = useState<string>('');
+  const lastProcessedCode = useRef<string>('');
+  const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const detectLanguageForCode = (code: string) => {
+    // Reset immediately on empty
+    if (!code) {
+      setLanguage('');
+      setError(null);
+      setCurrentCode('');
+      lastProcessedCode.current = '';
+      return;
+    }
+
+    // Check if we've already processed this exact code
+    if (lastProcessedCode.current === code) {
+      return;
+    }
+
+    setCurrentCode(code);
+
+    // Check cache first - if we have a cached result, use it immediately
+    const cachedLanguage = globalLanguageCache.get(code);
+    if (cachedLanguage !== undefined) {
+      setLanguage(cachedLanguage);
+      setError(null);
+      setLoading(false);
+      lastProcessedCode.current = code;
+      return;
+    }
+
+    // Clear any existing timer
+    if (debounceTimerRef.current) {
+      clearTimeout(debounceTimerRef.current);
+    }
+
+    // Start loading state
+    setLoading(true);
+    setError(null);
+
+    // Schedule the API call after 500ms of inactivity
+    debounceTimerRef.current = setTimeout(async () => {
+      try {
+        const res: DetectLanguageResponse = await detectLanguage(code);
+        // Cache the result for future use
+        globalLanguageCache.set(code, res.language);
+        setLanguage(res.language);
+        setError(null);
+        lastProcessedCode.current = code;
+      } catch (err: any) {
+        setError(err.message ?? 'Failed to detect language');
+        setLanguage('');
+        lastProcessedCode.current = code;
+      } finally {
+        setLoading(false);
+      }
+    }, 500);
+  };
+
+  const clearCache = () => {
+    globalLanguageCache.clear();
+    lastProcessedCode.current = '';
+  };
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (debounceTimerRef.current) {
+        clearTimeout(debounceTimerRef.current);
+      }
+    };
+  }, []);
+
+  const value: LanguageDetectionContextType = {
+    language,
+    loading,
+    error,
+    detectLanguage: detectLanguageForCode,
+    clearCache
+  };
+
+  return (
+    <LanguageDetectionContext.Provider value={value}>
+      {children}
+    </LanguageDetectionContext.Provider>
+  );
+};
+
 // Main AppProvider component
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   return (
     <AuthProvider>
       <SmartAuthWrapper>
         <SubscriptionProvider>
-          {children}
+          <LanguageDetectionProvider>
+            {children}
+          </LanguageDetectionProvider>
         </SubscriptionProvider>
       </SmartAuthWrapper>
     </AuthProvider>

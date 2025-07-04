@@ -1,7 +1,6 @@
 // src/hooks/use-detected-language.ts
-import { useState, useEffect } from 'react'
-import { detectLanguage,DetectLanguageResponse } from '@/api/service'
-
+import { useEffect } from 'react'
+import { useLanguageDetection } from '@/context/AppProvider'
 
 interface UseDetectedLanguageResult {
   language: string
@@ -9,51 +8,39 @@ interface UseDetectedLanguageResult {
   error: string | null
 }
 
+/**
+ * Hook to detect programming language from code using the global language detection context.
+ * This prevents duplicate API calls across multiple components.
+ * 
+ * Features:
+ * - Uses global context to share detection state
+ * - Debounced API calls (500ms delay)
+ * - In-memory caching to prevent duplicate requests
+ * - Automatic cleanup on unmount
+ * 
+ * @param code - The code string to detect language for
+ * @returns Object containing detected language, loading state, and error
+ */
 export function useDetectedLanguage(code: string): UseDetectedLanguageResult {
-  const [language, setLanguage] = useState<string>('')
-  const [loading, setLoading] = useState<boolean>(false)
-  const [error, setError] = useState<string | null>(null)
+  const { language, loading, error, detectLanguage } = useLanguageDetection()
 
   useEffect(() => {
-    // Reset immediately on empty
-    if (!code) {
-      setLanguage('')
-      setError(null)
-      return
-    }
-
-    let cancelled = false
-    let debounceTimer: ReturnType<typeof setTimeout>
-
-    // Start loading state
-    setLoading(true)
-    setError(null)
-
-    // Schedule the API call after 500ms of inactivity
-    debounceTimer = setTimeout(async () => {
-      try {
-        const res: DetectLanguageResponse = await detectLanguage(code)
-        if (!cancelled) {
-          setLanguage(res.language)
-        }
-      } catch (err: any) {
-        if (!cancelled) {
-          setError(err.message ?? 'Failed to detect language')
-          setLanguage('')
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false)
-        }
-      }
-    }, 500)
-
-    // Cleanup on code change or unmount
-    return () => {
-      cancelled = true
-      clearTimeout(debounceTimer)
-    }
-  }, [code])
+    detectLanguage(code)
+  }, [code, detectLanguage])
 
   return { language, loading, error }
+}
+
+/**
+ * Clear the language detection cache.
+ * Useful for testing or when you want to force fresh language detection.
+ */
+export const clearLanguageCache = () => {
+  try {
+    const { clearCache } = useLanguageDetection()
+    clearCache()
+  } catch (error) {
+    // If context is not available, just log a warning
+    console.warn('Language detection context not available for cache clearing')
+  }
 }

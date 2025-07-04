@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { BarChart3, Zap, FileCode, FileText } from 'lucide-react'
 import { useAnalyze } from '@/hooks/use-analyze'
@@ -63,7 +63,7 @@ export function useActionDescriptors(
   const { isOverLimit } = useCharacterLimit(code)
   const { language: detectedLanguage } = useDetectedLanguage(code)
 
-  const descriptors: Record<ActionKey, ActionDescriptor> = {
+  const descriptors: Record<ActionKey, ActionDescriptor> = useMemo(() => ({
     analyze: {
       label: 'Code Sage',
       subname: 'Analyse',
@@ -110,7 +110,18 @@ export function useActionDescriptors(
         navigate('/results/document')
       },
     },
-  }
+  }), [
+    navigate,
+    analyze,
+    isAnalyzing,
+    optimize,
+    isOptimizing,
+    convert,
+    isConverting,
+    documentIt,
+    isDocumenting,
+    onOverrides.convert
+  ])
 
   return descriptors
 }

@@ -2,8 +2,26 @@ User-agent: *
 Allow: /
 
 # Disallow protected/private areas
-Disallow: /auth-success
+Disallow: /auth/
+Disallow: /profile
+Disallow: /subscription
+Disallow: /consultation
 Disallow: /results/
+Disallow: /admin/
+
+# Allow important public pages
+Allow: /login
+Allow: /signup
+Allow: /pricing
+Allow: /contact
+Allow: /blogs
+Allow: /about
+Allow: /privacy
+Allow: /terms
+Allow: /cookies
 
 # Sitemap location
-Sitemap: http://localhost:5173/sitemap.xml
+Sitemap: https://codeopt.ai/sitemap.xml
+
+# Crawl delay (optional - helps with server load)
+Crawl-delay: 1

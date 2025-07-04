@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { Infinity } from 'lucide-react';
 import { useCode } from '@/hooks/use-code';
 import { useDetectedLanguage } from '@/hooks/use-detected-language';
@@ -64,15 +64,15 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       ? lang.charAt(0).toUpperCase() + lang.slice(1).toLowerCase()
       : 'Unknown'
 
-  // Get character count text with formatting
-  const getCharacterCountText = () => {
+  // Get character count text with formatting - memoized to prevent unnecessary re-computations
+  const getCharacterCountText = useMemo(() => {
     const formattedCount = formatCharacterCount(currentCount)
     if (isUnlimitedPlan(subscription)) {
       return `${formattedCount} / ∞`
     }
     const formattedLimit = formatCharacterCount(limit)
     return `${formattedCount} / ${formattedLimit}`
-  }
+  }, [currentCount, limit, subscription])
 
   // Conditional styling based on variant
   const containerClasses = variant === 'homepage' 
@@ -139,7 +139,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
                 {/* Character count with limit awareness */}
                 <div className="flex items-center gap-2">
                   <span className={getCharacterCountStyle()}>
-                    {getCharacterCountText()}
+                    {getCharacterCountText}
                   </span>
                   {/* Progress bar for character usage - only show if there's a limit */}
                   {!isUnlimitedPlan(subscription) && (

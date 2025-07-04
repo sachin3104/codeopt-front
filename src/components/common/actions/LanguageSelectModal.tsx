@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { X } from 'lucide-react'
 import { useCode } from '@/hooks/use-code'
@@ -55,8 +55,11 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
   const [targetLanguage, setTargetLanguage] = useState<string>('')
   const [errorState, setErrorState] = useState<string>('')
 
-  // Check if detected language is supported
-  const isSourceSupported = SOURCE_LANGUAGES.some(l => l.value === detectedLanguage)
+  // Check if detected language is supported - memoized to prevent unnecessary re-computations
+  const isSourceSupported = useMemo(() => 
+    SOURCE_LANGUAGES.some(l => l.value === detectedLanguage),
+    [detectedLanguage]
+  )
 
   // Reset state whenever modal opens
   useEffect(() => {
