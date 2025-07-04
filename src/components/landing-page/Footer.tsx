@@ -103,7 +103,7 @@ export default function Footer() {
                 </a>
               </Button>
             </li>
-            {/* <li>
+            <li>
               <Button
                 variant="secondary"
                 size="icon"
@@ -119,7 +119,7 @@ export default function Footer() {
                   <InstagramIcon className="h-5 w-5" />
                 </a>
               </Button>
-            </li> */}
+            </li>
           </ul>
         </div>
 
@@ -129,7 +129,7 @@ export default function Footer() {
               <li className="my-1 mx-2 shrink-0">
                 <Link
                   to="/pricing"
-                  className="text-lg text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block py-2"
+                  className="text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
                 >
                   Pricing
                 </Link>
@@ -137,7 +137,7 @@ export default function Footer() {
               <li className="my-1 mx-2 shrink-0">
                 <Link
                   to="/contact"
-                  className="text-lg text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block py-2"
+                  className="text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
                 >
                   Contact
                 </Link>
@@ -149,7 +149,7 @@ export default function Footer() {
               <li className="my-1 mx-3 shrink-0">
                 <Link
                   to="/privacy"
-                  className="text-lg text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block py-2"
+                  className="text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
                 >
                   Privacy Policy
                 </Link>
@@ -157,7 +157,7 @@ export default function Footer() {
               <li className="my-1 mx-3 shrink-0">
                 <Link
                   to="/terms"
-                  className="text-lg text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block py-2"
+                  className="text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
                 >
                   Terms of Service
                 </Link>
@@ -165,7 +165,7 @@ export default function Footer() {
               <li className="my-1 mx-3 shrink-0">
                 <Link
                   to="/cookies"
-                  className="text-lg text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block py-2"
+                  className="text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
                 >
                   Cookie Policy
                 </Link>
