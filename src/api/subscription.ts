@@ -269,5 +269,26 @@ export const subscriptionService = {
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
     }
-  }
+  },
+
+  /**
+   * Send enterprise contact request
+   */
+  async sendEnterpriseContactRequest(data: {
+    first_name: string;
+    last_name: string;
+    phone: string;
+    subject: string;
+    message: string;
+  }): Promise<{ status: string }> {
+    try {
+      const response = await api.post<{ status: string }>(
+        '/api/subscription/enterprise-contact',
+        data
+      );
+      return response.data;
+    } catch (err: any) {
+      throw err as AxiosError<ApiErrorResponse>;
+    }
+  },
 }

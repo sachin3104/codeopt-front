@@ -2,6 +2,9 @@ import { Mail, MapPin, Send, Linkedin } from "lucide-react";
 import Header from "../../components/landing-page/Header";
 import Footer from "../../components/landing-page/Footer";
 import { Background } from "../../components/common/background";
+import api from "../../api/client";
+import { useState } from "react";
+import { toast } from "sonner";
 
 // Custom Discord Icon
 const DiscordIcon = ({ className }: { className?: string }) => (
@@ -135,80 +138,7 @@ export default function ContactPage() {
                 {/* Contact Form */}
                 <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-8">
                   <h2 className="text-2xl font-bold text-white mb-6">Send us a Message</h2>
-                  <form className="space-y-4">
-                    <div className="grid sm:grid-cols-2 gap-4">
-                      <div>
-                        <label htmlFor="firstName" className="block text-sm font-medium text-white/80 mb-2">
-                          First Name
-                        </label>
-                        <input
-                          type="text"
-                          id="firstName"
-                          className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                          placeholder="John"
-                        />
-                      </div>
-                      <div>
-                        <label htmlFor="lastName" className="block text-sm font-medium text-white/80 mb-2">
-                          Last Name
-                        </label>
-                        <input
-                          type="text"
-                          id="lastName"
-                          className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                          placeholder="Doe"
-                        />
-                      </div>
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="email" className="block text-sm font-medium text-white/80 mb-2">
-                        Email Address
-                      </label>
-                      <input
-                        type="email"
-                        id="email"
-                        className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                        placeholder="john@example.com"
-                      />
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="subject" className="block text-sm font-medium text-white/80 mb-2">
-                        Subject
-                      </label>
-                      <select
-                        id="subject"
-                        className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-lg px-4 py-3 text-white focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent"
-                      >
-                        <option value="">Select a subject</option>
-                        <option value="general">General Inquiry</option>
-                        <option value="support">Technical Support</option>
-                        <option value="enterprise">Enterprise Solutions</option>
-                        <option value="feedback">Feedback</option>
-                      </select>
-                    </div>
-                    
-                    <div>
-                      <label htmlFor="message" className="block text-sm font-medium text-white/80 mb-2">
-                        Message
-                      </label>
-                      <textarea
-                        id="message"
-                        rows={6}
-                        className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-lg px-4 py-3 text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:border-transparent resize-none"
-                        placeholder="Tell us how we can help you..."
-                      />
-                    </div>
-                    
-                    <button
-                      type="submit"
-                      className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-8 py-3 flex items-center justify-center gap-2"
-                    >
-                      <Send className="w-4 h-4" />
-                      Send Message
-                    </button>
-                  </form>
+                  <ContactForm />
                 </div>
               </div>
             </div>
@@ -218,5 +148,116 @@ export default function ContactPage() {
         <Footer />
       </div>
     </div>
+  );
+}
+
+// ContactForm component
+function ContactForm() {
+  const [form, setForm] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    phone: "",
+    subject: "",
+    message: "",
+  });
+  const [loading, setLoading] = useState(false);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { id, value } = e.target;
+    setForm(prev => ({ ...prev, [id]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!form.firstName || !form.lastName || !form.email || !form.subject || !form.message) {
+      toast.error("Please fill in all required fields.");
+      return;
+    }
+    setLoading(true);
+    try {
+      await api.post("/api/email-inquiry/contact", {
+        first_name: form.firstName,
+        last_name: form.lastName,
+        email: form.email,
+        phone: form.phone,
+        subject: form.subject,
+        message: form.message,
+      });
+      toast.success("Your message has been sent! We'll get back to you soon.");
+      setForm({ firstName: "", lastName: "", email: "", phone: "", subject: "", message: "" });
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Failed to send message. Please try again later.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <form
+    className="grid grid-cols-1 sm:grid-cols-2 gap-4"
+    onSubmit={handleSubmit}
+  >
+    <input
+      type="text"
+      id="firstName"
+      placeholder="First Name"
+      value={form.firstName}
+      onChange={handleChange}
+      required
+      className="bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/50 transition-colors text-base h-12 col-span-1"
+    />
+    <input
+      type="text"
+      id="lastName"
+      placeholder="Last Name"
+      value={form.lastName}
+      onChange={handleChange}
+      required
+      className="bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/50 transition-colors text-base h-12 col-span-1"
+    />
+    <input
+      type="email"
+      id="email"
+      placeholder="Email Address"
+      value={form.email}
+      onChange={handleChange}
+      required
+      className="col-span-2 bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/50 transition-colors text-base h-12"
+    />
+    <input
+      type="tel"
+      id="phone"
+      placeholder="Phone Number"
+      value={form.phone}
+      onChange={handleChange}
+      className="col-span-2 bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/50 transition-colors text-base h-12"
+    />
+    <input
+      type="text"
+      id="subject"
+      placeholder="Subject"
+      value={form.subject}
+      onChange={handleChange}
+      required
+      className="col-span-2 bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/50 transition-colors text-base h-12"
+    />
+    <textarea
+      id="message"
+      placeholder="Message"
+      value={form.message}
+      onChange={handleChange}
+      required
+      className="col-span-2 bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/50 transition-colors resize-none placeholder-white/40 text-base min-h-[180px]"
+    />
+    <button
+      type="submit"
+      disabled={loading}
+      className="col-span-2 w-full bg-white hover:bg-white/90 text-gray-900 rounded-lg py-3 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+    >
+      <Send className="w-4 h-4 text-gray-900" />
+      {loading ? "Sending..." : "Send Message"}
+    </button>
+  </form>
   );
 } 

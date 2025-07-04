@@ -173,7 +173,14 @@ export default function Footer() {
             </ul>
           </div>
           <div className="mt-6 text-sm leading-6 text-white/60 whitespace-nowrap lg:mt-0 lg:row-[1/3] lg:col-[1/4]">
-            <div>&copy; {new Date().getFullYear()} optqo. All rights reserved.</div>
+            <div>
+              &copy; {new Date().getFullYear()} optqo. All rights reserved.<br />
+              A product of Sixth Sense Enterprises OPC Pvt Ltd (
+              <a href="https://6th-sense.in/" target="_blank" rel="noopener noreferrer" className="underline hover:text-white">
+                6th-Sense
+              </a>
+              ).
+            </div>
           </div>
         </div>
       </div>

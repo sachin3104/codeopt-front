@@ -5,6 +5,7 @@ import { useSubscription } from '@/hooks/use-subscription';
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/types/subscription';
 import ExpertConsultationModal from './ExpertConsultationModal';
+import EnterpriseContactModal from './EnterpriseContactModal';
 import { Check, Mail, Calendar } from 'lucide-react';
 
 const PremiumPlans: React.FC = () => {
@@ -23,6 +24,11 @@ const PremiumPlans: React.FC = () => {
   // Consultation booking states
   const [showConsultationModal, setShowConsultationModal] = useState(false);
   const [selectedConsultationPlan, setSelectedConsultationPlan] = useState<Plan | null>(null);
+
+  // Enterprise contact modal states
+  const [showEnterpriseModal, setShowEnterpriseModal] = useState(false);
+  const [enterprisePlan, setEnterprisePlan] = useState<Plan | null>(null);
+  const [contactSent, setContactSent] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -45,17 +51,13 @@ const PremiumPlans: React.FC = () => {
 
   const handleSelect = async (plan: Plan) => {
     setSelectedPlan(plan.plan_type as PlanType);
-    
     try {
-      // Handle different action types
       switch (plan.action_type) {
         case 'email_contact':
-          // Handle email contact action
-          window.location.href = `mailto:contact@codeopt.com?subject=Inquiry about ${plan.name} plan`;
+          setEnterprisePlan(plan);
+          setShowEnterpriseModal(true);
           break;
-          
         case 'book_consultation':
-          // Open consultation booking modal
           if (plan.consultation_options && plan.consultation_options.length > 0) {
             setSelectedConsultationPlan(plan);
             setShowConsultationModal(true);
@@ -63,9 +65,7 @@ const PremiumPlans: React.FC = () => {
             alert('No consultation options available for this plan.');
           }
           break;
-          
         default:
-          // Unknown action type
       }
     } catch (error) {
       // Error is handled by the context
@@ -77,6 +77,16 @@ const PremiumPlans: React.FC = () => {
   const handleCloseConsultationModal = () => {
     setShowConsultationModal(false);
     setSelectedConsultationPlan(null);
+  };
+
+  const handleCloseEnterpriseModal = () => {
+    setShowEnterpriseModal(false);
+    setEnterprisePlan(null);
+    setContactSent(false);
+  };
+
+  const handleContactSent = () => {
+    setContactSent(true);
   };
 
   if (loading) {
@@ -203,6 +213,14 @@ const PremiumPlans: React.FC = () => {
         isOpen={showConsultationModal}
         onClose={handleCloseConsultationModal}
         selectedPlan={selectedConsultationPlan}
+      />
+      {/* Enterprise Contact Modal */}
+      <EnterpriseContactModal
+        isOpen={showEnterpriseModal}
+        onClose={handleCloseEnterpriseModal}
+        plan={enterprisePlan}
+        onContactSent={handleContactSent}
+        contactSent={contactSent}
       />
     </div>
   );

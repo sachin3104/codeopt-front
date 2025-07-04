@@ -68,43 +68,28 @@ const DetailedSubscriptionInfo: React.FC = () => {
 
   // Get usage data based on plan type
   const getUsageData = () => {
-    if (!currentUsage || !planLimits) {
+    if (!currentUsage || !plan) {
       return null;
     }
 
-    if (isFreePlan) {
-      const totalRequests = planLimits.max_daily_usage;
-      const completedRequests = currentUsage.daily_usage;
-      const charactersPerRequest = planLimits.max_code_input_chars;
-      const charactersUsed = currentUsage.daily_characters;
-      const totalCharacters = totalRequests && charactersPerRequest ? totalRequests * charactersPerRequest : null;
-      
-      return {
-        completed: completedRequests,
-        total: totalRequests,
-        remaining: totalRequests ? Math.max(0, totalRequests - completedRequests) : null,
-        charactersUsed,
-        charactersTotal: totalCharacters,
-        charactersRemaining: totalCharacters ? Math.max(0, totalCharacters - charactersUsed) : null,
-        charactersPerRequest
-      };
-    } else {
-      const totalRequests = planLimits.max_monthly_usage;
-      const completedRequests = currentUsage.monthly_usage;
-      const charactersPerRequest = planLimits.max_code_input_chars;
-      const charactersUsed = currentUsage.monthly_characters;
-      const totalCharacters = totalRequests && charactersPerRequest ? totalRequests * charactersPerRequest : null;
-      
-      return {
-        completed: completedRequests,
-        total: totalRequests,
-        remaining: totalRequests ? Math.max(0, totalRequests - completedRequests) : null,
-        charactersUsed,
-        charactersTotal: totalCharacters,
-        charactersRemaining: totalCharacters ? Math.max(0, totalCharacters - charactersUsed) : null,
-        charactersPerRequest
-      };
-    }
+    // Use plan object directly for limits
+    const totalRequests = plan.max_monthly_usage ?? plan.max_daily_usage;
+    const isMonthly = plan.max_monthly_usage != null;
+    const completedRequests = isMonthly ? currentUsage.monthly_usage : currentUsage.daily_usage;
+    const charactersPerRequest = plan.max_code_input_chars;
+    const charactersUsed = isMonthly ? currentUsage.monthly_characters : currentUsage.daily_characters;
+    const totalCharacters = totalRequests && charactersPerRequest ? totalRequests * charactersPerRequest : null;
+
+    return {
+      completed: completedRequests,
+      total: totalRequests,
+      remaining: totalRequests ? Math.max(0, totalRequests - completedRequests) : null,
+      charactersUsed,
+      charactersTotal: totalCharacters,
+      charactersRemaining: totalCharacters ? Math.max(0, totalCharacters - charactersUsed) : null,
+      charactersPerRequest,
+      isMonthly,
+    };
   };
 
   const usageInfo = getUsageData();
@@ -237,10 +222,16 @@ const DetailedSubscriptionInfo: React.FC = () => {
             <div className="space-y-2">
               <div className="flex justify-between items-center">
                 <p className="text-white/70 text-xs">
-                  {isFreePlan ? 'Daily Requests' : 'Monthly Requests'}
+                  {usageInfo.isMonthly
+                    ? usageInfo.total == null
+                      ? 'Monthly Requests (Unlimited)'
+                      : 'Monthly Requests'
+                    : usageInfo.total == null
+                      ? 'Daily Requests (Unlimited)'
+                      : 'Daily Requests'}
                 </p>
                 <p className="text-white text-xs">
-                  {usageInfo.completed} / {usageInfo.total || 'Unlimited'}
+                  {usageInfo.completed} / {usageInfo.total == null ? 'Unlimited' : usageInfo.total}
                 </p>
               </div>
               <div className="w-full bg-white/10 rounded-full h-2">
@@ -260,7 +251,7 @@ const DetailedSubscriptionInfo: React.FC = () => {
                   Completed: {usageInfo.completed}
                 </span>
                 <span className="text-white/60">
-                  Remaining: {usageInfo.remaining || 'Unlimited'}
+                  Remaining: {usageInfo.remaining == null ? 'Unlimited' : usageInfo.remaining}
                 </span>
               </div>
             </div>
