@@ -12,15 +12,15 @@ const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-  const { errors, validateEmail, validatePassword, validateForm } = useValidation();
+  const { errors, validatePassword } = useValidation();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
-    // Validate form before submission
-    const validationErrors = validateForm({ email: username, password });
-    if (Object.keys(validationErrors).length > 0) {
-      return; // Don't submit if there are validation errors
+    // Validate password before submission
+    const passwordError = validatePassword(password);
+    if (passwordError) {
+      return; // Don't submit if there is a password error
     }
     
     try {
@@ -95,21 +95,12 @@ const LoginPage: React.FC = () => {
                   <input
                     type="text"
                     value={username}
-                    onChange={e => {
-                      setUsername(e.target.value);
-                      validateEmail(e.target.value);
-                    }}
+                    onChange={e => setUsername(e.target.value)}
                     className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors"
                     placeholder="Enter your username"
                     required
                   />
                 </div>
-                {errors.email && (
-                  <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
-                    <AlertCircle className="h-4 w-4" />
-                    {errors.email}
-                  </p>
-                )}
               </div>
               
               <div>
@@ -121,7 +112,6 @@ const LoginPage: React.FC = () => {
                     value={password}
                     onChange={e => {
                       setPassword(e.target.value);
-                      validatePassword(e.target.value);
                     }}
                     className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors"
                     placeholder="Enter your password"

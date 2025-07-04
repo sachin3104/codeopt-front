@@ -72,6 +72,7 @@
     "embla-carousel-react": "^8.3.0",
     "gojs": "^2.3.11",
     "highlight.js": "^11.11.1",
+    "hls.js": "^1.6.6",
     "input-otp": "^1.2.4",
     "lucide-react": "^0.462.0",
     "motion": "^12.12.1",
