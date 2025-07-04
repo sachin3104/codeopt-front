@@ -119,14 +119,16 @@ export function useActionDescriptors(
 const getButtonStyles = (variant: ActionVariant, isDisabled?: boolean) => {
   const baseStyles = variant === 'homepage' 
     ? `
-      flex items-center gap-2 px-6 py-4 rounded-xl
+      flex items-center gap-2 px-4 sm:px-6 py-3 sm:py-4 rounded-lg sm:rounded-xl
       text-white backdrop-blur-md
       transition-all duration-300
+      text-sm sm:text-base
     `
     : `
-      flex items-center gap-2 px-4 py-2 rounded-lg
+      flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-md sm:rounded-lg
       text-white backdrop-blur-md
       transition-all duration-300
+      text-xs sm:text-sm
     `
 
   if (isDisabled) {
@@ -138,7 +140,7 @@ const getButtonStyles = (variant: ActionVariant, isDisabled?: boolean) => {
 
 // Get icon size based on variant
 const getIconSize = (variant: ActionVariant) => {
-  return variant === 'homepage' ? 'w-6 h-6' : 'w-4 h-4'
+  return variant === 'homepage' ? 'w-5 h-5 sm:w-6 sm:h-6' : 'w-3.5 h-3.5 sm:w-4 sm:h-4'
 }
 
 // Homepage Action Button with StarBorder
@@ -154,14 +156,14 @@ const HomepageActionButton: React.FC<{
       as="button"
       onClick={onClick}
       disabled={disabled}
-      className="w-60 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+      className="w-48 sm:w-60 transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
       color="#878686"
       speed={disabled ? "0s" : "8s"}
     >
-      <div className="flex items-center justify-center gap-2 text-white font-medium">
-        <Icon className="w-5 h-5" />
+      <div className="flex items-center justify-center gap-1.5 sm:gap-2 text-white font-medium text-sm sm:text-base">
+        <Icon className="w-4 h-4 sm:w-5 sm:h-5" />
         <span>{label}</span>
-        <span className="text-gray-400 text-sm">{subname}</span>
+        <span className="text-gray-400 text-xs sm:text-sm">{subname}</span>
       </div>
     </StarBorder>
   )
@@ -327,12 +329,12 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({
 
   // Container styles based on variant
   const containerStyles = variant === 'homepage' 
-    ? "flex items-center justify-center gap-4 p-4"
-    : "flex items-center gap-4"
+    ? "flex items-center justify-center gap-2 sm:gap-4 p-2 sm:p-4"
+    : "flex items-center gap-2 sm:gap-4"
 
   const innerContainerStyles = variant === 'homepage'
-    ? "flex gap-4 p-4"
-    : "flex gap-4"
+    ? "flex gap-2 sm:gap-4 p-2 sm:p-4"
+    : "flex gap-2 sm:gap-4"
 
   return (
     <>

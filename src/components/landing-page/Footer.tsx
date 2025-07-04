@@ -41,22 +41,22 @@ const InstagramIcon = ({ className }: { className?: string }) => (
 
 export default function Footer() {
   return (
-    <footer className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border-t border-white/20 pb-6 pt-16 lg:pb-8 lg:pt-16">
-      <div className="max-w-7xl mx-auto px-4">
-        <div className="md:flex md:items-center md:justify-between">
+    <footer className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border-t border-white/20 pb-6 pt-12 sm:pt-16 lg:pb-8 lg:pt-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-0">
           <Link
             to="/"
             className="flex items-center gap-x-2"
             aria-label="optqo"
           >
-            <img src={logoUrl} alt="Optqo Logo" className="h-24 w-auto" />
+            <img src={logoUrl} alt="Optqo Logo" className="h-16 sm:h-20 lg:h-24 w-auto" />
           </Link>
-          <ul className="flex list-none mt-6 md:mt-0 space-x-3 items-center">
+          <ul className="flex list-none space-x-2 sm:space-x-3 items-center justify-center sm:justify-end">
             <li>
               <Button
                 variant="secondary"
                 size="icon"
-                className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20"
+                className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20"
                 asChild
               >
                 <a 
@@ -65,7 +65,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label="X (Twitter)"
                 >
-                  <XIcon className="h-5 w-5" />
+                  <XIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </a>
               </Button>
             </li>
@@ -73,7 +73,7 @@ export default function Footer() {
               <Button
                 variant="secondary"
                 size="icon"
-                className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20"
+                className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20"
                 asChild
               >
                 <a 
@@ -82,7 +82,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label="Discord"
                 >
-                  <DiscordIcon className="h-5 w-5" />
+                  <DiscordIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </a>
               </Button>
             </li>
@@ -90,7 +90,7 @@ export default function Footer() {
               <Button
                 variant="secondary"
                 size="icon"
-                className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20"
+                className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20"
                 asChild
               >
                 <a 
@@ -99,7 +99,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label="LinkedIn"
                 >
-                  <Linkedin className="h-5 w-5" />
+                  <Linkedin className="h-4 w-4 sm:h-5 sm:w-5" />
                 </a>
               </Button>
             </li>
@@ -107,7 +107,7 @@ export default function Footer() {
               <Button
                 variant="secondary"
                 size="icon"
-                className="h-10 w-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20"
+                className="h-8 w-8 sm:h-10 sm:w-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/20"
                 asChild
               >
                 <a 
@@ -116,7 +116,7 @@ export default function Footer() {
                   rel="noopener noreferrer"
                   aria-label="Instagram"
                 >
-                  <InstagramIcon className="h-5 w-5" />
+                  <InstagramIcon className="h-4 w-4 sm:h-5 sm:w-5" />
                 </a>
               </Button>
             </li>
@@ -125,54 +125,54 @@ export default function Footer() {
 
         <div className="border-t border-white/20 mt-6 pt-6 md:mt-4 md:pt-8 lg:grid lg:grid-cols-10">
           <nav className="lg:mt-0 lg:col-[4/11]">
-            <ul className="list-none flex flex-wrap -my-1 -mx-2 lg:justify-end">
-              <li className="my-1 mx-2 shrink-0">
+            <ul className="list-none flex flex-wrap justify-center sm:justify-start lg:justify-end gap-4 sm:gap-6 -my-1">
+              <li className="my-1 shrink-0">
                 <Link
                   to="/pricing"
-                  className="text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
+                  className="text-xs sm:text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
                 >
                   Pricing
                 </Link>
               </li>
-              <li className="my-1 mx-2 shrink-0">
+              <li className="my-1 shrink-0">
                 <Link
                   to="/contact"
-                  className="text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
+                  className="text-xs sm:text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
                 >
                   Contact
                 </Link>
               </li>
             </ul>
           </nav>
-          <div className="mt-6 lg:mt-0 lg:col-[4/11]">
-            <ul className="list-none flex flex-wrap -my-1 -mx-3 lg:justify-end">
-              <li className="my-1 mx-3 shrink-0">
+          <div className="mt-4 sm:mt-6 lg:mt-0 lg:col-[4/11]">
+            <ul className="list-none flex flex-wrap justify-center sm:justify-start lg:justify-end gap-4 sm:gap-6 -my-1">
+              <li className="my-1 shrink-0">
                 <Link
                   to="/privacy"
-                  className="text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
+                  className="text-xs sm:text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
                 >
                   Privacy Policy
                 </Link>
               </li>
-              <li className="my-1 mx-3 shrink-0">
+              <li className="my-1 shrink-0">
                 <Link
                   to="/terms"
-                  className="text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
+                  className="text-xs sm:text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
                 >
                   Terms of Service
                 </Link>
               </li>
-              <li className="my-1 mx-3 shrink-0">
+              <li className="my-1 shrink-0">
                 <Link
                   to="/cookies"
-                  className="text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
+                  className="text-xs sm:text-sm leading-6 text-white/70 hover:text-white transition-all duration-300 hover:translate-x-2 block"
                 >
                   Cookie Policy
                 </Link>
               </li>
             </ul>
           </div>
-          <div className="mt-6 text-sm leading-6 text-white/60 whitespace-nowrap lg:mt-0 lg:row-[1/3] lg:col-[1/4]">
+          <div className="mt-4 sm:mt-6 text-center sm:text-left text-xs sm:text-sm leading-6 text-white/60 lg:mt-0 lg:row-[1/3] lg:col-[1/4]">
             <div>
               &copy; {new Date().getFullYear()} optqo. All rights reserved.<br />
               A product of Sixth Sense Enterprises OPC Pvt Ltd (

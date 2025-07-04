@@ -5,7 +5,7 @@ import CodeOptimizationSection from "../components/landing-page/CodeOptimization
 import Footer from "../components/landing-page/Footer";
 // import BeamsBackground from "@/components/beams-backgruond"; // Import the BeamsBackground component
 import PricingCards from "../components/landing-page/PricingCards";
-import Testimonials from "../components/landing-page/Testimonials";
+// import Testimonials from "../components/landing-page/Testimonials";
 import { Background } from "../components/common/background";
 
 export default function LandingPage() {
@@ -23,20 +23,20 @@ export default function LandingPage() {
           <HeroSection />
           
           {/* Features section */}
-          <section id="features" className="py-16 sm:py-20 relative z-10">
-            <div className="max-w-7xl mx-auto px-4">
-              <div className="flex text-center justify-center items-center gap-4 flex-col mb-16">
+          <section id="features" className="py-12 sm:py-16 lg:py-20 relative z-10">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+              <div className="flex text-center justify-center items-center gap-4 flex-col mb-12 sm:mb-16">
                 <div className="flex gap-2 flex-col">
-                  <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">
+                  <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent px-2 sm:px-0">
                     Meet the Agents
                   </h2>
-                  <p className="text-lg text-white/70 max-w-2xl mx-auto">
+                  <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto px-4 sm:px-0">
                     A system of agentic AI—each with a distinct purpose—to modernize, optimize, and explain your legacy analytics code.
                   </p>
                 </div>
               </div>
               
-              <div className="space-y-24">
+              <div className="space-y-16 sm:space-y-20 lg:space-y-24">
                 <CodeSageVideo />
                 <OptimusVideo />
                 <TransformVideo />

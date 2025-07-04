@@ -171,7 +171,10 @@ const LanguageSelectModal: React.FC<LanguageSelectModalProps> = ({
           {/* Error display */}
           {(convertError || errorState || detectLanguageError) && (
             <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 text-sm backdrop-blur-sm">
-              {convertError || errorState || detectLanguageError}
+              <div className="font-medium mb-2">Network error</div>
+              <div className="text-white/80">
+                Please contact support@optqo.ai for assistance.
+              </div>
             </div>
           )}
         </div>

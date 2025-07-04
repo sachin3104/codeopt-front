@@ -104,20 +104,33 @@ const AuthSuccessPage: React.FC = () => {
             justify-content: center;
             align-items: center;
             min-height: 100vh;
-            padding: 2rem;
+            padding: 1rem;
+          }
+          
+          @media (min-width: 640px) {
+            .auth-success-container {
+              padding: 2rem;
+            }
           }
           
           .auth-success-card {
             backdrop-filter: blur(10px);
             background-color: rgba(15, 15, 30, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 16px;
+            border-radius: 12px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.2);
-            padding: 3rem 2rem;
+            padding: 2rem 1.5rem;
             width: 100%;
             max-width: 420px;
             text-align: center;
             transition: all 0.3s ease;
+          }
+          
+          @media (min-width: 640px) {
+            .auth-success-card {
+              border-radius: 16px;
+              padding: 3rem 2rem;
+            }
           }
           
           .auth-success-card:hover {
@@ -127,10 +140,16 @@ const AuthSuccessPage: React.FC = () => {
           }
           
           .status-icon {
-            margin: 0 auto 1.5rem;
+            margin: 0 auto 1rem;
             display: flex;
             align-items: center;
             justify-content: center;
+          }
+          
+          @media (min-width: 640px) {
+            .status-icon {
+              margin-bottom: 1.5rem;
+            }
           }
           
           .status-icon.loading {
@@ -156,25 +175,46 @@ const AuthSuccessPage: React.FC = () => {
           
           .status-title {
             color: rgba(255, 255, 255, 0.95);
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             font-weight: 600;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
+          }
+          
+          @media (min-width: 640px) {
+            .status-title {
+              font-size: 1.5rem;
+              margin-bottom: 1rem;
+            }
           }
           
           .status-message {
             color: rgba(255, 255, 255, 0.7);
-            font-size: 1rem;
+            font-size: 0.875rem;
             line-height: 1.5;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
+          }
+          
+          @media (min-width: 640px) {
+            .status-message {
+              font-size: 1rem;
+              margin-bottom: 2rem;
+            }
           }
           
           .progress-bar {
             width: 100%;
-            height: 4px;
+            height: 3px;
             background-color: rgba(255, 255, 255, 0.1);
             border-radius: 2px;
             overflow: hidden;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
+          }
+          
+          @media (min-width: 640px) {
+            .progress-bar {
+              height: 4px;
+              margin-bottom: 2rem;
+            }
           }
           
           .progress-fill {
@@ -210,14 +250,22 @@ const AuthSuccessPage: React.FC = () => {
             border-radius: 8px;
             color: white;
             cursor: pointer;
-            font-size: 0.875rem;
+            font-size: 0.75rem;
             font-weight: 500;
-            padding: 0.75rem 1.5rem;
+            padding: 0.625rem 1.25rem;
             transition: all 0.2s ease;
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.375rem;
             text-decoration: none;
+          }
+          
+          @media (min-width: 640px) {
+            .redirect-button {
+              font-size: 0.875rem;
+              padding: 0.75rem 1.5rem;
+              gap: 0.5rem;
+            }
           }
           
           .redirect-button:hover {
@@ -241,13 +289,26 @@ const AuthSuccessPage: React.FC = () => {
             background-color: rgba(52, 211, 153, 0.1);
             border: 1px solid rgba(52, 211, 153, 0.2);
             border-radius: 8px;
-            padding: 1rem;
-            margin-bottom: 1.5rem;
+            padding: 0.75rem;
+            margin-bottom: 1rem;
+          }
+          
+          @media (min-width: 640px) {
+            .user-welcome {
+              padding: 1rem;
+              margin-bottom: 1.5rem;
+            }
           }
           
           .user-welcome-text {
             color: rgba(255, 255, 255, 0.9);
-            font-size: 0.875rem;
+            font-size: 0.75rem;
+          }
+          
+          @media (min-width: 640px) {
+            .user-welcome-text {
+              font-size: 0.875rem;
+            }
           }
           
           .user-name {
@@ -260,13 +321,13 @@ const AuthSuccessPage: React.FC = () => {
           {/* Status Icon */}
           <div className={`status-icon ${status}`}>
             {status === 'loading' && (
-              <Loader2 className="h-12 w-12 loading-spinner" />
+              <Loader2 className="h-10 w-10 sm:h-12 sm:w-12 loading-spinner" />
             )}
             {status === 'success' && (
-              <CheckCircle className="h-12 w-12" />
+              <CheckCircle className="h-10 w-10 sm:h-12 sm:w-12" />
             )}
             {status === 'error' && (
-              <AlertCircle className="h-12 w-12" />
+              <AlertCircle className="h-10 w-10 sm:h-12 sm:w-12" />
             )}
           </div>
           
@@ -304,12 +365,12 @@ const AuthSuccessPage: React.FC = () => {
             >
               {status === 'error' ? (
                 <>
-                  <AlertCircle className="h-4 w-4" />
+                  <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span>Back to Login</span>
                 </>
               ) : (
                 <>
-                  <Home className="h-4 w-4" />
+                  <Home className="h-3 w-3 sm:h-4 sm:w-4" />
                   <span>Go to Dashboard</span>
                 </>
               )}

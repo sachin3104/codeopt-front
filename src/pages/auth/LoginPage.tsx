@@ -37,39 +37,39 @@ const LoginPage: React.FC = () => {
       <Background />
       
       {/* Content container */}
-      <div className="relative min-h-screen flex items-center justify-center p-4">
+      <div className="relative min-h-screen flex items-center justify-center p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-md">
           <Link 
             to="/"
-            className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-6 transition-colors"
+            className="inline-flex items-center gap-2 text-white/60 hover:text-white mb-4 sm:mb-6 transition-colors"
           >
             <ArrowLeft className="h-4 w-4" />
-            <span>Back to Home</span>
+            <span className="text-sm sm:text-base">Back to Home</span>
           </Link>
 
-          <div className="backdrop-blur-md bg-gradient-to-br from-black/60 via-black/50 to-black/40 border border-white/20 rounded-2xl p-8 shadow-2xl">
-            <h2 className="text-2xl font-bold text-white mb-6 flex items-center justify-center gap-2">
-              <LogIn className="h-6 w-6" />
+          <div className="backdrop-blur-md bg-gradient-to-br from-black/60 via-black/50 to-black/40 border border-white/20 rounded-xl sm:rounded-2xl p-6 sm:p-8 shadow-2xl">
+            <h2 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6 flex items-center justify-center gap-2">
+              <LogIn className="h-5 w-5 sm:h-6 sm:w-6" />
               <span>Log In</span>
             </h2>
             
             {error && (
-              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-4 mb-6 flex items-center gap-2 text-red-400">
-                <AlertCircle className="h-5 w-5" />
-                <span>{error}</span>
+              <div className="bg-red-500/10 border border-red-500/20 rounded-lg p-3 sm:p-4 mb-4 sm:mb-6 flex items-center gap-2 text-red-400">
+                <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5" />
+                <span className="text-xs sm:text-sm">{error}</span>
               </div>
             )}
 
             <button 
               type="button" 
-              className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-3 mb-2 flex items-center justify-center gap-2 text-white transition-all duration-300"
+              className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2.5 sm:p-3 mb-2 flex items-center justify-center gap-2 text-white transition-all duration-300 text-sm sm:text-base"
               onClick={loginWithGoogle}
             >
-              <IconBrandGoogle className="h-5 w-5" />
+              <IconBrandGoogle className="h-4 w-4 sm:h-5 sm:w-5" />
               <span>Continue with Google</span>
             </button>
             
-            <div className="text-xs text-white/60 text-center mb-6">
+            <div className="text-xs text-white/60 text-center mb-4 sm:mb-6">
               By continuing with Google, you accept our{' '}
               <Link to="/terms" className="text-white hover:text-white/80 transition-colors underline">
                 Terms of Service
@@ -80,23 +80,23 @@ const LoginPage: React.FC = () => {
               </Link>
             </div>
 
-            <div className="relative flex items-center justify-center mb-6">
+            <div className="relative flex items-center justify-center mb-4 sm:mb-6">
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-white/10"></div>
               </div>
-              <div className="relative px-4 text-sm text-white/50">or continue with email</div>
+              <div className="relative px-3 sm:px-4 text-xs sm:text-sm text-white/50">or continue with email</div>
             </div>
             
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">Username</label>
+                <label className="block text-xs sm:text-sm font-medium text-white/80 mb-1.5 sm:mb-2">Username</label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
+                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-white/50" />
                   <input
                     type="text"
                     value={username}
                     onChange={e => setUsername(e.target.value)}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 sm:py-3 pl-9 sm:pl-10 pr-3 sm:pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors text-sm sm:text-base"
                     placeholder="Enter your username"
                     required
                   />
@@ -104,23 +104,23 @@ const LoginPage: React.FC = () => {
               </div>
               
               <div>
-                <label className="block text-sm font-medium text-white/80 mb-2">Password</label>
+                <label className="block text-xs sm:text-sm font-medium text-white/80 mb-1.5 sm:mb-2">Password</label>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-white/50" />
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 sm:h-5 sm:w-5 text-white/50" />
                   <input
                     type="password"
                     value={password}
                     onChange={e => {
                       setPassword(e.target.value);
                     }}
-                    className="w-full bg-white/5 border border-white/10 rounded-lg py-3 pl-10 pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors"
+                    className="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 sm:py-3 pl-9 sm:pl-10 pr-3 sm:pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors text-sm sm:text-base"
                     placeholder="Enter your password"
                     required
                   />
                 </div>
                 {errors.password && (
-                  <p className="text-red-400 text-sm mt-1 flex items-center gap-1">
-                    <AlertCircle className="h-4 w-4" />
+                  <p className="text-red-400 text-xs sm:text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
                     {errors.password}
                   </p>
                 )}
@@ -128,14 +128,14 @@ const LoginPage: React.FC = () => {
               
               <button 
                 type="submit" 
-                className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-3 flex items-center justify-center gap-2 text-white transition-all duration-300"
+                className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2.5 sm:p-3 flex items-center justify-center gap-2 text-white transition-all duration-300 text-sm sm:text-base"
               >
-                <LogIn className="h-5 w-5" />
+                <LogIn className="h-4 w-4 sm:h-5 sm:w-5" />
                 <span>Log In</span>
               </button>
             </form>
 
-            <div className="mt-6 text-center text-sm text-white/60">
+            <div className="mt-4 sm:mt-6 text-center text-xs sm:text-sm text-white/60">
               Don't have an account?{' '}
               <Link to="/signup" className="text-white hover:text-white/80 transition-colors">
                 Sign up

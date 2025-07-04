@@ -63,7 +63,17 @@ export function Compare({
 }: CompareProps) {
   const [pct, setPct] = useState(initialPct);
   const [dragging, setDragging] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
+  const [showFirst, setShowFirst] = useState(true); // for mobile toggle
   const ref = useRef<HTMLDivElement>(null);
+
+  // Detect mobile
+  useEffect(() => {
+    const checkMobile = () => setIsMobile(window.innerWidth < 640);
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const move = useCallback((x: number) => {
     if (!ref.current) return;
@@ -73,6 +83,7 @@ export function Compare({
     setPct(newPct);
   }, []);
 
+  // Mouse events
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => dragging && move(e.clientX);
     const onMouseUp = () => setDragging(false);
@@ -84,12 +95,67 @@ export function Compare({
     };
   }, [dragging, move]);
 
+  // Touch events for mobile
+  useEffect(() => {
+    const onTouchMove = (e: TouchEvent) => {
+      if (!dragging) return;
+      if (e.touches.length > 0) {
+        move(e.touches[0].clientX);
+      }
+    };
+    const onTouchEnd = () => setDragging(false);
+    window.addEventListener('touchmove', onTouchMove);
+    window.addEventListener('touchend', onTouchEnd);
+    return () => {
+      window.removeEventListener('touchmove', onTouchMove);
+      window.removeEventListener('touchend', onTouchEnd);
+    };
+  }, [dragging, move]);
+
+  if (isMobile) {
+    // Mobile: show toggle buttons and stack code blocks
+    return (
+      <div className={clsx("w-full h-full flex flex-col", className)}>
+        <div className="flex justify-center gap-2 mb-2">
+          <button
+            className={clsx(
+              "px-3 py-1 rounded text-xs font-semibold",
+              showFirst ? "bg-indigo-500 text-white" : "bg-white text-black"
+            )}
+            onClick={() => setShowFirst(true)}
+          >
+            Before
+          </button>
+          <button
+            className={clsx(
+              "px-3 py-1 rounded text-xs font-semibold",
+              !showFirst ? "bg-indigo-500 text-white" : "bg-white text-black"
+            )}
+            onClick={() => setShowFirst(false)}
+          >
+            After
+          </button>
+        </div>
+        <div className="flex-1 relative w-full">
+          <pre className={clsx(
+            "h-[50vh] max-h-[60vw] min-h-[200px] overflow-auto p-3 font-mono text-xs text-white leading-relaxed bg-transparent rounded-md border border-white/10",
+            codeClass
+          )}>
+            <code>{showFirst ? firstCode : secondCode}</code>
+          </pre>
+        </div>
+      </div>
+    );
+  }
+
+  // Desktop: keep original slider layout
   return (
     <div
       ref={ref}
       className={clsx("relative w-full h-full select-none overflow-hidden", className)}
       onMouseDown={(e) => { setDragging(true); move(e.clientX); }}
       onMouseMove={(e) => !dragging && move(e.clientX)}
+      onTouchStart={(e) => { setDragging(true); if (e.touches.length > 0) move(e.touches[0].clientX); }}
     >
       {/* Slider handle */}
       <AnimatePresence>
@@ -130,12 +196,12 @@ export function Compare({
 // Main section
 export default function CodeCompareSection() {
   return (
-    <section className="py-20 bg-[#1A1A1D]">
-      <div className="max-w-6xl mx-auto px-4">
-        <h2 className="text-3xl font-bold text-white text-center mb-8">
+    <section className="py-10 sm:py-20 bg-[#1A1A1D]">
+      <div className="max-w-6xl mx-auto px-2 sm:px-4">
+        <h2 className="text-2xl sm:text-3xl font-bold text-white text-center mb-4 sm:mb-8">
           Before & After: Code Comparison
         </h2>
-        <div className="h-[70vh] bg-[rgba(255,255,255,0.05)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.12)] rounded-3xl overflow-hidden relative">
+        <div className="h-[50vh] sm:h-[70vh] bg-[rgba(255,255,255,0.05)] backdrop-blur-[16px] border border-[rgba(255,255,255,0.12)] rounded-2xl sm:rounded-3xl overflow-hidden relative">
           <Compare
             firstCode={beforeCode}
             secondCode={afterCode}

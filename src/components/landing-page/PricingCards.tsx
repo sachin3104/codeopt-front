@@ -86,33 +86,33 @@ const plans = [
 
 export default function PricingCards() {
   return (
-    <section className="relative py-16 sm:py-20">
-      <div className="max-w-7xl mx-auto px-0">
+    <section className="relative py-12 sm:py-16 lg:py-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-0">
         <div className="flex text-center justify-center items-center gap-4 flex-col">
           <div className="flex gap-2 flex-col">
-            <h2 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-white via-blue-100 to-blue-200 bg-clip-text text-transparent">
               optqo Pricing Plans
             </h2>
-            <p className="text-lg text-white/70 max-w-2xl mx-auto">
+            <p className="text-base sm:text-lg text-white/70 max-w-2xl mx-auto px-4">
               Choose the right agentic AI experience for your code modernization journey.
             </p>
           </div>
 
-          <div className="grid text-left w-full lg:grid-cols-5 gap-4 pt-20">
+          <div className="grid text-left w-full grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 sm:gap-6 pt-12 sm:pt-16 lg:pt-20">
             {plans.map((plan, index) => (
-              <div key={plan.name} className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-4 flex flex-col">
+              <div key={plan.name} className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-xl sm:rounded-2xl p-4 sm:p-6 flex flex-col">
                 {/* Plan Name and Description */}
-                <div className="min-h-[120px]">
-                  <h3 className="text-xl font-bold text-white mb-3 leading-tight px-2 py-1">{plan.name}</h3>
-                  <p className="text-xs text-white/60 leading-relaxed">
+                <div className="min-h-[100px] sm:min-h-[120px]">
+                  <h3 className="text-lg sm:text-xl font-bold text-white mb-2 sm:mb-3 leading-tight px-1 sm:px-2 py-1">{plan.name}</h3>
+                  <p className="text-xs sm:text-sm text-white/60 leading-relaxed">
                     {plan.description}
                   </p>
                 </div>
 
                 {/* Pricing */}
-                <div className="flex flex-col items-start mb-6">
+                <div className="flex flex-col items-start mb-4 sm:mb-6">
                   <div className="flex items-baseline">
-                    <span className="text-xl font-bold text-white">
+                    <span className="text-lg sm:text-xl font-bold text-white">
                       {typeof plan.price === 'number' ? `$${plan.price}` : plan.price}
                     </span>
                     <span className="text-xs text-white/60 ml-1">/{plan.period}</span>
@@ -120,12 +120,12 @@ export default function PricingCards() {
                 </div>
 
                 {/* Features List */}
-                <div className="flex-1 space-y-4 mb-6">
-                  <div className="space-y-3">
+                <div className="flex-1 space-y-3 sm:space-y-4 mb-4 sm:mb-6">
+                  <div className="space-y-2 sm:space-y-3">
                     {plan.features.map((feature, idx) => (
-                      <div key={idx} className="flex items-start gap-3">
-                        <Check className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                        <span className="text-xs text-white/80 leading-relaxed">{feature}</span>
+                      <div key={idx} className="flex items-start gap-2 sm:gap-3">
+                        <Check className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                        <span className="text-xs sm:text-sm text-white/80 leading-relaxed">{feature}</span>
                       </div>
                     ))}
                   </div>
@@ -134,9 +134,9 @@ export default function PricingCards() {
                 {/* CTA Button */}
                 <Link to="/login" className="w-full mt-auto">
                   <button 
-                    className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-3 py-3 flex items-center justify-center gap-2"
+                    className="w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-lg sm:rounded-xl text-white px-3 py-2.5 sm:py-3 flex items-center justify-center gap-2 text-sm sm:text-base"
                   >
-                    {plan.buttonText} <plan.buttonIcon className="w-4 h-4" />
+                    {plan.buttonText} <plan.buttonIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                   </button>
                 </Link>
               </div>

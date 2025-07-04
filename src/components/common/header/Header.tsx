@@ -85,25 +85,25 @@ const Header: React.FC<HeaderProps> = ({ variant = 'default' }) => {
           ? 'bg-gradient-to-br from-black/40 via-black/30 to-black/20 border-b border-white/20' 
           : ''
       }`}>
-        <div className="container mx-auto px-4">
-          <div className="flex items-center justify-between h-16">
+        <div className="container mx-auto px-3 sm:px-4 lg:px-6">
+          <div className="flex items-center justify-between h-14 sm:h-16">
             {/* Logo */}
             <div
               className="flex-shrink-0 flex items-center cursor-pointer"
               onClick={handleLogoClick}
             >
-              <img src={logoUrl} alt="Optqo Logo" className="h-20 w-auto mr-2" />
+              <img src={logoUrl} alt="Optqo Logo" className="h-16 w-auto sm:h-20 mr-1 sm:mr-2" />
             </div>
 
             {/* Center Action Buttons - Only for results variants */}
             {variant !== 'default' && (
-              <div className="flex-1 flex justify-center">
+              <div className="flex-1 flex justify-center px-2 sm:px-4">
                 {getActionButtons()}
               </div>
             )}
 
             {/* User Menu */}
-            <div className="flex items-center space-x-3">
+            <div className="flex items-center space-x-2 sm:space-x-3">
               <UserPlanButton onLogoutClick={() => setShowLogoutModal(true)} />
             </div>
           </div>

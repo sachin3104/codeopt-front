@@ -33,16 +33,16 @@ export default function Header() {
     <header
       ref={menuRef}
       className={clsx(
-        "fixed top-4 inset-x-8 z-50",
+        "fixed top-2 sm:top-4 inset-x-4 sm:inset-x-8 z-50",
         "transition-all duration-700 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;"
       )}
     >
       {/* Main header bar */}
       <div className={clsx(
         "flex items-center justify-between",
-        "px-6 py-2",
+        "px-4 sm:px-6 py-2 sm:py-3",
         "backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20",
-        "rounded-2xl",
+        "rounded-xl sm:rounded-2xl",
         "shadow-lg shadow-black/10",
         "transition-all duration-700 ease-&lsqb;cubic-bezier(0.4,0,0,1)&rsqb;",
         isMenuOpen ? "scale-[1.02]" : "scale-100"
@@ -55,7 +55,7 @@ export default function Header() {
             "cursor-pointer relative group"
           )}
         >
-          <img src={logoUrl} alt="Optqo Logo" className="h-20 w-auto" />
+          <img src={logoUrl} alt="Optqo Logo" className="h-16 sm:h-20 w-auto" />
           <div className="absolute inset-0 bg-gradient-to-r from-blue-400/20 to-purple-400/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300 blur-sm"></div>
         </Link>
         
@@ -63,9 +63,9 @@ export default function Header() {
         <button
           onClick={() => setIsMenuOpen(!isMenuOpen)}
           className={clsx(
-            "relative w-12 h-12",
+            "relative w-10 h-10 sm:w-12 sm:h-12",
             "flex items-center justify-center",
-            "rounded-xl",
+            "rounded-lg sm:rounded-xl",
             "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
             "group",
             isMenuOpen 
@@ -74,34 +74,34 @@ export default function Header() {
           )}
         >
           {/* Animated hamburger lines */}
-          <div className="relative w-6 h-6">
+          <div className="relative w-5 h-5 sm:w-6 sm:h-6">
             <span className={clsx(
-              "absolute left-0 w-6 h-0.5 bg-white rounded-full",
+              "absolute left-0 w-5 sm:w-6 h-0.5 bg-white rounded-full",
               "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
               "origin-center",
               isMenuOpen 
-                ? "top-3 rotate-45" 
-                : "top-2"
+                ? "top-2.5 sm:top-3 rotate-45" 
+                : "top-1.5 sm:top-2"
             )}></span>
             <span className={clsx(
-              "absolute left-0 w-6 h-0.5 bg-white rounded-full",
+              "absolute left-0 w-5 sm:w-6 h-0.5 bg-white rounded-full",
               "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
-              "top-3",
+              "top-2.5 sm:top-3",
               isMenuOpen ? "opacity-0 scale-0" : "opacity-100 scale-100"
             )}></span>
             <span className={clsx(
-              "absolute left-0 w-6 h-0.5 bg-white rounded-full",
+              "absolute left-0 w-5 sm:w-6 h-0.5 bg-white rounded-full",
               "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
               "origin-center",
               isMenuOpen 
-                ? "top-3 -rotate-45" 
-                : "top-4"
+                ? "top-2.5 sm:top-3 -rotate-45" 
+                : "top-3.5 sm:top-4"
             )}></span>
           </div>
           
           {/* Ripple effect */}
           <div className={clsx(
-            "absolute inset-0 rounded-xl",
+            "absolute inset-0 rounded-lg sm:rounded-xl",
             "bg-gradient-to-r from-blue-400/20 to-purple-400/20",
             "opacity-0 group-hover:opacity-100",
             "transition-opacity duration-300",
@@ -112,7 +112,7 @@ export default function Header() {
 
       {/* Animated menu overlay */}
       <div className={clsx(
-        "absolute top-full left-0 right-0 mt-4",
+        "absolute top-full left-0 right-0 mt-2 sm:mt-4",
         "transition-all duration-700 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
         isMenuOpen 
           ? "opacity-100 translate-y-0 pointer-events-auto" 
@@ -120,13 +120,13 @@ export default function Header() {
       )}>
         <div className={clsx(
           "backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20",
-          "rounded-2xl",
+          "rounded-xl sm:rounded-2xl",
           "shadow-xl shadow-black/20",
-          "p-6",
+          "p-4 sm:p-6",
           "overflow-hidden"
         )}>
           {/* Menu Items */}
-          <div className="flex flex-col gap-3 mb-6">
+          <div className="flex flex-col gap-2 sm:gap-3 mb-4 sm:mb-6">
             {menuItems.map((item, index) => {
               const isExternalLink = item.href.startsWith('/');
               
@@ -137,9 +137,9 @@ export default function Header() {
                     to={item.href}
                     className={clsx(
                       "relative group",
-                      "px-6 py-4",
-                      "text-white text-lg font-medium",
-                      "rounded-xl",
+                      "px-4 sm:px-6 py-3 sm:py-4",
+                      "text-white text-base sm:text-lg font-medium",
+                      "rounded-lg sm:rounded-xl",
                       "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
                       "hover:bg-white/20 hover:scale-[1.02]",
                       "cursor-pointer",
@@ -161,7 +161,7 @@ export default function Header() {
                       "bg-gradient-to-r from-blue-400/10 to-purple-400/10",
                       "opacity-0 group-hover:opacity-100",
                       "transition-opacity duration-300",
-                      "rounded-xl"
+                      "rounded-lg sm:rounded-xl"
                     )}></div>
                     
                     {/* Text with glow effect */}
@@ -185,9 +185,9 @@ export default function Header() {
                     href={item.href}
                     className={clsx(
                       "relative group",
-                      "px-6 py-4",
-                      "text-white text-lg font-medium",
-                      "rounded-xl",
+                      "px-4 sm:px-6 py-3 sm:py-4",
+                      "text-white text-base sm:text-lg font-medium",
+                      "rounded-lg sm:rounded-xl",
                       "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
                       "hover:bg-white/20 hover:scale-[1.02]",
                       "cursor-pointer",
@@ -209,7 +209,7 @@ export default function Header() {
                       "bg-gradient-to-r from-blue-400/10 to-purple-400/10",
                       "opacity-0 group-hover:opacity-100",
                       "transition-opacity duration-300",
-                      "rounded-xl"
+                      "rounded-lg sm:rounded-xl"
                     )}></div>
                     
                     {/* Text with glow effect */}
@@ -231,17 +231,17 @@ export default function Header() {
           </div>
 
           {/* Divider */}
-          <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-6"></div>
+          <div className="w-full h-px bg-gradient-to-r from-transparent via-white/20 to-transparent mb-4 sm:mb-6"></div>
 
           {/* Auth Buttons */}
-          <div className="flex flex-col gap-3">
+          <div className="flex flex-col gap-2 sm:gap-3">
             <Link
               to="/login"
               className={clsx(
                 "relative group",
-                "px-6 py-4",
-                "text-white text-lg font-medium text-center",
-                "rounded-xl",
+                "px-4 sm:px-6 py-3 sm:py-4",
+                "text-white text-base sm:text-lg font-medium text-center",
+                "rounded-lg sm:rounded-xl",
                 "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
                 "hover:scale-[1.02]",
                 "cursor-pointer",
@@ -265,7 +265,7 @@ export default function Header() {
                 "bg-gradient-to-r from-white/20 to-gray-300/20",
                 "opacity-0 group-hover:opacity-100",
                 "transition-opacity duration-300",
-                "rounded-xl"
+                "rounded-lg sm:rounded-xl"
               )}></div>
               
               {/* Text with glow effect */}
@@ -286,9 +286,9 @@ export default function Header() {
               to="/signup"
               className={clsx(
                 "relative group",
-                "px-6 py-4",
-                "text-white text-lg font-medium text-center",
-                "rounded-xl",
+                "px-4 sm:px-6 py-3 sm:py-4",
+                "text-white text-base sm:text-lg font-medium text-center",
+                "rounded-lg sm:rounded-xl",
                 "transition-all duration-500 ease-&lsqb;cubic-bezier(0.4,0,0.2,1)&rsqb;",
                 "hover:scale-[1.02]",
                 "cursor-pointer",
@@ -312,7 +312,7 @@ export default function Header() {
                 "bg-gradient-to-r from-black/30 to-gray-800/30",
                 "opacity-0 group-hover:opacity-100",
                 "transition-opacity duration-300",
-                "rounded-xl"
+                "rounded-lg sm:rounded-xl"
               )}></div>
               
               {/* Text with glow effect */}
