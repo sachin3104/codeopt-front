@@ -1,10 +1,11 @@
 import React, { useState, FormEvent } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate, Link } from 'react-router-dom';
-import { LogIn, User, Lock, AlertCircle, ArrowLeft } from 'lucide-react';
+import { LogIn, User, Lock, AlertCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import {IconBrandGoogle} from '@tabler/icons-react';
 import { Background } from '@/components/common/background';
 import { useValidation } from '@/hooks/useValidation';
+import { getLoginErrorMessage } from '@/utils/errorHandlers';
 
 const LoginPage: React.FC = () => {
   const { login, loginWithGoogle } = useAuth();
@@ -12,6 +13,8 @@ const LoginPage: React.FC = () => {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { errors, validatePassword } = useValidation();
 
   const handleSubmit = async (e: FormEvent) => {
@@ -23,11 +26,31 @@ const LoginPage: React.FC = () => {
       return; // Don't submit if there is a password error
     }
     
+    setIsLoading(true);
+    setError(null);
+    
     try {
       await login({ username, password });
       navigate('/'); // protected home
     } catch (err: any) {
-      setError(err.message || 'Login failed');
+      const userFriendlyError = getLoginErrorMessage(err);
+      setError(userFriendlyError);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+    setError(null);
+    
+    try {
+      await loginWithGoogle();
+    } catch (err: any) {
+      const userFriendlyError = getLoginErrorMessage(err);
+      setError(userFriendlyError);
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -62,11 +85,16 @@ const LoginPage: React.FC = () => {
 
             <button 
               type="button" 
-              className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2.5 sm:p-3 mb-2 flex items-center justify-center gap-2 text-white transition-all duration-300 text-sm sm:text-base"
-              onClick={loginWithGoogle}
+              className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2.5 sm:p-3 mb-2 flex items-center justify-center gap-2 text-white transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleGoogleLogin}
+              disabled={isGoogleLoading || isLoading}
             >
-              <IconBrandGoogle className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Continue with Google</span>
+              {isGoogleLoading ? (
+                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+              ) : (
+                <IconBrandGoogle className="h-4 w-4 sm:h-5 sm:w-5" />
+              )}
+              <span>{isGoogleLoading ? 'Connecting...' : 'Continue with Google'}</span>
             </button>
             
             <div className="text-xs text-white/60 text-center mb-4 sm:mb-6">
@@ -128,10 +156,15 @@ const LoginPage: React.FC = () => {
               
               <button 
                 type="submit" 
-                className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2.5 sm:p-3 flex items-center justify-center gap-2 text-white transition-all duration-300 text-sm sm:text-base"
+                className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2.5 sm:p-3 flex items-center justify-center gap-2 text-white transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoading || isGoogleLoading}
               >
-                <LogIn className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span>Log In</span>
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                ) : (
+                  <LogIn className="h-4 w-4 sm:h-5 sm:w-5" />
+                )}
+                <span>{isLoading ? 'Logging In...' : 'Log In'}</span>
               </button>
             </form>
 

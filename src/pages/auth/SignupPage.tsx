@@ -4,10 +4,11 @@
 import React, { useState, FormEvent } from 'react';
 import { useAuth } from '@/hooks/use-auth';
 import { useNavigate, Link } from 'react-router-dom';
-import { UserPlus, User, Lock, Mail, AlertCircle, ArrowLeft } from 'lucide-react';
+import { UserPlus, User, Lock, Mail, AlertCircle, ArrowLeft, Loader2 } from 'lucide-react';
 import { IconBrandGoogle } from '@tabler/icons-react';
 import { Background } from '@/components/common/background';
 import { useValidation } from '@/hooks/useValidation';
+import { getSignupErrorMessage } from '@/utils/errorHandlers';
 
 const SignupPage: React.FC = () => {
   const { signup, loginWithGoogle } = useAuth();
@@ -17,6 +18,8 @@ const SignupPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const { errors, validateEmail, validatePassword, validateForm } = useValidation();
 
   const handleSubmit = async (e: FormEvent) => {
@@ -34,11 +37,31 @@ const SignupPage: React.FC = () => {
       return; // Don't submit if there are validation errors
     }
     
+    setIsLoading(true);
+    setError(null);
+    
     try {
       await signup({ username, email, password, use_otp: true });
       // Navigation will be handled by the AuthContext based on OTP flow
     } catch (err: any) {
-      setError(err.message || 'Signup failed');
+      const userFriendlyError = getSignupErrorMessage(err);
+      setError(userFriendlyError);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleGoogleLogin = async () => {
+    setIsGoogleLoading(true);
+    setError(null);
+    
+    try {
+      await loginWithGoogle();
+    } catch (err: any) {
+      const userFriendlyError = getSignupErrorMessage(err);
+      setError(userFriendlyError);
+    } finally {
+      setIsGoogleLoading(false);
     }
   };
 
@@ -73,11 +96,16 @@ const SignupPage: React.FC = () => {
 
             <button 
               type="button" 
-              className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2.5 sm:p-3 mb-2 flex items-center justify-center gap-2 text-white transition-all duration-300 text-sm sm:text-base"
-              onClick={loginWithGoogle}
+              className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2.5 sm:p-3 mb-2 flex items-center justify-center gap-2 text-white transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+              onClick={handleGoogleLogin}
+              disabled={isGoogleLoading || isLoading}
             >
-              <IconBrandGoogle className="h-4 w-4 sm:h-5 sm:w-5" />
-              <span>Continue with Google</span>
+              {isGoogleLoading ? (
+                <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+              ) : (
+                <IconBrandGoogle className="h-4 w-4 sm:h-5 sm:w-5" />
+              )}
+              <span>{isGoogleLoading ? 'Connecting...' : 'Continue with Google'}</span>
             </button>
             
             <div className="text-xs text-white/60 text-center mb-4 sm:mb-6">
@@ -184,10 +212,15 @@ const SignupPage: React.FC = () => {
               
               <button 
                 type="submit" 
-                className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2.5 sm:p-3 flex items-center justify-center gap-2 text-white transition-all duration-300 text-sm sm:text-base"
+                className="w-full bg-white/10 hover:bg-white/20 border border-white/20 rounded-lg p-2.5 sm:p-3 flex items-center justify-center gap-2 text-white transition-all duration-300 text-sm sm:text-base disabled:opacity-50 disabled:cursor-not-allowed"
+                disabled={isLoading || isGoogleLoading}
               >
-                <UserPlus className="h-4 w-4 sm:h-5 sm:w-5" />
-                <span>Sign Up</span>
+                {isLoading ? (
+                  <Loader2 className="h-4 w-4 sm:h-5 sm:w-5 animate-spin" />
+                ) : (
+                  <UserPlus className="h-4 w-4 sm:h-5 sm:w-5" />
+                )}
+                <span>{isLoading ? 'Creating Account...' : 'Sign Up'}</span>
               </button>
             </form>
 
