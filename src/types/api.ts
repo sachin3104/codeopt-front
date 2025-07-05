@@ -185,7 +185,35 @@ export interface ConversionData {
 }
 
 export interface ConversionResult {
-  conversion: ConversionData
+  conversion?: ConversionData
+  converted_code?: string
+  original_code?: string
+  source_language?: string
+  target_language?: string
+  conversion_notes?: string
+  quality?: {
+    success_rate: number
+    syntax_conversion_status: string
+    logic_preservation_status: string
+    data_type_mapping_status: string
+  }
+  benefits?: {
+    processing_speed_improvement: string
+    memory_usage_reduction: string
+    license_cost_savings: string
+    cloud_readiness: string
+  }
+  advantages?: string[]
+  environment?: {
+    installation_commands: string
+    version_compatibility: string
+  }
+  setup_steps?: Array<{
+    step: string
+    command: string
+    description: string
+  }>
+  key_changes?: string[]
 }
 
 // Shared helpers
