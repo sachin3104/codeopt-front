@@ -58,10 +58,10 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
     return 'text-white/60'
   }
 
-  // Capitalize first letter (or show "Unknown")
+  // Show language in capital letters (or show "Unknown")
   const getLanguageDisplayName = (lang: string) =>
     lang
-      ? lang.charAt(0).toUpperCase() + lang.slice(1).toLowerCase()
+      ? lang.toUpperCase()
       : 'Unknown'
 
   // Get character count text with formatting - memoized to prevent unnecessary re-computations
