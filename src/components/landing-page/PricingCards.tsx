@@ -9,7 +9,7 @@ const plans = [
     period: "forever",
     description: "Perfect for exploration and small-scale diagnostics.",
     features: [
-      "5 AI optimization requests per day",
+      "20 AI optimization requests per day",
       "Up to 15000 characters per request",
       "Essential diagnostics with Code Sage",
       "Basic optimization insights",
@@ -25,7 +25,7 @@ const plans = [
     period: "per month",
     description: "For analysts seeking deeper insights and diagnostics.",
     features: [
-      "50 AI optimization requests per day",
+      "100 AI optimization requests per day",
       "Up to 40000 characters per request",
       "Comprehensive code diagnostics with flowchart tracing",
       "Interactive workflow visualization with Code Sage",

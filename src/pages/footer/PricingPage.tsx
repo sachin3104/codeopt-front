@@ -37,11 +37,11 @@ export default function PricingPage() {
                   <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
                     <div className="flex items-start gap-2 sm:gap-3">
                       <Check className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-xs sm:text-sm text-white/80">5 AI optimization requests per day</span>
+                      <span className="text-xs sm:text-sm text-white/80">20 AI optimization requests per day</span>
                     </div>
                     <div className="flex items-start gap-2 sm:gap-3">
                       <Check className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-xs sm:text-sm text-white/80">Up to 300 lines per request</span>
+                      <span className="text-xs sm:text-sm text-white/80">Up to 15000 characters per request</span>
                     </div>
                     <div className="flex items-start gap-2 sm:gap-3">
                       <Check className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0 mt-0.5" />
@@ -77,11 +77,11 @@ export default function PricingPage() {
                   <div className="space-y-2 sm:space-y-3 mb-6 sm:mb-8">
                     <div className="flex items-start gap-2 sm:gap-3">
                       <Check className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-xs sm:text-sm text-white/80">50 AI optimization requests per day</span>
+                      <span className="text-xs sm:text-sm text-white/80">100 AI optimization requests per day</span>
                     </div>
                     <div className="flex items-start gap-2 sm:gap-3">
                       <Check className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-xs sm:text-sm text-white/80">Up to 800 lines per request</span>
+                      <span className="text-xs sm:text-sm text-white/80">Up to 40000 characters per request</span>
                     </div>
                     <div className="flex items-start gap-2 sm:gap-3">
                       <Check className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0 mt-0.5" />
@@ -121,7 +121,7 @@ export default function PricingPage() {
                     </div>
                     <div className="flex items-start gap-2 sm:gap-3">
                       <Check className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-xs sm:text-sm text-white/80">Up to 1000 lines per request</span>
+                      <span className="text-xs sm:text-sm text-white/80">Up to 50000 characters per request</span>
                     </div>
                     <div className="flex items-start gap-2 sm:gap-3">
                       <Check className="h-4 w-4 sm:h-5 sm:w-5 text-blue-400 flex-shrink-0 mt-0.5" />
