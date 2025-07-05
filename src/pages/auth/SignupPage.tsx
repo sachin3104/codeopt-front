@@ -20,7 +20,7 @@ const SignupPage: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isGoogleLoading, setIsGoogleLoading] = useState(false);
-  const { errors, validateEmail, validatePassword, validateForm } = useValidation();
+  const { errors, validateEmail, validatePassword, validateForm, setEmailForValidation, setPasswordForValidation, setUsernameForValidation } = useValidation();
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -134,12 +134,21 @@ const SignupPage: React.FC = () => {
                   <input
                     type="text"
                     value={username}
-                    onChange={e => setUsername(e.target.value)}
+                    onChange={e => {
+                      setUsername(e.target.value);
+                      setUsernameForValidation(e.target.value);
+                    }}
                     className="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 sm:py-3 pl-9 sm:pl-10 pr-3 sm:pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors text-sm sm:text-base"
                     placeholder="Choose a username"
                     required
                   />
                 </div>
+                {errors.username && (
+                  <p className="text-red-400 text-xs sm:text-sm mt-1 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3 sm:h-4 sm:w-4" />
+                    {errors.username}
+                  </p>
+                )}
               </div>
 
               <div>
@@ -151,7 +160,7 @@ const SignupPage: React.FC = () => {
                     value={email}
                     onChange={e => {
                       setEmail(e.target.value);
-                      validateEmail(e.target.value);
+                      setEmailForValidation(e.target.value);
                     }}
                     className="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 sm:py-3 pl-9 sm:pl-10 pr-3 sm:pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors text-sm sm:text-base"
                     placeholder="Enter your email"
@@ -175,7 +184,7 @@ const SignupPage: React.FC = () => {
                     value={password}
                     onChange={e => {
                       setPassword(e.target.value);
-                      validatePassword(e.target.value, username, email);
+                      setPasswordForValidation(e.target.value, username, email);
                     }}
                     className="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 sm:py-3 pl-9 sm:pl-10 pr-3 sm:pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors text-sm sm:text-base"
                     placeholder="Create a password"
