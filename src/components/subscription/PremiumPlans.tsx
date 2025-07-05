@@ -133,9 +133,8 @@ const PremiumPlans: React.FC = () => {
 
           // Create features array for the plan
           const features = [
-            `Max code input: ${plan.max_code_input_chars ? plan.max_code_input_chars.toLocaleString() : 'Unlimited'}`,
-            `Daily requests: ${plan.max_daily_usage != null ? plan.max_daily_usage : 'Unlimited'}`,
-            `Monthly requests: ${plan.max_monthly_usage != null ? plan.max_monthly_usage : 'Unlimited'}`
+            `Max code input: ${plan.max_code_input_chars ? plan.max_code_input_chars.toLocaleString() : 'Custom'}`,
+            `Daily requests: ${plan.max_daily_usage != null ? plan.max_daily_usage : 'Custom'}`
           ];
 
           const ButtonIcon = getButtonIcon();
@@ -167,31 +166,39 @@ const PremiumPlans: React.FC = () => {
                 </div>
               </div>
 
-              {/* Features List */}
-              <div className="flex-1 space-y-4 mb-6">
-                <div className="space-y-3">
-                  {features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <Check className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-white/80 leading-relaxed">{feature}</span>
+              {/* Content area that flexes to push button to bottom */}
+              <div className="flex-1 flex flex-col">
+                {/* Features List - Only show for Enterprise plans */}
+                {plan.action_type === 'email_contact' && (
+                  <div className="space-y-4 mb-6">
+                    <div className="space-y-3">
+                      {features.map((feature, idx) => (
+                        <div key={idx} className="flex items-start gap-3">
+                          <Check className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                          <span className="text-sm text-white/80 leading-relaxed">{feature}</span>
+                        </div>
+                      ))}
                     </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* Consultation Options */}
-              {plan.consultation_options && plan.consultation_options.length > 0 && (
-                <div className="mb-6 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
-                  <p className="text-purple-400 text-sm font-medium mb-2">Consultation Options:</p>
-                  <div className="space-y-1">
-                    {plan.consultation_options.map((option, index) => (
-                      <div key={index} className="text-white/70 text-xs">
-                        {option.duration_label}: ${option.price} - {option.description}
-                      </div>
-                    ))}
                   </div>
-                </div>
-              )}
+                )}
+
+                {/* Consultation Options */}
+                {plan.consultation_options && plan.consultation_options.length > 0 && (
+                  <div className="mb-6 p-3 bg-purple-500/10 rounded-lg border border-purple-500/20">
+                    <p className="text-purple-400 text-sm font-medium mb-2">Consultation Options:</p>
+                    <div className="space-y-1">
+                      {plan.consultation_options.map((option, index) => (
+                        <div key={index} className="text-white/70 text-xs">
+                          {option.duration_label}: ${option.price} - {option.description}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Spacer to push button to bottom */}
+                <div className="flex-1"></div>
+              </div>
 
               {/* CTA Button */}
               <button

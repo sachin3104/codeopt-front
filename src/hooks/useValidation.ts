@@ -9,6 +9,7 @@ interface ValidationErrors {
 interface FieldValues {
   email: string
   password: string
+  username?: string
 }
 
 export const useValidation = () => {
@@ -20,18 +21,38 @@ export const useValidation = () => {
     return ''
   }
 
-  const validatePassword = (password: string): string => {
+  const validatePassword = (password: string, username?: string, email?: string): string => {
     if (!password) return 'Password is required'
-    if (!isStrongPassword(password)) {
+    
+    // Check basic password strength
+    const minLength = 8
+    const hasValidLength = password.length >= minLength
+    const hasUpperCase = /[A-Z]/.test(password)
+    const hasLowerCase = /[a-z]/.test(password)
+    const hasNumber = /[0-9]/.test(password)
+    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password)
+    
+    if (!hasValidLength || !hasUpperCase || !hasLowerCase || !hasNumber || !hasSpecialChar) {
       return 'Password must be at least 8 characters and include uppercase, lowercase, number & special character'
     }
+    
+    // Check if password contains username (case insensitive)
+    if (username && password.toLowerCase().includes(username.toLowerCase())) {
+      return 'Password should not contain your username'
+    }
+    
+    // Check if password contains email (case insensitive)
+    if (email && password.toLowerCase().includes(email.toLowerCase())) {
+      return 'Password should not contain your email address'
+    }
+    
     return ''
   }
 
   const validateForm = (fields: FieldValues): ValidationErrors => {
     const newErrors: ValidationErrors = {}
     const eErr = validateEmail(fields.email)
-    const pErr = validatePassword(fields.password)
+    const pErr = validatePassword(fields.password, fields.username, fields.email)
     if (eErr) newErrors.email = eErr
     if (pErr) newErrors.password = pErr
     setErrors(newErrors)

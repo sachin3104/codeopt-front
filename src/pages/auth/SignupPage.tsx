@@ -32,7 +32,7 @@ const SignupPage: React.FC = () => {
     }
     
     // Validate form before submission
-    const validationErrors = validateForm({ email, password });
+    const validationErrors = validateForm({ email, password, username });
     if (Object.keys(validationErrors).length > 0) {
       return; // Don't submit if there are validation errors
     }
@@ -175,7 +175,7 @@ const SignupPage: React.FC = () => {
                     value={password}
                     onChange={e => {
                       setPassword(e.target.value);
-                      validatePassword(e.target.value);
+                      validatePassword(e.target.value, username, email);
                     }}
                     className="w-full bg-white/5 border border-white/10 rounded-lg py-2.5 sm:py-3 pl-9 sm:pl-10 pr-3 sm:pr-4 text-white placeholder-white/40 focus:outline-none focus:border-white/20 transition-colors text-sm sm:text-base"
                     placeholder="Create a password"

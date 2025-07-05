@@ -20,7 +20,7 @@ export default function HeroSection() {
             Analytics, Reinvented with AI & Experts
           </h1>
           <p className="mt-3 sm:mt-4 font-extralight text-sm sm:text-base md:text-lg lg:text-xl text-neutral-200 max-w-3xl mx-auto px-2 sm:px-0 leading-relaxed">
-            Optqo helps you understand, optimize, translate, and document legacy analytics code — with intelligent AI agents and optional expert support.
+            optqo helps you understand, optimize, translate, and document legacy analytics code — with intelligent AI agents and optional expert support.
           </p>
           <button 
             onClick={() => window.location.href = '/login'}

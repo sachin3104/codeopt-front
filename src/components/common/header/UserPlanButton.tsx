@@ -16,6 +16,14 @@ const UserPlanButton: React.FC<UserPlanButtonProps> = ({ onLogoutClick }) => {
   const navigate = useNavigate();
   const { subscription, usageData, fetching, fetchingUsage } = useSubscription();
 
+  // Console logs for debugging subscription and plans
+  useEffect(() => {
+    console.log('UserPlanButton - Subscription data:', subscription);
+    console.log('UserPlanButton - Usage data:', usageData);
+    console.log('UserPlanButton - Fetching subscription:', fetching);
+    console.log('UserPlanButton - Fetching usage:', fetchingUsage);
+  }, [subscription, usageData, fetching, fetchingUsage]);
+
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);
   };
@@ -63,7 +71,8 @@ const UserPlanButton: React.FC<UserPlanButtonProps> = ({ onLogoutClick }) => {
     return null;
   }
 
-  const { plan } = subscription;
+  // Extract plan information from the subscription response
+  const plan = subscription.plan;
   const isFreePlan = plan.plan_type === 'optqo_free';
   
   // Get plan display name
@@ -109,8 +118,6 @@ const UserPlanButton: React.FC<UserPlanButtonProps> = ({ onLogoutClick }) => {
     }
   };
 
-  const remainingRequests = getRemainingRequests();
-  const totalRequests = getTotalRequests();
 
   return (
     <div className="relative" ref={dropdownRef}>
@@ -128,7 +135,7 @@ const UserPlanButton: React.FC<UserPlanButtonProps> = ({ onLogoutClick }) => {
           <div className="p-4">
             {/* Plan Info Section */}
             <div className="mb-4">
-              <div className="flex items-center justify-between mb-3">
+              <div className="mb-3">
                 <span className="text-white font-semibold capitalize">
                   {planDisplayName} Plan
                 </span>
@@ -139,31 +146,23 @@ const UserPlanButton: React.FC<UserPlanButtonProps> = ({ onLogoutClick }) => {
                 <div className="flex justify-between text-sm">
                   <span className="text-gray-400">Max Input:</span>
                   <span className="text-white">
-                    {plan.max_code_input_chars ? `${plan.max_code_input_chars.toLocaleString()} chars` : 'Unlimited'}
+                    {usageData?.plan_limits.max_code_input_chars 
+                      ? `${usageData.plan_limits.max_code_input_chars.toLocaleString()} chars` 
+                      : 'Unlimited'}
                   </span>
                 </div>
                 
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Used {isFreePlan ? 'today' : 'this month'}:</span>
+                  <span className="text-gray-400">Used today:</span>
                   <span className="text-white">
-                    {usageData 
-                      ? (isFreePlan 
-                          ? usageData.current_usage.daily_usage 
-                          : usageData.current_usage.monthly_usage)
-                      : '0'
-                    }
+                    {usageData ? usageData.current_usage.daily_usage : '0'}
                   </span>
                 </div>
 
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-400">Limit ({isFreePlan ? 'per day' : 'per month'}):</span>
+                  <span className="text-gray-400">Limit per day:</span>
                   <span className="text-white">
-                    {usageData 
-                      ? (isFreePlan 
-                          ? usageData.plan_limits.max_daily_usage || 'Unlimited'
-                          : usageData.plan_limits.max_monthly_usage || 'Unlimited')
-                      : 'Unlimited'
-                    }
+                    {usageData?.plan_limits.max_daily_usage || 'Unlimited'}
                   </span>
                 </div>
               </div>

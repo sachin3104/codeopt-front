@@ -163,8 +163,7 @@ const NormalPlans: React.FC = () => {
           // Create features array for the plan
           const features = [
             `Max code input: ${plan.max_code_input_chars ? plan.max_code_input_chars.toLocaleString() : 'Unlimited'}`,
-            `Daily requests: ${plan.max_daily_usage != null ? plan.max_daily_usage : 'Unlimited'}`,
-            `Monthly requests: ${plan.max_monthly_usage != null ? plan.max_monthly_usage : 'Unlimited'}`
+            `Daily requests: ${plan.max_daily_usage != null ? plan.max_daily_usage : 'Unlimited'}`
           ];
 
           return (
