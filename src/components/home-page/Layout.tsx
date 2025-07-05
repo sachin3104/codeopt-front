@@ -40,7 +40,7 @@ const Layout: React.FC = () => {
             <div className="mb-4 sm:mb-6">
               <div className="text-center">
                 <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-white mb-1.5 sm:mb-2">
-                  Welcome to optqo, {user?.username ? user.username.charAt(0).toUpperCase() + user.username.slice(1).toLowerCase() : 'Guest'}
+                  Welcome to optqo
                 </h1>
                 <p className="text-white/70 text-xs sm:text-sm md:text-base">
                   Your AI powered Analytics/ML code assistant

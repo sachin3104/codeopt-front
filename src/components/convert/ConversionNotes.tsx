@@ -40,7 +40,6 @@ const ConversionNotes: React.FC<ConversionNotesProps> = ({
           <div className="space-y-3">
             {notesParagraphs.map((paragraph, index) => (
               <div key={index} className="flex items-start gap-3">
-                <Code className="w-4 h-4 text-blue-400 mt-0.5 flex-shrink-0" />
                 <p className="text-sm text-white/80 leading-relaxed">
                   {paragraph}
                 </p>
