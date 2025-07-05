@@ -16,13 +16,7 @@ const UserPlanButton: React.FC<UserPlanButtonProps> = ({ onLogoutClick }) => {
   const navigate = useNavigate();
   const { subscription, usageData, fetching, fetchingUsage } = useSubscription();
 
-  // Console logs for debugging subscription and plans
-  useEffect(() => {
-    console.log('UserPlanButton - Subscription data:', subscription);
-    console.log('UserPlanButton - Usage data:', usageData);
-    console.log('UserPlanButton - Fetching subscription:', fetching);
-    console.log('UserPlanButton - Fetching usage:', fetchingUsage);
-  }, [subscription, usageData, fetching, fetchingUsage]);
+  
 
   const toggleDropdown = () => {
     setIsDropdownOpen(!isDropdownOpen);

@@ -87,7 +87,14 @@ const AnalyseLayout: React.FC = () => {
           <div className="flex-1 min-h-0">
             {/* Wrapper div with dashboard component styling */}
             <div className="bg-black/10 backdrop-blur-xl border border-white/10 rounded-lg overflow-hidden h-full">
-              <CodeEditor value={code} isReadOnly height="100%" variant="results" title="Analyzed Code" />
+              <CodeEditor 
+                value={code} 
+                isReadOnly 
+                height="100%" 
+                variant="results" 
+                title="Analyzed Code" 
+                language={analysisResult?.language}
+              />
             </div>
           </div>
         </div>

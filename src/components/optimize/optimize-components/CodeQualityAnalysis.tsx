@@ -14,8 +14,6 @@ const CodeQualityAnalysis: React.FC = () => {
   const codeQualityMetrics = optimizationResult.code_quality_analysis?.code_quality_metrics;
   const overallScore = codeQualityMetrics?.overall_score?.optimized ?? 0;
 
-  console.log(codeQualityMetrics);
-
   const qualityMetrics = [
     {
       name: 'Performance',

@@ -92,6 +92,8 @@ const ConvertLayout: React.FC = () => {
           isReadOnly={true}
           originalTitle={`Original Code`}
           convertedTitle={`Converted Code`}
+          originalLanguage={convertedCode.conversion?.metadata?.source_language}
+          convertedLanguage={convertedCode.conversion?.metadata?.target_language}
         />
       </div>
 

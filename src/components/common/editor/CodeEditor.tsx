@@ -15,6 +15,7 @@ export interface CodeEditorProps {
   onEditorMount?: (editor: any) => void;
   title?: string;
   variant?: 'homepage' | 'results'; // 'homepage' shows only character limit, 'results' shows title/copy button
+  language?: string; // Language to display in the top bar for results variant
 }
 
 const CodeEditor: React.FC<CodeEditorProps> = ({
@@ -25,6 +26,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
   onEditorMount,
   title,
   variant = 'homepage',
+  language,
 }) => {
   // Only pull code + setter from the new hook
   const { code, setCode } = useCode();
@@ -92,6 +94,11 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
               {title && (
                 <span className="text-m font-medium text-white/90 ml-2">
                   {title}
+                </span>
+              )}
+              {language && (
+                <span className="text-xs text-white/60 bg-white/10 px-2 py-1 rounded">
+                  {language.toUpperCase()}
                 </span>
               )}
             </div>

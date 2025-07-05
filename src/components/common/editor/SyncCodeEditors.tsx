@@ -7,6 +7,8 @@ interface SyncCodeEditorsProps {
   isReadOnly?: boolean;
   originalTitle?: string;
   convertedTitle?: string;
+  originalLanguage?: string;
+  convertedLanguage?: string;
 }
 
 const SyncCodeEditors: React.FC<SyncCodeEditorsProps> = ({
@@ -15,6 +17,8 @@ const SyncCodeEditors: React.FC<SyncCodeEditorsProps> = ({
   isReadOnly = true,
   originalTitle,
   convertedTitle,
+  originalLanguage,
+  convertedLanguage,
 }) => {
   const leftEditorRef = useRef<any>(null);
   const rightEditorRef = useRef<any>(null);
@@ -66,6 +70,7 @@ const SyncCodeEditors: React.FC<SyncCodeEditorsProps> = ({
               height="100%"
               title={originalTitle}
               variant="results"
+              language={originalLanguage}
               onEditorMount={(editor) => {
                 leftEditorRef.current = editor;
               }}
@@ -83,6 +88,7 @@ const SyncCodeEditors: React.FC<SyncCodeEditorsProps> = ({
               height="100%"
               title={convertedTitle}
               variant="results"
+              language={convertedLanguage}
               onEditorMount={(editor) => {
                 rightEditorRef.current = editor;
               }}

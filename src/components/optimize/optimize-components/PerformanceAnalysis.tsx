@@ -10,8 +10,6 @@ const PerformanceAnalysis: React.FC = () => {
     return null;
   }
 
-  console.log(optimizationResult);
-
   // Helper to get metric values or fallback to 'NA'
   const getMetric = (path: string[], fallback = 'NA') => {
     try {
