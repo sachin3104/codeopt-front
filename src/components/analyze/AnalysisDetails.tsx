@@ -34,18 +34,22 @@ const AnalysisDetails: React.FC<AnalysisDetailsProps> = ({ analysisResult }) => 
   const normalizedFlowchart = normalizeFlowchart(analysisResult?.flowchart);
 
   return (
-    <div className="h-full flex flex-col rounded-lg border border-white/20 ">
+    <div className="h-full flex flex-col rounded-lg sm:rounded-xl md:rounded-2xl border border-white/20 space-y-3 xs:space-y-4 sm:space-y-4 md:space-y-6 lg:space-y-6">
       {analysisResult ? (
         <>
           {/* Code Quality Scores */}
-          <CodeScoreSection scores={normalizedScores} />
+          <div className="flex-1 min-h-0">
+            <CodeScoreSection scores={normalizedScores} />
+          </div>
 
           {/* Code Flow Visualization */}
-          <CodeFlowSection flowchart={normalizedFlowchart} />
+          <div className="flex-1 min-h-0">
+            <CodeFlowSection flowchart={normalizedFlowchart} />
+          </div>
         </>
       ) : (
-        <div className="flex items-center justify-center h-full">
-          <div className="text-white/60 text-center">
+        <div className="flex items-center justify-center h-full p-4 sm:p-6 md:p-8">
+          <div className="text-white/60 text-center text-sm xs:text-base sm:text-lg">
             No analysis results available
           </div>
         </div>

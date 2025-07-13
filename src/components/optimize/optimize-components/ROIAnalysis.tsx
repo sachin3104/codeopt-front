@@ -92,23 +92,23 @@ const ROIAnalysis: React.FC = () => {
 
   return (
     <Card className="bg-black/10 backdrop-blur-xl border border-white/10">
-      <CardHeader>
-        <CardTitle className="text-xl font-semibold text-white/90 flex items-center justify-between">
+      <CardHeader className="p-3 xs:p-4 sm:p-4 md:p-6">
+        <CardTitle className="text-base xs:text-lg sm:text-xl font-semibold text-white/90 flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2 xs:gap-0">
           <div className="flex items-center">
-            <Calculator className="w-4 h-4 text-blue-400/80 mr-2" />
+            <Calculator className="w-3 h-3 xs:w-4 xs:h-4 text-blue-400/80 mr-2" />
             Resource Savings & ROI
           </div>
-          <div className="text-sm text-white/70">
+          <div className="text-xs xs:text-sm text-white/70">
             Total Value: <span className="text-emerald-400/90 font-bold">{totalValue}</span>
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <CardContent className="p-3 xs:p-4 sm:p-4 md:p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 md:gap-4">
           {roiMetrics.map((metric, index) => (
-            <div key={index} className="flex flex-col items-center p-3">
-              <metric.icon className={`w-5 h-5 ${metric.iconColor} mb-2`} />
-              <div className="text-xl font-bold text-white/90 mb-1">{metric.value}</div>
+            <div key={index} className="flex flex-col items-center p-2 xs:p-3 sm:p-3">
+              <metric.icon className={`w-4 h-4 xs:w-5 xs:h-5 ${metric.iconColor} mb-1 xs:mb-2 sm:mb-2`} />
+              <div className="text-lg xs:text-xl sm:text-xl font-bold text-white/90 mb-1">{metric.value}</div>
               <div className="text-xs text-emerald-400/90 font-semibold mb-1 text-center">{metric.label}</div>
               <div className="text-xs text-white/50">{metric.sublabel}</div>
             </div>

@@ -42,15 +42,13 @@ const ConvertLayout: React.FC = () => {
     navigate('/', { replace: true });
   };
 
-
-
   // Loading state
   if (isConverting) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-white/80">Converting your code...</p>
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)] xs:h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] md:h-[calc(100vh-4.5rem)] lg:h-[calc(100vh-5rem)]">
+        <div className="text-center px-4 sm:px-6 md:px-8">
+          <div className="animate-spin rounded-full h-8 w-8 xs:h-10 xs:w-10 sm:h-12 sm:w-12 border-b-2 border-blue-500 mx-auto mb-3 xs:mb-4 sm:mb-4"></div>
+          <p className="text-white/80 text-sm xs:text-base sm:text-lg">Converting your code...</p>
         </div>
       </div>
     );
@@ -59,16 +57,16 @@ const ConvertLayout: React.FC = () => {
   // Error state
   if (convertError) {
     return (
-      <div className="flex items-center justify-center h-[calc(100vh-4rem)]">
-        <div className="text-center max-w-md">
-          <div className="h-12 w-12 text-red-400 mx-auto mb-4">
+      <div className="flex items-center justify-center h-[calc(100vh-4rem)] xs:h-[calc(100vh-3.5rem)] sm:h-[calc(100vh-4rem)] md:h-[calc(100vh-4.5rem)] lg:h-[calc(100vh-5rem)]">
+        <div className="text-center max-w-sm xs:max-w-md sm:max-w-lg px-4 sm:px-6 md:px-8">
+          <div className="h-8 w-8 xs:h-10 xs:w-10 sm:h-12 sm:w-12 text-red-400 mx-auto mb-3 xs:mb-4 sm:mb-4">
             {/* You can use an error icon here if desired */}
           </div>
-          <h3 className="text-lg font-medium text-white mb-2">Conversion Failed</h3>
-          <p className="text-gray-400 mb-4">{convertError}</p>
+          <h3 className="text-base xs:text-lg sm:text-xl font-medium text-white mb-2 xs:mb-3 sm:mb-3">Conversion Failed</h3>
+          <p className="text-gray-400 text-sm xs:text-base mb-4 xs:mb-4 sm:mb-4">{convertError}</p>
           <button
             onClick={handleGoHome}
-            className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white"
+            className="px-3 py-2 xs:px-4 xs:py-2 sm:px-4 sm:py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm xs:text-base transition-colors"
           >
             Back to Home
           </button>
@@ -83,9 +81,9 @@ const ConvertLayout: React.FC = () => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 xs:space-y-4 sm:space-y-4 md:space-y-6 lg:space-y-6">
       {/* Code Editors Section - Full Width */}
-      <div className="w-full h-[600px] overflow-hidden">
+      <div className="w-full h-[400px] xs:h-[500px] sm:h-[550px] md:h-[600px] lg:h-[650px] overflow-hidden">
         <SyncCodeEditors
           originalCode={convertedCode.conversion?.code?.original || convertedCode.original_code || 'NA'}
           convertedCode={convertedCode.conversion?.code?.converted || convertedCode.converted_code || 'NA'}
@@ -102,7 +100,7 @@ const ConvertLayout: React.FC = () => {
 
       {/* Combined error toast */}
       {error && (
-        <div className="fixed bottom-4 right-4 bg-red-600 text-white px-4 py-2 rounded shadow-lg">
+        <div className="fixed bottom-4 right-4 bg-red-600 text-white px-3 py-2 xs:px-4 xs:py-2 sm:px-4 sm:py-2 rounded shadow-lg text-sm xs:text-base z-50">
           <span>{error}</span>
         </div>
       )}

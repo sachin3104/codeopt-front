@@ -87,27 +87,27 @@ const PerformanceGains: React.FC = () => {
 
   return (
     <Card className="bg-black/10 backdrop-blur-xl border border-white/10">
-      <CardHeader>
-        <CardTitle className="text-xl font-semibold text-white/90 flex items-center">
-          <Zap className="w-4 h-4 text-blue-400/80 mr-2" />
+      <CardHeader className="p-3 xs:p-4 sm:p-4 md:p-6">
+        <CardTitle className="text-base xs:text-lg sm:text-xl font-semibold text-white/90 flex items-center">
+          <Zap className="w-3 h-3 xs:w-4 xs:h-4 text-blue-400/80 mr-2" />
           Performance Gains Achieved
         </CardTitle>
       </CardHeader>
-      <CardContent>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <CardContent className="p-3 xs:p-4 sm:p-4 md:p-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-2 xs:gap-3 sm:gap-4 md:gap-4">
           {metrics.map((metric, idx) => {
             const changeInfo = getChangeInfo(metric.original, metric.optimized, metric.unit, metric.isLowerBetter);
             return (
-              <div className="text-center flex flex-col justify-center items-center p-3" key={idx}>
-                <metric.icon className={`w-5 h-5 ${metric.iconColor} mx-auto mb-2`} />
-                <div className="text-xl font-bold text-white/90 mb-1">{metric.value}</div>
+              <div className="text-center flex flex-col justify-center items-center p-2 xs:p-3 sm:p-3" key={idx}>
+                <metric.icon className={`w-4 h-4 xs:w-5 xs:h-5 ${metric.iconColor} mx-auto mb-1 xs:mb-2 sm:mb-2`} />
+                <div className="text-lg xs:text-xl sm:text-xl font-bold text-white/90 mb-1">{metric.value}</div>
                 <div className="text-xs text-white/70 mb-1">{metric.label}</div>
                 {changeInfo ? (
                   <div className="text-xs flex items-center gap-1">
                     {changeInfo.isImprovement ? (
-                      <TrendingDown className="w-3 h-3 text-emerald-400" />
+                      <TrendingDown className="w-2.5 h-2.5 xs:w-3 xs:h-3 text-emerald-400" />
                     ) : (
-                      <TrendingUp className="w-3 h-3 text-red-400" />
+                      <TrendingUp className="w-2.5 h-2.5 xs:w-3 xs:h-3 text-red-400" />
                     )}
                     <span className={changeInfo.isImprovement ? 'text-emerald-400/90' : 'text-red-400/90'}>
                       {changeInfo.sign}{changeInfo.percentageChange}%

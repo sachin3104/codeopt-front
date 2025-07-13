@@ -168,10 +168,10 @@ const GlassmorphicAvatar = React.forwardRef<HTMLDivElement, GlassmorphicAvatarPr
         <div
           className={cn(
             "relative flex items-center justify-center rounded-full overflow-hidden z-10",
-            "backdrop-blur-md bg-gradient-to-br from-white/20 via-white/10 to-white/5",
+            "backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20",
             "border border-white/20 shadow-lg",
             "transition-all duration-300",
-            "group-hover:border-white/30 group-hover:from-white/25 group-hover:via-white/15 group-hover:to-white/10",
+            "group-hover:border-white/30 group-hover:from-black/30 group-hover:via-black/20 group-hover:to-black/15",
             "group-hover:scale-105",
             currentSize.circle
           )}

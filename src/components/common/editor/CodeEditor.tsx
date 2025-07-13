@@ -78,7 +78,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
 
   // Conditional styling based on variant
   const containerClasses = variant === 'homepage' 
-    ? "relative backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 rounded-3xl border border-white/20 shadow-2xl overflow-hidden h-full flex flex-col"
+    ? "relative backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 rounded-lg sm:rounded-xl md:rounded-2xl lg:rounded-3xl border border-white/20 shadow-lg sm:shadow-xl md:shadow-2xl overflow-hidden h-full flex flex-col"
     : "relative overflow-hidden h-full flex flex-col";
 
   return (
@@ -87,17 +87,17 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       style={{ height }}
     >
       {/* Editor header - always present but content varies by variant */}
-      <div className="flex items-center justify-between p-3 border-white/20 bg-gradient-to-r from-black/20 via-black/10 to-black/20">
+      <div className="flex items-center justify-between p-2 sm:p-3 border-white/20 bg-gradient-to-r from-black/20 via-black/10 to-black/20">
         {variant === 'results' ? (
           <>
-            <div className="flex-1 flex items-center gap-3">
+            <div className="flex-1 flex items-center gap-2 sm:gap-3">
               {title && (
-                <span className="text-m font-medium text-white/90 ml-2">
+                <span className="text-sm sm:text-base font-medium text-white/90 ml-1 sm:ml-2">
                   {title}
                 </span>
               )}
               {language && (
-                <span className="text-xs text-white/60 bg-white/10 px-2 py-1 rounded">
+                <span className="text-xs sm:text-sm text-white/60 bg-white/10 px-1.5 sm:px-2 py-0.5 sm:py-1 rounded">
                   {language.toUpperCase()}
                 </span>
               )}
@@ -121,20 +121,20 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
       />
 
       {/* Status bar - always present but content varies by variant */}
-      <div className="flex items-center justify-between px-4 py-2 bg-gradient-to-br from-black/40 via-black/30 to-black/20 border-white/20 text-xs">
+      <div className="flex items-center justify-between px-2 sm:px-3 md:px-4 py-1.5 sm:py-2 bg-gradient-to-br from-black/40 via-black/30 to-black/20 border-white/20 text-xs">
         {variant === 'homepage' ? (
           <>
-            <div className="flex items-center space-x-4 text-white/60">
+            <div className="flex items-center space-x-2 sm:space-x-3 md:space-x-4 text-white/60">
               {/* Language detection status */}
               {displayCode.trim() && (
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-1 sm:gap-2">
                   {isDetectingLanguage ? (
                     <>
-                      <div className="w-2 h-2 rounded-full bg-blue-400 animate-pulse"></div>
+                      <div className="w-1.5 sm:w-2 h-1.5 sm:h-2 rounded-full bg-blue-400 animate-pulse"></div>
                     </>
                   ) : detectedLang ? (
                     <>
-                      <span className="text-xs">{getLanguageDisplayName(detectedLang)}</span>
+                      <span className="text-xs sm:text-sm">{getLanguageDisplayName(detectedLang)}</span>
                     </>
                   ) : null}
                 </div>
@@ -142,15 +142,15 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
             </div>
             {/* Only show character count when there's actual content */}
             {displayCode.trim() && (
-              <div className="flex items-center space-x-3">
+              <div className="flex items-center space-x-2 sm:space-x-3">
                 {/* Character count with limit awareness */}
-                <div className="flex items-center gap-2">
-                  <span className={getCharacterCountStyle()}>
+                <div className="flex items-center gap-1 sm:gap-2">
+                  <span className={`${getCharacterCountStyle()} text-xs sm:text-sm`}>
                     {getCharacterCountText}
                   </span>
                   {/* Progress bar for character usage - only show if there's a limit */}
                   {!isUnlimitedPlan(subscription) && (
-                    <div className="w-16 h-1.5 bg-white/10 rounded-full overflow-hidden">
+                    <div className="w-12 sm:w-14 md:w-16 h-1 sm:h-1.5 bg-white/10 rounded-full overflow-hidden">
                       <div 
                         className="h-full rounded-full transition-all duration-300 bg-blue-500"
                         style={{ width: `${Math.min(100, percentageUsed)}%` }}
@@ -159,7 +159,7 @@ const CodeEditor: React.FC<CodeEditorProps> = ({
                   )}
                   {/* Show infinity icon for unlimited plans */}
                   {isUnlimitedPlan(subscription) && (
-                    <Infinity className="w-4 h-4 text-green-400" />
+                    <Infinity className="w-3 sm:w-4 h-3 sm:h-4 text-green-400" />
                   )}
                 </div>
               </div>

@@ -9,7 +9,7 @@ const AnalyseResult: React.FC = () => {
       <Background />
       <div className="relative z-10">
         <Header variant="analyze" />
-        <main className="container mx-auto px-4 pt-[70px] pb-8">
+        <main className="container mx-auto px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 pt-12 xs:pt-14 sm:pt-16 md:pt-18 lg:pt-20 pb-4 sm:pb-6 md:pb-8">
           <AnalyseLayout />
         </main>
       </div>

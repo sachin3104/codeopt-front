@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import Editor, { loader, OnMount } from '@monaco-editor/react';
 
 // 1) Move this to module scope so it only ever runs once
@@ -69,14 +69,41 @@ const MonacoEditorWrapper: React.FC<MonacoEditorWrapperProps> = ({
   height = '100%',
 }) => {
   const editorRef = useRef<any>(null);
+  const [fontSize, setFontSize] = useState(14);
+  const [placeholder, setPlaceholder] = useState('');
 
+  // Responsive font size and placeholder based on screen size
+  useEffect(() => {
+    const updateResponsiveSettings = () => {
+      const width = window.innerWidth;
+      
+      // Responsive font size
+      if (width < 640) { // Mobile
+        setFontSize(12);
+        setPlaceholder('Paste your code here...\nChoose: Code Sage (analysis),\nOptimus (performance),\nTransformer (conversion),\nor Scribe (documentation)');
+      } else if (width < 1024) { // Tablet
+        setFontSize(13);
+        setPlaceholder('Paste in your code, choose what you need—Code Sage for deep analysis,\nOptimus for peak performance, Transformer for seamless conversion,\nor Scribe for instant documentation');
+      } else { // Desktop/Laptop
+        setFontSize(14);
+        setPlaceholder('Paste in your code, choose what you need—Code Sage for deep analysis,\nOptimus for peak performance,  Transformer for seamless conversion,\nor Scribe for instant documentation');
+      }
+    };
+
+    // Set initial values
+    updateResponsiveSettings();
+
+    // Add event listener for window resize
+    window.addEventListener('resize', updateResponsiveSettings);
+
+    // Cleanup
+    return () => window.removeEventListener('resize', updateResponsiveSettings);
+  }, []);
 
   const handleEditorMount: OnMount = editor => {
     editorRef.current = editor;
     onEditorMount?.(editor);
   };
-
-  
 
   return (
     <div className="flex-1 min-h-0 [&_.monaco-editor]:!outline-none [&_.monaco-editor]:!border-none [&_.monaco-editor_*]:!outline-none [&_.monaco-editor_*]:!border-none [&_.monaco-editor_textarea]:!outline-none [&_.monaco-editor_textarea]:!border-none">
@@ -112,7 +139,7 @@ const MonacoEditorWrapper: React.FC<MonacoEditorWrapperProps> = ({
           wordWrap: 'on',
           minimap: { enabled: false },
           scrollBeyondLastLine: false,
-          fontSize: 14,
+          fontSize: fontSize,
           fontFamily: "'JetBrains Mono', 'Fira Code', 'Cascadia Code', monospace",
           fontLigatures: true,
           lineNumbers: 'on',
@@ -133,7 +160,7 @@ const MonacoEditorWrapper: React.FC<MonacoEditorWrapperProps> = ({
           formatOnPaste: true,
           formatOnType: true,
           stickyScroll: { enabled: false },
-          placeholder: 'Paste in your code, choose what you need—Code Sage for deep analysis, Optimus for peak performance, \nTransformer for seamless conversion, or Scribe for instant documentation',
+          placeholder: placeholder,
         }}
       />
     </div>

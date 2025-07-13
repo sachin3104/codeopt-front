@@ -58,25 +58,25 @@ const EnterpriseContactModal: React.FC<EnterpriseContactModalProps> = ({ isOpen,
         onClick={onClose}
       />
       {/* Modal */}
-      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[10000] w-full max-w-md p-6 mx-4 rounded-2xl bg-gradient-to-br from-black/90 via-black/80 to-black/90 border border-white/20 shadow-xl backdrop-blur-xl">
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[10000] w-full max-w-sm sm:max-w-md p-4 sm:p-6 mx-4 rounded-2xl bg-gradient-to-br from-black/90 via-black/80 to-black/90 border border-white/20 shadow-xl backdrop-blur-xl">
         {/* Close button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-1 rounded-full hover:bg-white/10 transition-colors"
+          className="absolute top-3 right-3 sm:top-4 sm:right-4 p-1 rounded-full hover:bg-white/10 transition-colors"
         >
-          <X className="w-5 h-5 text-white" />
+          <X className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
         </button>
         {/* Form Content */}
         <div className="mt-2">
           {contactSent ? (
-            <div className="text-center py-8">
-              <h2 className="text-xl font-semibold mb-4 text-green-400">Thank you!</h2>
-              <p className="text-white/80">We will reach out to you shortly.</p>
-              <button className="mt-6 px-4 py-2 bg-blue-600 text-white rounded" onClick={onClose}>Close</button>
+            <div className="text-center py-6 sm:py-8">
+              <h2 className="text-lg sm:text-xl font-semibold mb-3 sm:mb-4 text-green-400">Thank you!</h2>
+              <p className="text-white/80 text-sm sm:text-base">We will reach out to you shortly.</p>
+              <button className="mt-4 sm:mt-6 px-4 py-2 bg-blue-600 text-white rounded text-sm sm:text-base" onClick={onClose}>Close</button>
             </div>
           ) : (
-            <form onSubmit={handleSubmit} className="space-y-4">
-              <h2 className="text-lg font-bold mb-2 text-white">Let’s Get Started</h2>
+            <form onSubmit={handleSubmit} className="space-y-3 sm:space-y-4">
+              <h2 className="text-base sm:text-lg font-bold mb-2 text-white">Let's Get Started</h2>
               <div className="flex flex-col sm:flex-row gap-2">
                 <input
                   type="text"
@@ -85,7 +85,7 @@ const EnterpriseContactModal: React.FC<EnterpriseContactModalProps> = ({ isOpen,
                   value={form.first_name}
                   onChange={handleChange}
                   required
-                  className="w-full sm:w-1/2 bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/50 transition-colors text-base h-12"
+                  className="w-full sm:w-1/2 bg-black/40 border border-white/20 rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-white focus:outline-none focus:border-white/50 transition-colors text-sm sm:text-base h-10 sm:h-12"
                 />
                 <input
                   type="text"
@@ -94,7 +94,7 @@ const EnterpriseContactModal: React.FC<EnterpriseContactModalProps> = ({ isOpen,
                   value={form.last_name}
                   onChange={handleChange}
                   required
-                  className="w-full sm:w-1/2 bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/50 transition-colors text-base h-12"
+                  className="w-full sm:w-1/2 bg-black/40 border border-white/20 rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-white focus:outline-none focus:border-white/50 transition-colors text-sm sm:text-base h-10 sm:h-12"
                 />
               </div>
               <input
@@ -104,7 +104,7 @@ const EnterpriseContactModal: React.FC<EnterpriseContactModalProps> = ({ isOpen,
                 value={form.phone}
                 onChange={handleChange}
                 required
-                className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/50 transition-colors text-base h-12"
+                className="w-full bg-black/40 border border-white/20 rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-white focus:outline-none focus:border-white/50 transition-colors text-sm sm:text-base h-10 sm:h-12"
               />
               <input
                 type="text"
@@ -113,7 +113,7 @@ const EnterpriseContactModal: React.FC<EnterpriseContactModalProps> = ({ isOpen,
                 value={form.subject}
                 onChange={handleChange}
                 required
-                className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-white/50 transition-colors text-base h-12"
+                className="w-full bg-black/40 border border-white/20 rounded-xl px-3 sm:px-4 py-2 sm:py-3 text-white focus:outline-none focus:border-white/50 transition-colors text-sm sm:text-base h-10 sm:h-12"
               />
               <textarea
                 name="message"
@@ -121,13 +121,13 @@ const EnterpriseContactModal: React.FC<EnterpriseContactModalProps> = ({ isOpen,
                 value={form.message}
                 onChange={handleChange}
                 required
-                className="w-full bg-black/40 border border-white/20 rounded-xl px-4 py-3 min-h-[96px] text-white focus:outline-none focus:border-white/50 transition-colors resize-none placeholder-white/40 text-base"
+                className="w-full bg-black/40 border border-white/20 rounded-xl px-3 sm:px-4 py-2 sm:py-3 min-h-[80px] sm:min-h-[96px] text-white focus:outline-none focus:border-white/50 transition-colors resize-none placeholder-white/40 text-sm sm:text-base"
               />
-              {error && <div className="text-red-400 text-sm">{error}</div>}
+              {error && <div className="text-red-400 text-xs sm:text-sm">{error}</div>}
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white rounded-lg py-2 sm:py-3 font-medium transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
               >
                 {loading ? 'Sending…' : 'Send Request'}
               </button>

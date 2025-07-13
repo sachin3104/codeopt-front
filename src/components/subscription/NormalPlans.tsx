@@ -152,8 +152,8 @@ const NormalPlans: React.FC = () => {
   // Plans and subscription data loaded
   
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full">
+    <div className="space-y-4 sm:space-y-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
         {plans.map((plan) => {
           const isCurrent = subscription?.plan.plan_type === plan.plan_type;
           const isDisabled = isPlanDisabled(plan);
@@ -169,42 +169,42 @@ const NormalPlans: React.FC = () => {
           return (
             <div
               key={plan.plan_type}
-              className={`backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-4 flex flex-col h-[500px] w-full ${
+              className={`backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl p-3 sm:p-4 flex flex-col h-auto min-h-[280px] sm:min-h-[320px] md:min-h-[360px] lg:h-[500px] w-full ${
                 isCurrent ? 'ring-2 ring-blue-400' : ''
               }`}
             >
               {/* Plan Name and Description */}
-              <div className="min-h-[100px]">
-                <h3 className="text-xl font-bold text-white mb-3 leading-tight flex items-center gap-2">
+              <div className="min-h-[50px] sm:min-h-[60px] md:min-h-[70px] lg:min-h-[100px]">
+                <h3 className="text-lg sm:text-xl font-bold text-white mb-1 sm:mb-2 md:mb-3 leading-tight flex items-center gap-2">
                   {plan.name}
                   {isCurrent && (
                     <span className="px-2 py-1 text-xs rounded-full bg-blue-500/20 text-blue-400 border border-blue-500/30">Current</span>
                   )}
                 </h3>
-                <p className="text-sm text-white/60 leading-relaxed">
+                <p className="text-xs sm:text-sm text-white/60 leading-relaxed">
                   {plan.description}
                 </p>
               </div>
 
               {/* Pricing */}
-              <div className="flex flex-col items-start mb-6">
+              <div className="flex flex-col items-start mb-2 sm:mb-2 md:mb-3 lg:mb-6">
                 <div className="flex items-baseline">
-                  <span className="text-xl font-bold text-white">
+                  <span className="text-lg sm:text-xl font-bold text-white">
                     {plan.price === 0 ? 'Free' : `$${plan.price}`}
                   </span>
-                  <span className="text-sm text-white/60 ml-1">
+                  <span className="text-xs sm:text-sm text-white/60 ml-1">
                     {plan.price === 0 ? '/forever' : '/per month'}
                   </span>
                 </div>
               </div>
 
               {/* Features List */}
-              <div className="flex-1 space-y-4 mb-6">
-                <div className="space-y-3">
+              <div className="flex-1 space-y-1 sm:space-y-1 md:space-y-2 lg:space-y-4 mb-2 sm:mb-2 md:mb-3 lg:mb-6">
+                <div className="space-y-1 sm:space-y-1 md:space-y-2 lg:space-y-3">
                   {features.map((feature, idx) => (
-                    <div key={idx} className="flex items-start gap-3">
-                      <Check className="h-4 w-4 text-blue-400 flex-shrink-0 mt-0.5" />
-                      <span className="text-sm text-white/80 leading-relaxed">{feature}</span>
+                    <div key={idx} className="flex items-start gap-2 sm:gap-3">
+                      <Check className="h-3 w-3 sm:h-4 sm:w-4 text-blue-400 flex-shrink-0 mt-0.5" />
+                      <span className="text-xs sm:text-sm text-white/80 leading-relaxed">{feature}</span>
                     </div>
                   ))}
                 </div>
@@ -214,17 +214,17 @@ const NormalPlans: React.FC = () => {
               <button
                 onClick={() => handleSelect(plan)}
                 disabled={isDisabled}
-                className={`w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-3 py-3 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                className={`w-full backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 hover:bg-white/20 transition-all duration-300 rounded-xl text-white px-3 py-2 sm:py-3 lg:py-2 flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base lg:text-sm ${
                   isDisabled 
                     ? 'bg-white/20 text-white/60 cursor-default' 
                     : ''
                 }`}
               >
-                {getButtonText(plan)} <MoveRight className="w-4 h-4" />
+                {getButtonText(plan)} <MoveRight className="w-3 h-3 sm:w-4 sm:h-4" />
               </button>
               
               {planError && (
-                <p className="mt-2 text-sm text-red-400">
+                <p className="mt-2 text-xs sm:text-sm text-red-400">
                   {planError.response?.data.message || planError.message}
                 </p>
               )}

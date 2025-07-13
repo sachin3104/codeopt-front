@@ -10,13 +10,11 @@ const NextSteps: React.FC = () => {
     return null;
   }
 
-  // Immediate Actions: from issues_resolved with High priority
-  const immediateActions = optimizationResult.issues_resolved
-    ?.filter(issue => issue.priority === 'High')
-    .map((issue, index) => ({
-      number: index + 1,
-      text: issue.improvement ?? 'NA'
-    })) || [];
+  // Immediate Actions: from next_steps.immediate_actions
+  const immediateActions = optimizationResult.next_steps?.immediate_actions?.map((action, index) => ({
+    number: index + 1,
+    text: action ?? 'NA'
+  })) || [];
 
   // Future Optimizations: from next_steps.future_optimizations
   const futureOptimizations = optimizationResult.next_steps?.future_optimizations?.map((optimization, index) => ({

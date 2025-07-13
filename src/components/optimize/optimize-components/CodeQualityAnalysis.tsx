@@ -75,32 +75,32 @@ const CodeQualityAnalysis: React.FC = () => {
   };
 
   return (
-    <Card className="bg-black/10 backdrop-blur-xl border border-white/10 min-h-[340px] flex flex-col">
-      <CardHeader>
-        <CardTitle className="text-xl font-semibold text-white/90 flex items-center justify-between">
+    <Card className="bg-black/10 backdrop-blur-xl border border-white/10 min-h-[280px] xs:min-h-[320px] sm:min-h-[340px] md:min-h-[400px] flex flex-col">
+      <CardHeader className="p-3 xs:p-4 sm:p-4 md:p-6">
+        <CardTitle className="text-base xs:text-lg sm:text-xl font-semibold text-white/90 flex flex-col xs:flex-row xs:items-center xs:justify-between gap-2 xs:gap-0">
           <div className="flex items-center">
-            <Code2 className="w-4 h-4 text-blue-400/80 mr-2" />
+            <Code2 className="w-3 h-3 xs:w-4 xs:h-4 text-blue-400/80 mr-2" />
             Code Quality Improvements
           </div>
-          <div className="text-sm text-white/70">
+          <div className="text-xs xs:text-sm text-white/70">
             Overall Score: <span className="text-emerald-400/90 font-bold">{overallScore.toFixed(1)}/10</span>
             <span className="text-white/50 ml-1">(was {codeQualityMetrics?.overall_score?.original?.toFixed(1) ?? 'NA'})</span>
           </div>
         </CardTitle>
       </CardHeader>
-      <CardContent className="flex-1 flex flex-col justify-center">
+      <CardContent className="flex-1 flex flex-col justify-center p-3 xs:p-4 sm:p-4 md:p-6">
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead>
               <tr className="text-xs text-white/60 uppercase">
-                <th className="text-left pb-3 w-1/4 border-r border-white/10">Metric</th>
-                <th className="text-center pb-3 w-1/4 border-r border-white/10">
+                <th className="text-left pb-2 xs:pb-3 sm:pb-3 w-1/4 border-r border-white/10 text-xs xs:text-xs sm:text-xs">Metric</th>
+                <th className="text-center pb-2 xs:pb-3 sm:pb-3 w-1/4 border-r border-white/10 text-xs xs:text-xs sm:text-xs">
                   Before
                 </th>
-                <th className="text-center pb-3 w-1/4 border-r border-white/10">
+                <th className="text-center pb-2 xs:pb-3 sm:pb-3 w-1/4 border-r border-white/10 text-xs xs:text-xs sm:text-xs">
                   After
                 </th>
-                <th className="text-center pb-3 w-1/4">Improvement</th>
+                <th className="text-center pb-2 xs:pb-3 sm:pb-3 w-1/4 text-xs xs:text-xs sm:text-xs">Improvement</th>
               </tr>
             </thead>
             <tbody>
@@ -112,37 +112,37 @@ const CodeQualityAnalysis: React.FC = () => {
                 
                 return (
                   <tr key={index}>
-                    <td className="py-4 border-r border-white/10">
+                    <td className="py-2 xs:py-3 sm:py-4 border-r border-white/10">
                       <div className="flex items-center">
-                        <div className={`w-2 h-2 ${metric.color} rounded-full mr-2`}></div>
-                        <span className="text-white/90 font-medium">{metric.name}</span>
+                        <div className={`w-1.5 h-1.5 xs:w-2 xs:h-2 ${metric.color} rounded-full mr-1.5 xs:mr-2`}></div>
+                        <span className="text-white/90 font-medium text-xs xs:text-sm sm:text-sm">{metric.name}</span>
                       </div>
                     </td>
-                    <td className="text-center py-4 border-r border-white/10">
+                    <td className="text-center py-2 xs:py-3 sm:py-4 border-r border-white/10">
                       <div className="grid grid-cols-2 gap-1">
-                        <div className={`text-lg font-semibold ${beforeColor}`}>
+                        <div className={`text-sm xs:text-base sm:text-lg font-semibold ${beforeColor}`}>
                           {typeof metric.before === 'number' ? metric.before.toFixed(1) + '/10' : 'NA'}
                         </div>
-                        <div className={`text-sm font-medium ${beforeColor}`}>
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium bg-white/10 ${beforeColor}`}>
+                        <div className={`text-xs xs:text-sm font-medium ${beforeColor}`}>
+                          <span className={`px-2 py-0.5 xs:px-3 xs:py-1 rounded-full text-xs font-medium bg-white/10 ${beforeColor}`}>
                             {beforeLevel.text}
                           </span>
                         </div>
                       </div>
                     </td>
-                    <td className="text-center py-4 border-r border-white/10">
+                    <td className="text-center py-2 xs:py-3 sm:py-4 border-r border-white/10">
                       <div className="grid grid-cols-2 gap-1">
-                        <div className={`text-lg font-semibold ${afterColor}`}>
+                        <div className={`text-sm xs:text-base sm:text-lg font-semibold ${afterColor}`}>
                           {typeof metric.after === 'number' ? metric.after.toFixed(1) + '/10' : 'NA'}
                         </div>
-                        <div className={`text-sm font-medium ${afterColor}`}>
-                          <span className={`px-3 py-1 rounded-full text-xs font-medium bg-white/10 ${afterColor}`}>
+                        <div className={`text-xs xs:text-sm font-medium ${afterColor}`}>
+                          <span className={`px-2 py-0.5 xs:px-3 xs:py-1 rounded-full text-xs font-medium bg-white/10 ${afterColor}`}>
                             {afterLevel.text}
                           </span>
                         </div>
                       </div>
                     </td>
-                    <td className="text-center py-4 text-emerald-400/90 font-medium">
+                    <td className="text-center py-2 xs:py-3 sm:py-4 text-emerald-400/90 font-medium text-xs xs:text-sm sm:text-sm">
                       {typeof metric.improvement === 'number' ? `+${metric.improvement.toFixed(1)}%` : 'NA'}
                     </td>
                   </tr>

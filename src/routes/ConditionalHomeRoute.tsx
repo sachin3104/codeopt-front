@@ -3,10 +3,8 @@
 
 import React, { memo } from 'react';
 import { useAuth } from '@/hooks/use-auth';
-import { useIsMobile } from '@/hooks/use-mobile';
 import HomePage from '@/pages/HomePage';
 import LandingPage from '@/pages/LandingPage';
-import MobileOnlyPage from '@/pages/MobileOnlyPage';
 import { LogOut } from 'lucide-react';
 
 // Memoized loading spinner
@@ -33,7 +31,6 @@ MemoizedLandingPage.displayName = 'MemoizedLandingPage';
 // Conditional home route with approval overlay
 const ConditionalHomeRoute: React.FC = memo(() => {
   const { isAuthenticated, loading, user, logout } = useAuth();
-  const isMobile = useIsMobile();
 
   if (loading) {
     return <LoadingSpinner />;
@@ -41,11 +38,6 @@ const ConditionalHomeRoute: React.FC = memo(() => {
 
   if (!isAuthenticated) {
     return <MemoizedLandingPage />;
-  }
-
-  // If user is authenticated and on mobile, show mobile-only page
-  if (isMobile) {
-    return <MobileOnlyPage />;
   }
 
   // User is authenticated

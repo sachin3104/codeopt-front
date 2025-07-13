@@ -9,7 +9,7 @@ const DocumentResult = () => {
       <Background />
       <div className="relative z-10">
         <Header variant="document" />
-        <main className="container mx-auto px-4 pt-[70px] pb-8">
+        <main className="container mx-auto px-2 xs:px-3 sm:px-4 md:px-6 lg:px-8 pt-[70px] xs:pt-[80px] sm:pt-[90px] md:pt-[100px] lg:pt-[110px] pb-4 xs:pb-6 sm:pb-8">
           <DocumentLayout />
         </main>
       </div>

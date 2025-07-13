@@ -81,10 +81,12 @@ const PerformanceAnalysis: React.FC = () => {
     },
   ];
 
-  // Helper to calculate width percentage for the filled bar
+  // Helper to calculate width percentage for the filled bar with overflow protection
   const getBarWidth = (original: any, optimized: any) => {
     if (typeof original === 'number' && typeof optimized === 'number' && original > 0) {
-      return `${(optimized / original) * 100}%`;
+      const percentage = (optimized / original) * 100;
+      // Ensure the bar width doesn't exceed 100% and doesn't go below 0%
+      return `${Math.max(0, Math.min(100, percentage))}%`;
     }
     return '0%';
   };
@@ -99,14 +101,14 @@ const PerformanceAnalysis: React.FC = () => {
   };
 
   return (
-    <Card className="bg-black/10 backdrop-blur-xl border border-white/10 min-h-[340px]">
-      <CardHeader>
-        <CardTitle className="text-xl font-semibold text-white/90 flex items-center">
-          <Activity className="w-4 h-4 text-blue-400/80 mr-2" />
+    <Card className="bg-black/10 backdrop-blur-xl border border-white/10 min-h-[280px] xs:min-h-[320px] sm:min-h-[340px] md:min-h-[400px]">
+      <CardHeader className="p-3 xs:p-4 sm:p-4 md:p-6">
+        <CardTitle className="text-base xs:text-lg sm:text-xl font-semibold text-white/90 flex items-center">
+          <Activity className="w-3 h-3 xs:w-4 xs:h-4 text-blue-400/80 mr-2" />
           Performance Analysis
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6 flex-1 flex flex-col justify-center">
+      <CardContent className="space-y-4 xs:space-y-5 sm:space-y-6 flex-1 flex flex-col justify-center p-3 xs:p-4 sm:p-4 md:p-6">
         {metrics.map((metric, idx) => {
           const changeInfo = getChangeInfo(metric.original, metric.optimized, metric.unit, metric.isLowerBetter);
           const barWidth = getBarWidth(metric.original, metric.optimized);
@@ -115,12 +117,12 @@ const PerformanceAnalysis: React.FC = () => {
           return (
             <div key={idx} className="space-y-1">
               <div className="flex justify-between items-center">
-                <span className="text-sm text-white/80 font-medium">{metric.label}</span>
+                <span className="text-xs xs:text-sm text-white/80 font-medium">{metric.label}</span>
                 <span className="text-xs text-white/60">{metric.before}</span>
               </div>
-              <div className="relative bg-white/10 rounded-full h-2">
+              <div className="relative bg-white/10 rounded-full h-1.5 xs:h-2 overflow-hidden">
                 <div
-                  className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${metric.barColor}`}
+                  className={`absolute top-0 left-0 h-full rounded-full transition-all duration-500 ${metric.barColor} max-w-full`}
                   style={{ width: barWidth }}
                 />
               </div>
