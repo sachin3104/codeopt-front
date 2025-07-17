@@ -13,8 +13,13 @@ import {
   MoreVertical,
   Calendar,
   Mail,
-  User
+  User,
+  Copy,
+  Check,
+  Crown,
+  Zap
 } from 'lucide-react';
+import { toast } from 'sonner';
 import { 
   getUserDisplayName,
   formatUserStatus,
@@ -32,8 +37,10 @@ interface UserRowProps {
   isLoading: boolean;
   onSelect: (userId: string, selected: boolean) => void;
   onUserAction: (userId: string, action: UserActionType) => void;
+  onPlanChange?: (userId: string, planType: string) => Promise<void>;
   showCheckbox?: boolean;
   compact?: boolean;
+  serialNumber?: number;
 }
 
 export default function UserRow({ 
@@ -42,11 +49,15 @@ export default function UserRow({
   isLoading, 
   onSelect, 
   onUserAction,
+  onPlanChange,
   showCheckbox = true,
-  compact = false
+  compact = false,
+  serialNumber
 }: UserRowProps) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [copiedField, setCopiedField] = useState<string | null>(null);
+  const [isUpgradingPlan, setIsUpgradingPlan] = useState(false);
 
   // Handle checkbox change
   const handleCheckboxChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
@@ -58,6 +69,49 @@ export default function UserRow({
     onUserAction(user.id, action);
     setShowDropdown(false);
   }, [user.id, onUserAction]);
+
+  // Handle plan change
+  const handlePlanChange = useCallback(async (planType: string) => {
+    if (!onPlanChange || isUpgradingPlan) return;
+    
+    try {
+      setIsUpgradingPlan(true);
+      await onPlanChange(user.id, planType);
+      toast.success(`Successfully upgraded ${getUserDisplayName(user)} to ${planType} plan`);
+    } catch (error: any) {
+      toast.error(error.message || `Failed to upgrade ${getUserDisplayName(user)} to ${planType} plan`);
+    } finally {
+      setIsUpgradingPlan(false);
+    }
+  }, [user.id, onPlanChange, isUpgradingPlan, user]);
+
+  // Get available plans based on current plan
+  const getAvailablePlans = useCallback(() => {
+    const currentPlan = (user.active_plan_type || 'FREE').toUpperCase();
+    
+    if (currentPlan === 'PRO') {
+      return [{ type: 'ULTIMATE', label: 'Ultimate', icon: <Crown size={12} /> }];
+    } else if (currentPlan === 'ULTIMATE') {
+      return [{ type: 'PRO', label: 'Pro', icon: <Zap size={12} /> }];
+    } else {
+      // FREE plan
+      return [
+        { type: 'PRO', label: 'Pro', icon: <Zap size={12} /> },
+        { type: 'ULTIMATE', label: 'Ultimate', icon: <Crown size={12} /> }
+      ];
+    }
+  }, [user.active_plan_type]);
+
+  // Handle copy to clipboard
+  const handleCopyToClipboard = useCallback(async (text: string, fieldName: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedField(fieldName);
+      setTimeout(() => setCopiedField(null), 2000); // Reset after 2 seconds
+    } catch (err) {
+      console.error('Failed to copy to clipboard:', err);
+    }
+  }, []);
 
   // Get status badge component
   const getStatusBadge = () => {
@@ -83,26 +137,22 @@ export default function UserRow({
 
     switch (provider) {
       case 'google':
-        icon = <Globe size={14} />;
+        icon = <Globe size={10} />;
         colorClass = 'text-blue-400 bg-blue-500/20 border-blue-500/30';
         break;
-      case 'linkedin':
-        icon = <Shield size={14} />;
-        colorClass = 'text-blue-500 bg-blue-500/20 border-blue-500/30';
-        break;
       case 'local':
-        icon = <AtSign size={14} />;
+        icon = <AtSign size={10} />;
         colorClass = 'text-gray-400 bg-gray-500/20 border-gray-500/30';
         break;
       default:
-        icon = <AtSign size={14} />;
+        icon = <AtSign size={10} />;
         colorClass = 'text-gray-400 bg-gray-500/20 border-gray-500/30';
     }
 
     return (
-      <div className={`flex items-center gap-1 px-2 py-1 rounded-full border text-xs font-medium ${colorClass}`}>
+      <div className={`flex items-center gap-1 px-1.5 py-0.5 rounded-full border text-xs font-medium ${colorClass}`}>
         {icon}
-        <span>{formatAuthProvider(user.auth_provider)}</span>
+        <span className="text-xs">{formatAuthProvider(user.auth_provider)}</span>
       </div>
     );
   };
@@ -111,17 +161,7 @@ export default function UserRow({
   const getUserAvatar = () => {
     const displayName = getUserDisplayName(user);
     const initials = displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    
-    if (user.profile_picture) {
-      return (
-        <img
-          src={user.profile_picture}
-          alt={displayName}
-          className="w-10 h-10 rounded-full object-cover border-2 border-white/20"
-        />
-      );
-    }
-
+    // Always show fallback avatar, never load user.profile_picture
     return (
       <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center border-2 border-white/20">
         <span className="text-white text-sm font-semibold">
@@ -163,7 +203,19 @@ export default function UserRow({
               </span>
               {getStatusBadge()}
             </div>
-            <span className="text-white/60 text-xs">{user.email}</span>
+            <div className="flex items-center gap-2">
+              <span className="text-white/60 text-xs">{user.email}</span>
+              {getAuthProviderBadge()}
+              {user.active_plan_type && (
+                <span className={`px-2 py-1 text-xs rounded-full ${
+                  user.active_plan_type === 'FREE' ? 'bg-green-500/20 text-green-400 border border-green-500/30' :
+                  user.active_plan_type === 'PRO' ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' :
+                  'bg-purple-500/20 text-purple-400 border border-purple-500/30'
+                }`}>
+                  {user.active_plan_type}
+                </span>
+              )}
+            </div>
           </div>
         </div>
 
@@ -190,192 +242,260 @@ export default function UserRow({
   return (
     <div 
       className={`
-        px-6 py-4 transition-all duration-200 border-l-4
+        px-6 py-4 transition-all duration-200 border-l-4 border-b border-white/10 whitespace-nowrap
         ${isHovered ? 'bg-white/5' : 'bg-transparent'}
         ${isSelected ? 'border-l-blue-500 bg-blue-500/5' : 'border-l-transparent'}
       `}
       onMouseEnter={() => setIsHovered(true)}
       onMouseLeave={() => setIsHovered(false)}
     >
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-4 min-w-0">
         {showCheckbox && (
           <input
             type="checkbox"
             checked={isSelected}
             onChange={handleCheckboxChange}
             disabled={isLoading}
-            className="rounded border-white/20 bg-white/10 text-blue-500 focus:ring-blue-500/50 disabled:opacity-50"
+            className="rounded border-white/20 bg-white/10 text-blue-500 focus:ring-blue-500/50 disabled:opacity-50 flex-shrink-0"
           />
         )}
         
-        <div className="grid grid-cols-12 gap-4 flex-1 items-center">
-          {/* User Info - Col 1-4 */}
-          <div className="col-span-4">
-            <div className="flex items-center gap-3">
-              {getUserAvatar()}
-              <div className="flex flex-col min-w-0">
-                <div className="flex items-center gap-2 mb-1">
-                  <span className="text-white font-medium text-sm truncate">
-                    {getUserDisplayName(user)}
-                  </span>
-                  {user.username && (
-                    <span className="text-white/50 text-xs">@{user.username}</span>
-                  )}
+        <div className="flex items-center gap-4 flex-1 min-w-0">
+          {/* Serial Number */}
+          <div className="w-16 flex-shrink-0">
+            <div 
+              className="relative group cursor-pointer"
+              onClick={() => handleCopyToClipboard(serialNumber?.toString() || user.id.slice(-4), 'serial')}
+              title={`Click to copy: ${serialNumber || user.id.slice(-4)}`}
+            >
+              <span className="text-white/60 text-xs font-mono truncate block group-hover:text-blue-300 transition-colors">
+                {serialNumber || user.id.slice(-4)}
+              </span>
+              {copiedField === 'serial' && (
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500/90 text-white text-xs px-2 py-1 rounded flex items-center gap-1 z-10">
+                  <Check size={10} />
+                  Copied!
                 </div>
-                <div className="flex items-center gap-1 text-white/60 text-xs">
-                  <Mail size={12} />
-                  <span className="truncate">{user.email}</span>
+              )}
+            </div>
+          </div>
+
+          {/* Username */}
+          <div className="w-20 flex-shrink-0">
+            <div 
+              className="relative group cursor-pointer"
+              onClick={() => handleCopyToClipboard(user.username || 'N/A', 'username')}
+              title={`Click to copy: ${user.username || 'N/A'}`}
+            >
+              <span className="text-white font-medium text-xs truncate block group-hover:text-blue-300 transition-colors">
+                {user.username || 'N/A'}
+              </span>
+              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black/90 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                {user.username || 'N/A'}
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black/90"></div>
+              </div>
+              {copiedField === 'username' && (
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500/90 text-white text-xs px-2 py-1 rounded flex items-center gap-1 z-10">
+                  <Check size={10} />
+                  Copied!
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Email ID */}
+          <div className="w-48 flex-shrink-0">
+            <div 
+              className="relative group cursor-pointer"
+              onClick={() => handleCopyToClipboard(user.email, 'email')}
+              title={`Click to copy: ${user.email}`}
+            >
+              <div className="text-white/70 text-xs min-w-0">
+                <span className="truncate group-hover:text-blue-300 transition-colors">{user.email}</span>
+              </div>
+              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-black/90 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-10">
+                {user.email}
+                <div className="absolute top-full left-1/2 transform -translate-x-1/2 border-4 border-transparent border-t-black/90"></div>
+              </div>
+              {copiedField === 'email' && (
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500/90 text-white text-xs px-2 py-1 rounded flex items-center gap-1 z-10">
+                  <Check size={10} />
+                  Copied!
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Auth Provider */}
+          <div className="w-20 flex-shrink-0">
+            <div className="flex justify-center">
+              {getAuthProviderBadge()}
+            </div>
+          </div>
+
+          {/* Free Plan */}
+          <div className="w-16 flex-shrink-0">
+            <div className="flex justify-center">
+              <label className={`inline-flex items-center ${(user.active_plan_type === 'PRO' || user.active_plan_type === 'ULTIMATE') ? 'cursor-not-allowed' : 'cursor-pointer'}`}>
+                <input
+                  type="checkbox"
+                  checked={user.active_plan_type === 'FREE'}
+                  disabled={user.active_plan_type === 'FREE' || isUpgradingPlan || user.active_plan_type === 'PRO' || user.active_plan_type === 'ULTIMATE'}
+                  onChange={() => handlePlanChange('FREE')}
+                  className={`checkbox-green disabled:opacity-50 focus:ring-green-500 focus:ring-2`}
+                />
+                {isUpgradingPlan && user.active_plan_type !== 'FREE' ? (
+                  <Loader2 size={14} className="ml-1 animate-spin text-green-400" />
+                ) : null}
+              </label>
+            </div>
+          </div>
+
+          {/* Pro Plan */}
+          <div className="w-16 flex-shrink-0">
+            <div className="flex justify-center">
+              <label className="inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={user.active_plan_type === 'PRO'}
+                  disabled={user.active_plan_type === 'PRO' || isUpgradingPlan}
+                  onChange={() => handlePlanChange('PRO')}
+                  className={`checkbox-blue disabled:opacity-50 focus:ring-blue-500 focus:ring-2`}
+                />
+                {isUpgradingPlan && user.active_plan_type !== 'PRO' ? (
+                  <Loader2 size={14} className="ml-1 animate-spin text-blue-400" />
+                ) : null}
+              </label>
+            </div>
+          </div>
+
+          {/* Ultimate Plan */}
+          <div className="w-20 flex-shrink-0">
+            <div className="flex justify-center">
+              <label className="inline-flex items-center cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={user.active_plan_type === 'ULTIMATE'}
+                  disabled={user.active_plan_type === 'ULTIMATE' || isUpgradingPlan}
+                  onChange={() => handlePlanChange('ULTIMATE')}
+                  className={`checkbox-purple disabled:opacity-50 focus:ring-purple-500 focus:ring-2`}
+                />
+                {isUpgradingPlan && user.active_plan_type !== 'ULTIMATE' ? (
+                  <Loader2 size={14} className="ml-1 animate-spin text-purple-400" />
+                ) : null}
+              </label>
+            </div>
+          </div>
+
+          {/* Account Created Date */}
+          <div className="w-32 flex-shrink-0">
+            <div 
+              className="relative group cursor-pointer"
+              onClick={() => handleCopyToClipboard(formatDate(user.created_at), 'created')}
+              title={`Click to copy: ${formatDate(user.created_at)}`}
+            >
+              <div className="text-white/70 text-xs min-w-0">
+                <div className="font-mono text-xs">
+                  {formatDate(user.created_at).split(', ').map((part, index) => (
+                    <div key={index} className="truncate group-hover:text-blue-300 transition-colors">
+                      {part}
+                    </div>
+                  ))}
                 </div>
               </div>
+              {copiedField === 'created' && (
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500/90 text-white text-xs px-2 py-1 rounded flex items-center gap-1 z-10">
+                  <Check size={10} />
+                  Copied!
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Status - Col 5-6 */}
-          <div className="col-span-2">
-            <div className="flex flex-col gap-1">
-              {getStatusBadge()}
-              <span className="text-white/50 text-xs">
-                {user.is_active ? 'Active' : 'Inactive'}
-              </span>
-            </div>
-          </div>
-
-          {/* Auth Provider - Col 7-8 */}
-          <div className="col-span-2">
-            {getAuthProviderBadge()}
-          </div>
-
-          {/* Created Date - Col 9-10 */}
-          <div className="col-span-2">
-            <div className="flex flex-col text-white/70 text-xs">
-              <div className="flex items-center gap-1">
-                <Calendar size={12} />
-                <span>Created</span>
+          {/* Time Last Login */}
+          <div className="w-28 flex-shrink-0">
+            <div 
+              className="relative group cursor-pointer"
+              onClick={() => handleCopyToClipboard(user.last_login ? formatDate(user.last_login) : 'Never', 'lastLogin')}
+              title={`Click to copy: ${user.last_login ? formatDate(user.last_login) : 'Never'}`}
+            >
+              <div className="text-white/70 text-xs min-w-0">
+                <div className="font-mono text-xs">
+                  {user.last_login ? 
+                    formatDate(user.last_login).split(', ').map((part, index) => (
+                      <div key={index} className="truncate group-hover:text-blue-300 transition-colors">
+                        {part}
+                      </div>
+                    ))
+                    : 
+                    <div className="truncate group-hover:text-blue-300 transition-colors">Never</div>
+                  }
+                </div>
               </div>
-              <span className="font-mono">
-                {formatDate(user.created_at)}
-              </span>
+              {copiedField === 'lastLogin' && (
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500/90 text-white text-xs px-2 py-1 rounded flex items-center gap-1 z-10">
+                  <Check size={10} />
+                  Copied!
+                </div>
+              )}
             </div>
           </div>
 
-          {/* Actions - Col 11-12 */}
-          <div className="col-span-2">
-            <div className="flex items-center justify-end gap-1">
+          {/* Plan Renewal Date */}
+          <div className="w-28 flex-shrink-0">
+            <div 
+              className="relative group cursor-pointer"
+              onClick={() => handleCopyToClipboard(user.current_period_end ? formatDate(user.current_period_end) : 'N/A', 'renewal')}
+              title={`Click to copy: ${user.current_period_end ? formatDate(user.current_period_end) : 'N/A'}`}
+            >
+              <div className="text-white/70 text-xs min-w-0">
+                <div className="font-mono text-xs">
+                  {user.current_period_end ? 
+                    formatDate(user.current_period_end).split(', ').map((part, index) => (
+                      <div key={index} className="truncate group-hover:text-blue-300 transition-colors">
+                        {part}
+                      </div>
+                    ))
+                    : 
+                    <div className="truncate group-hover:text-blue-300 transition-colors">N/A</div>
+                  }
+                </div>
+              </div>
+              {copiedField === 'renewal' && (
+                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-green-500/90 text-white text-xs px-2 py-1 rounded flex items-center gap-1 z-10">
+                  <Check size={10} />
+                  Copied!
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Actions */}
+          <div className="w-20 flex-shrink-0">
+            <div className="flex items-center justify-center gap-1">
               {isLoading ? (
-                <div className="flex items-center justify-center w-8 h-8">
-                  <Loader2 size={16} className="animate-spin text-white/50" />
+                <div className="flex items-center justify-center w-6 h-6">
+                  <Loader2 size={14} className="animate-spin text-white/50" />
                 </div>
               ) : (
                 <>
-                  {/* Quick Actions */}
-                  <div className="hidden group-hover:flex items-center gap-1">
+                  {!user.is_approved ? (
                     <button
-                      onClick={() => handleActionClick(UserActionType.VIEW_DETAILS)}
-                      className="p-1.5 text-white/60 hover:text-white/80 hover:bg-white/10 rounded-lg transition-all duration-200"
-                      title="View Details"
+                      onClick={() => handleActionClick(UserActionType.APPROVE)}
+                      className="px-2 py-1 bg-green-500/20 text-green-400 border border-green-500/30 rounded hover:bg-green-500/30 transition-colors text-xs font-medium whitespace-nowrap"
+                      title="Approve User"
                     >
-                      <Eye size={14} />
+                      Approve
                     </button>
-                    
-                    {!user.is_approved && (
-                      <button
-                        onClick={() => handleActionClick(UserActionType.APPROVE)}
-                        className="p-1.5 text-green-400 hover:text-green-300 hover:bg-green-500/20 rounded-lg transition-all duration-200"
-                        title="Approve User"
-                      >
-                        <CheckCircle size={14} />
-                      </button>
-                    )}
-                    
-                    {user.is_approved && (
-                      <button
-                        onClick={() => handleActionClick(UserActionType.REJECT)}
-                        className="p-1.5 text-red-400 hover:text-red-300 hover:bg-red-500/20 rounded-lg transition-all duration-200"
-                        title="Reject User"
-                      >
-                        <XCircle size={14} />
-                      </button>
-                    )}
-                    
+                  ) : (
                     <button
-                      onClick={() => handleActionClick(UserActionType.TOGGLE_ACTIVE)}
-                      className="p-1.5 text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 rounded-lg transition-all duration-200"
-                      title={user.is_active ? 'Deactivate' : 'Activate'}
+                      onClick={() => handleActionClick(UserActionType.REJECT)}
+                      className="px-2 py-1 bg-red-500/20 text-red-400 border border-red-500/30 rounded hover:bg-red-500/30 transition-colors text-xs font-medium whitespace-nowrap"
+                      title="Reject User"
                     >
-                      {user.is_active ? <UserMinus size={14} /> : <UserPlus size={14} />}
+                      Reject
                     </button>
-                  </div>
-
-                  {/* Dropdown Menu */}
-                  <div className="relative">
-                    <button
-                      onClick={() => setShowDropdown(!showDropdown)}
-                      className="p-1.5 text-white/60 hover:text-white/80 hover:bg-white/10 rounded-lg transition-all duration-200"
-                      title="More Actions"
-                    >
-                      <MoreVertical size={16} />
-                    </button>
-
-                    {showDropdown && (
-                      <>
-                        {/* Backdrop */}
-                        <div 
-                          className="fixed inset-0 z-10"
-                          onClick={() => setShowDropdown(false)}
-                        />
-                        
-                        {/* Dropdown Menu */}
-                        <div className="absolute right-0 mt-2 w-48 backdrop-blur-md bg-black/80 border border-white/20 rounded-lg shadow-xl z-20">
-                          <div className="py-2">
-                            <button
-                              onClick={() => handleActionClick(UserActionType.VIEW_DETAILS)}
-                              className="w-full px-4 py-2 text-left text-white/80 hover:text-white hover:bg-white/10 transition-colors flex items-center gap-2"
-                            >
-                              <Eye size={14} />
-                              View Details
-                            </button>
-                            
-                            <div className="border-t border-white/10 my-1"></div>
-                            
-                            {!user.is_approved ? (
-                              <button
-                                onClick={() => handleActionClick(UserActionType.APPROVE)}
-                                className="w-full px-4 py-2 text-left text-green-400 hover:text-green-300 hover:bg-green-500/20 transition-colors flex items-center gap-2"
-                              >
-                                <CheckCircle size={14} />
-                                Approve User
-                              </button>
-                            ) : (
-                              <button
-                                onClick={() => handleActionClick(UserActionType.REJECT)}
-                                className="w-full px-4 py-2 text-left text-red-400 hover:text-red-300 hover:bg-red-500/20 transition-colors flex items-center gap-2"
-                              >
-                                <XCircle size={14} />
-                                Reject User
-                              </button>
-                            )}
-                            
-                            <button
-                              onClick={() => handleActionClick(UserActionType.TOGGLE_ACTIVE)}
-                              className="w-full px-4 py-2 text-left text-blue-400 hover:text-blue-300 hover:bg-blue-500/20 transition-colors flex items-center gap-2"
-                            >
-                              {user.is_active ? (
-                                <>
-                                  <UserMinus size={14} />
-                                  Deactivate User
-                                </>
-                              ) : (
-                                <>
-                                  <UserPlus size={14} />
-                                  Activate User
-                                </>
-                              )}
-                            </button>
-                          </div>
-                        </div>
-                      </>
-                    )}
-                  </div>
+                  )}
                 </>
               )}
             </div>

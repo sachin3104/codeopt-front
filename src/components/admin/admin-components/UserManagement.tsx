@@ -14,6 +14,7 @@ interface UserManagementProps {
   onUserSelect: (userId: string, selected: boolean) => void;
   onSelectAll: (selected: boolean) => void;
   onUserAction: (userId: string, action: UserActionType) => void;
+  onPlanChange?: (userId: string, planType: string) => Promise<void>;
   onBulkAction: (action: UserActionType) => void;
   onClearError: () => void;
   onClearActionError: () => void;
@@ -30,6 +31,7 @@ export default function UserManagement({
   onUserSelect,
   onSelectAll,
   onUserAction,
+  onPlanChange,
   onBulkAction,
   onClearError,
   onClearActionError,
@@ -102,30 +104,71 @@ export default function UserManagement({
           <p className="text-white/60">No users are currently registered</p>
         </div>
       ) : (
-        <div className="space-y-2">
-          {/* Select All Checkbox */}
-          <div className="flex items-center gap-3 p-4 bg-white/5 rounded-lg border border-white/10">
-            <input
-              type="checkbox"
-              checked={selectedUsers.size === users.length && users.length > 0}
-              onChange={(e) => onSelectAll(e.target.checked)}
-              className="rounded border-white/20 bg-white/10 text-blue-500 focus:ring-blue-500/50"
-            />
-            <span className="text-white/70 text-sm">Select All Users</span>
+        <div className="space-y-2 overflow-x-auto min-w-max">
+          {/* Table Header */}
+          <div className="px-6 py-3 bg-white/5 rounded-lg border border-white/20 whitespace-nowrap min-w-max">
+            <div className="flex items-center gap-4 min-w-0">
+              <div className="w-16 flex-shrink-0">
+                <div className="flex items-center gap-2">
+                  <input
+                    type="checkbox"
+                    checked={selectedUsers.size === users.length && users.length > 0}
+                    onChange={(e) => onSelectAll(e.target.checked)}
+                    className="rounded border-white/20 bg-white/10 text-blue-500 focus:ring-blue-500/50"
+                  />
+                  <span className="text-white/60 text-xs font-medium">Sno.</span>
+                </div>
+              </div>
+              <div className="w-20 flex-shrink-0">
+                <span className="text-white/60 text-xs font-medium truncate block">Username</span>
+              </div>
+              <div className="w-48 flex-shrink-0">
+                <span className="text-white/60 text-xs font-medium truncate block">Email ID</span>
+              </div>
+              <div className="w-20 flex-shrink-0">
+                <span className="text-white/60 text-xs font-medium text-center truncate block">Auth</span>
+              </div>
+              <div className="w-16 flex-shrink-0">
+                <span className="text-white/60 text-xs font-medium text-center truncate block">Free</span>
+              </div>
+              <div className="w-16 flex-shrink-0">
+                <span className="text-white/60 text-xs font-medium text-center truncate block">Pro</span>
+              </div>
+              <div className="w-20 flex-shrink-0">
+                <span className="text-white/60 text-xs font-medium text-center truncate block">Ultimate</span>
+              </div>
+              <div className="w-32 flex-shrink-0">
+                <span className="text-white/60 text-xs font-medium truncate block">Created Date</span>
+              </div>
+              <div className="w-28 flex-shrink-0">
+                <span className="text-white/60 text-xs font-medium truncate block">Last Login</span>
+              </div>
+              <div className="w-28 flex-shrink-0">
+                <span className="text-white/60 text-xs font-medium truncate block">Renewal</span>
+              </div>
+              <div className="w-20 flex-shrink-0">
+                <span className="text-white/60 text-xs font-medium text-right truncate block">Actions</span>
+              </div>
+            </div>
           </div>
           
-          {users.map((user) => (
-            <UserRow
-              key={user.id}
-              user={user}
-              isSelected={selectedUsers.has(user.id)}
-              isLoading={actionLoadingUsers.has(user.id)}
-              onSelect={onUserSelect}
-              onUserAction={onUserAction}
-              showCheckbox={true}
-              compact={true}
-            />
-          ))}
+          <div className="space-y-2">
+            {users.map((user, index) => (
+              <div key={user.id} className="whitespace-nowrap">
+                <UserRow
+                  user={user}
+                  isSelected={selectedUsers.has(user.id)}
+                  isLoading={actionLoadingUsers.has(user.id)}
+                  onSelect={onUserSelect}
+                  onUserAction={onUserAction}
+                  onPlanChange={onPlanChange}
+                  showCheckbox={true}
+                  compact={false}
+                  serialNumber={index + 1}
+                />
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>

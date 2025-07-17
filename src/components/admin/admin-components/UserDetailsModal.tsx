@@ -45,8 +45,6 @@ export default function UserDetailsModal({
     switch (provider.toLowerCase()) {
       case 'google':
         return <Globe size={14} className="text-blue-400" />;
-      case 'linkedin':
-        return <Shield size={14} className="text-blue-500" />;
       case 'local':
         return <AtSign size={14} className="text-gray-400" />;
       default:
@@ -99,6 +97,24 @@ export default function UserDetailsModal({
             <div>
               <label className="text-white/70 text-sm">Last Login</label>
               <p className="text-white font-medium">{formatDate(user.last_login)}</p>
+            </div>
+            <div>
+              <label className="text-white/70 text-sm">Active Plan</label>
+              <p className="text-white font-medium">
+                {user.active_plan_type ? 
+                  user.active_plan_type : 
+                  'No active plan'
+                }
+              </p>
+            </div>
+            <div>
+              <label className="text-white/70 text-sm">Plan Renewal Date</label>
+              <p className="text-white font-medium">
+                {user.current_period_end ? 
+                  formatDate(user.current_period_end) : 
+                  'N/A'
+                }
+              </p>
             </div>
           </div>
           

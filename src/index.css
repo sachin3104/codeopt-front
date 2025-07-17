@@ -131,6 +131,94 @@
     border-radius: 10px;
     border: 1px solid rgba(255, 255, 255, 0.18);
   }
+
+  /* Custom colored checkboxes for admin plan selection */
+  .checkbox-green {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #34d399;
+    border-radius: 4px;
+    background-color: transparent;
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .checkbox-green:checked {
+    background-color: #10b981;
+    border-color: #10b981;
+  }
+  
+  .checkbox-green:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .checkbox-blue {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #60a5fa;
+    border-radius: 4px;
+    background-color: transparent;
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .checkbox-blue:checked {
+    background-color: #3b82f6;
+    border-color: #3b82f6;
+  }
+  
+  .checkbox-blue:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+  }
+  
+  .checkbox-purple {
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #a78bfa;
+    border-radius: 4px;
+    background-color: transparent;
+    position: relative;
+    cursor: pointer;
+  }
+  
+  .checkbox-purple:checked {
+    background-color: #8b5cf6;
+    border-color: #8b5cf6;
+  }
+  
+  .checkbox-purple:checked::after {
+    content: '✓';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+    font-size: 14px;
+    font-weight: bold;
+  }
 }
 
 

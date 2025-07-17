@@ -59,6 +59,24 @@ export default function UserStatistics({ stats }: UserStatisticsProps) {
           New registrations
         </div>
       </div>
+
+      {/* Auth Providers */}
+      <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-6">
+        <div className="flex items-center gap-3 mb-2">
+          <Users size={20} className="text-indigo-400" />
+          <span className="text-white/70 text-sm font-medium">Auth Providers</span>
+        </div>
+        <div className="space-y-1">
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-white/70">Local</span>
+            <span className="text-white font-medium">{stats?.auth_providers?.local || 0}</span>
+          </div>
+          <div className="flex items-center justify-between text-sm">
+            <span className="text-white/70">Google</span>
+            <span className="text-white font-medium">{stats?.auth_providers?.google || 0}</span>
+          </div>
+        </div>
+      </div>
     </div>
   );
 } 

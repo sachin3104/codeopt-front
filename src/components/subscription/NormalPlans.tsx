@@ -42,15 +42,12 @@ const NormalPlans: React.FC = () => {
       // Map the API plan types to the expected enum values
       let enumPlanType: PlanType;
       switch (plan.plan_type) {
-        case 'FREE':
         case 'optqo_free':
           enumPlanType = PlanType.FREE;
           break;
-        case 'DEVELOPER':
         case 'optqo_pro':
           enumPlanType = PlanType.DEVELOPER;
           break;
-        case 'PROFESSIONAL':
         case 'optqo_ultimate':
           enumPlanType = PlanType.PROFESSIONAL;
           break;
@@ -58,7 +55,7 @@ const NormalPlans: React.FC = () => {
           throw new Error(`Unknown plan type: ${plan.plan_type}`);
       }
   
-      if (plan.plan_type === 'FREE' || plan.plan_type === 'optqo_free') {
+      if (plan.plan_type === 'optqo_free') {
         // Always use createSubscription for free plan
         await createSubscription(enumPlanType);
       } else {
@@ -76,13 +73,10 @@ const NormalPlans: React.FC = () => {
   const getPlanLevel = (planType: string): number => {
     switch (planType) {
       case 'optqo_free':
-      case 'FREE':
         return 0;
       case 'optqo_pro':
-      case 'DEVELOPER':
         return 1;
       case 'optqo_ultimate':
-      case 'PROFESSIONAL':
         return 2;
       default:
         return -1;
@@ -138,7 +132,7 @@ const NormalPlans: React.FC = () => {
       return 'Not Available';
     }
     
-    if (plan.plan_type === 'FREE' || plan.plan_type === 'optqo_free') return 'Get Started';
+    if (plan.plan_type === 'optqo_free') return 'Get Started';
     return 'Subscribe Now';
   };
 

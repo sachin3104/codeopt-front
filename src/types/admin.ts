@@ -52,7 +52,6 @@ export interface UserStats {
   auth_providers: {
     local: number;
     google: number;
-    linkedin: number;
   };
 }
 
@@ -75,6 +74,9 @@ export interface RegularUser {
   created_at?: string;
   last_login?: string;
   profile_picture?: string;
+  // Subscription information - updated to match backend structure
+  active_plan_type?: 'FREE' | 'PRO' | 'ULTIMATE' | null;
+  current_period_end?: string | null;
 }
 
 // Response from get users endpoint
@@ -141,9 +143,8 @@ export interface AdminDashboardData {
 // User filters for the user management page
 export interface UserFilters {
   search: string;
-  status: 'all' | 'approved' | 'pending' | 'active' | 'inactive';
-  auth_provider: 'all' | 'local' | 'google' | 'linkedin';
-  sort_by: 'created_at' | 'username' | 'email' | 'last_login';
+  auth_provider: 'all' | 'local' | 'google';
+  sort_by: 'created_at' | 'last_login';
   sort_order: 'asc' | 'desc';
 }
 
@@ -173,6 +174,7 @@ export enum UserActionType {
   REJECT = 'reject',
   TOGGLE_ACTIVE = 'toggle-active',
   VIEW_DETAILS = 'view-details',
+  UPGRADE_SUBSCRIPTION = 'upgrade-subscription',
   BULK_APPROVE = 'bulk-approve',
   BULK_REJECT = 'bulk-reject',
   BULK_ACTIVATE = 'bulk-activate',
@@ -261,10 +263,9 @@ export interface GetUsersParams {
   page?: number;
   per_page?: number;
   search?: string;
-  status?: string;
-  auth_provider?: string;
-  sort_by?: string;
-  sort_order?: string;
+  auth_provider?: 'local' | 'google' | 'all';
+  sort_by?: 'created_at' | 'last_login';
+  sort_order?: 'asc' | 'desc';
 }
 
 // User action request data
@@ -303,14 +304,13 @@ export interface StatusBadgeProps {
 
 // Auth provider badge props
 export interface AuthProviderBadgeProps {
-  provider: 'local' | 'google' | 'linkedin';
+  provider: 'local' | 'google';
   size?: 'sm' | 'md' | 'lg';
 }
 
 // Default filter values
 export const DEFAULT_USER_FILTERS: UserFilters = {
   search: '',
-  status: 'all',
   auth_provider: 'all',
   sort_by: 'created_at',
   sort_order: 'desc'
@@ -326,27 +326,15 @@ export const DEFAULT_PAGINATION: PaginationInfo = {
   has_prev: false
 };
 
-// User status options for filters
-export const USER_STATUS_OPTIONS = [
-  { value: 'all', label: 'All Users' },
-  { value: 'approved', label: 'Approved' },
-  { value: 'pending', label: 'Pending' },
-  { value: 'active', label: 'Active' },
-  { value: 'inactive', label: 'Inactive' }
-] as const;
-
 // Auth provider options for filters
 export const AUTH_PROVIDER_OPTIONS = [
   { value: 'all', label: 'All Providers' },
   { value: 'local', label: 'Local' },
-  { value: 'google', label: 'Google' },
-  { value: 'linkedin', label: 'LinkedIn' }
+  { value: 'google', label: 'Google' }
 ] as const;
 
 // Sort options for user table
 export const USER_SORT_OPTIONS = [
   { value: 'created_at', label: 'Date Created' },
-  { value: 'username', label: 'Username' },
-  { value: 'email', label: 'Email' },
   { value: 'last_login', label: 'Last Login' }
 ] as const;

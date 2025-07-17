@@ -80,41 +80,23 @@ export const checkAdminAuth = () => {
  * @param params - Optional query parameters for filtering, pagination, and sorting
  */
 export const getUsers = (params?: GetUsersParams) => {
-  // Build query string from parameters
-  const queryParams = new URLSearchParams();
-  
-  if (params?.page) {
-    queryParams.append('page', params.page.toString());
-  }
-  
-  if (params?.per_page) {
-    queryParams.append('per_page', params.per_page.toString());
-  }
-  
-  if (params?.search && params.search.trim()) {
-    queryParams.append('search', params.search.trim());
-  }
-  
-  if (params?.status && params.status !== 'all') {
-    queryParams.append('status', params.status);
-  }
-  
+  const qp = new URLSearchParams();
+
+  if (params?.page)       qp.append('page',    params.page.toString());
+  if (params?.per_page)   qp.append('per_page', params.per_page.toString());
+  if (params?.search?.trim()) qp.append('search', params.search.trim());
+
+  // only local or google
   if (params?.auth_provider && params.auth_provider !== 'all') {
-    queryParams.append('auth_provider', params.auth_provider);
+    qp.append('auth_provider', params.auth_provider);
   }
-  
-  if (params?.sort_by) {
-    queryParams.append('sort_by', params.sort_by);
-  }
-  
-  if (params?.sort_order) {
-    queryParams.append('sort_order', params.sort_order);
-  }
-  
-  const queryString = queryParams.toString();
-  const url = queryString ? `/api/admin/users?${queryString}` : '/api/admin/users';
-  
-  return api.get<UsersResponse>(url);
+
+  // only created_at or last_login
+  if (params?.sort_by)    qp.append('sort_by',    params.sort_by);
+  if (params?.sort_order) qp.append('sort_order', params.sort_order);
+
+  const qs = qp.toString();
+  return api.get<UsersResponse>(`/api/admin/users${qs ? `?${qs}` : ''}`);
 };
 
 /**
@@ -351,8 +333,6 @@ export const formatAuthProvider = (provider: string): string => {
       return 'Local';
     case 'google':
       return 'Google';
-    case 'linkedin':
-      return 'LinkedIn';
     default:
       return provider;
   }
@@ -394,3 +374,28 @@ export const buildQueryParams = (params: Record<string, any>): string => {
   
   return queryParams.toString();
 };
+
+/**
+ * Subscription Management Endpoints
+ */
+
+/**
+ * Fetch all available subscription plans
+ */
+export const getSubscriptionPlans = () =>
+  api.get<{ status: string; plans: { id: string; plan_type: string; name: string; description?: string }[] }>('/api/admin/subscription/plans');
+
+/**
+ * Upgrade a user's subscription
+ * @param userId - UUID of the user
+ * @param planType - e.g. 'pro' | 'ultimate' | 'free'
+ * @param durationDays - length in days
+ */
+export const upgradeUserSubscription = (
+  userId: string,
+  planType: 'pro' | 'ultimate' | 'free',
+  durationDays: number
+) => api.post(`/api/admin/users/${userId}/upgrade-subscription`, {
+  plan_type: planType,
+  duration_days: durationDays,
+});

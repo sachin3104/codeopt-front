@@ -3,15 +3,13 @@ import React, { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AdminHeader from './AdminHeader';
 import { 
-  getUsers, 
   approveUser, 
   rejectUser, 
   toggleUserActiveStatus, 
   bulkApproveUsers,
-  fetchCurrentAdmin, 
-  getUserStats
+  fetchCurrentAdmin
 } from '@/api/admin';
-import type { AdminUser, UserStats, RegularUser } from '@/types/admin';
+import type { AdminUser, RegularUser } from '@/types/admin';
 import { UserActionType, BulkActionData } from '@/types/admin';
 import { UserX } from 'lucide-react';
 import {
@@ -20,22 +18,39 @@ import {
   AdminInfo,
   UserManagement,
   UserDetailsModal,
-  ConfirmationModal
+  ConfirmationModal,
+  UserFilterBar,
+  UserPagination
 } from './admin-components';
+import { useAdminUsers } from '@/hooks/useAdminUsers';
 
 export default function AdminLayout() {
   const navigate = useNavigate();
   const [admin, setAdmin] = useState<AdminUser | null>(null);
-  const [stats, setStats] = useState<UserStats | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // User management state
-  const [users, setUsers] = useState<RegularUser[]>([]);
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
-  const [isLoadingUsers, setIsLoadingUsers] = useState(true);
   const [actionLoadingUsers, setActionLoadingUsers] = useState<Set<string>>(new Set());
   const [actionError, setActionError] = useState<string | null>(null);
+
+  // Use the new admin users hook
+  const {
+    users, stats, plans,
+    filters,
+    isLoadingUsers, isLoadingStats, isLoadingPlans,
+    error: usersError,
+    onSearchChange,
+    onSortChange,
+    onPageChange,
+    onPerPageChange,
+    onProviderChange,
+    onReset,
+    refetch,
+    loadPlans,
+    upgradeSubscription,
+  } = useAdminUsers();
 
   // Modal states
   const [showUserDetailsModal, setShowUserDetailsModal] = useState(false);
@@ -46,63 +61,41 @@ export default function AdminLayout() {
 
   // Component mounted
 
-  // Initialize dashboard data
+  // Initialize dashboard data once on mount
   useEffect(() => {
     const initializeDashboard = async () => {
+      setIsLoading(true);
+      setError(null);
+
       try {
-        setIsLoading(true);
-        setError(null);
-
-        // Fetch current admin profile
-        const adminResponse = await fetchCurrentAdmin();
-        
-        if (adminResponse.data.status === 'success' && adminResponse.data.admin) {
-          setAdmin(adminResponse.data.admin);
-          
-          // Fetch user statistics
-          try {
-            const statsResponse = await getUserStats();
-            if (statsResponse.data.status === 'success') {
-              setStats(statsResponse.data.stats);
-            }
-          } catch (statsError) {
-            // Failed to fetch user stats
-          }
-
-          // Fetch users
-          try {
-            const usersResponse = await getUsers();
-            if (usersResponse.data.status === 'success') {
-              setUsers(usersResponse.data.users);
-            }
-          } catch (usersError) {
-            // Failed to fetch users
-          }
-        } else {
+        // 1) Who am I?
+        const { data: me } = await fetchCurrentAdmin();
+        if (me.status !== 'success' || !me.admin) {
+          // not authenticated, kick back to login
           navigate('/admin/login', { replace: true });
           return;
         }
+        setAdmin(me.admin);
       } catch (err: any) {
+        // If 401, redirect to login
         if (err.response?.status === 401) {
           navigate('/admin/login', { replace: true });
           return;
         }
-        
-        const errorMessage = err.response?.data?.message || err.message || 'Failed to load dashboard';
-        setError(errorMessage);
+        // Otherwise show error
+        const msg = err.response?.data?.message || err.message || 'Failed to load dashboard';
+        setError(msg);
       } finally {
         setIsLoading(false);
-        setIsLoadingUsers(false);
       }
     };
 
     initializeDashboard();
-  }, [navigate]);
+  }, []); // ← run only once on mount
 
   // Handle logout
   const handleLogout = () => {
     setAdmin(null);
-    setStats(null);
     navigate('/admin/login', { replace: true });
   };
 
@@ -152,24 +145,14 @@ export default function AdminLayout() {
           setSelectedUser(user);
           setShowUserDetailsModal(true);
           return;
+
         default:
           return;
       }
 
       if (response?.data.status === 'success') {
-        // Update user in local state
-        setUsers(prev => prev.map(u => 
-          u.id === userId ? response.data.user : u
-        ));
-        // Reload stats
-        try {
-          const statsResponse = await getUserStats();
-          if (statsResponse.data.status === 'success') {
-            setStats(statsResponse.data.stats);
-          }
-        } catch (statsError) {
-          // Failed to reload stats
-        }
+        // Refetch users and stats after successful action
+        refetch();
       }
     } catch (err: any) {
       setActionError(err.response?.data?.message || `Failed to ${action} user`);
@@ -214,24 +197,8 @@ export default function AdminLayout() {
       }
 
       if (response?.data.status === 'success') {
-        // Reload users and stats
-        try {
-          const [usersResponse, statsResponse] = await Promise.all([
-            getUsers(),
-            getUserStats()
-          ]);
-          
-          if (usersResponse.data.status === 'success') {
-            setUsers(usersResponse.data.users);
-          }
-          
-          if (statsResponse.data.status === 'success') {
-            setStats(statsResponse.data.stats);
-          }
-        } catch (error) {
-          // Failed to reload data
-        }
-        
+        // Refetch users and stats after successful action
+        refetch();
         setSelectedUsers(new Set());
       }
     } catch (err: any) {
@@ -288,7 +255,7 @@ export default function AdminLayout() {
       
       {/* Main Content Area */}
       <main className="flex-1 min-h-[calc(100vh-200px)]">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
             <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
             <div className="p-6 sm:p-8 space-y-8">
               
@@ -301,22 +268,47 @@ export default function AdminLayout() {
               {/* Admin Information */}
               <AdminInfo admin={admin} />
 
-              {/* User Management */}
-              <UserManagement
-                users={users}
-                selectedUsers={selectedUsers}
-                isLoadingUsers={isLoadingUsers}
-                actionLoadingUsers={actionLoadingUsers}
-                error={error}
-                actionError={actionError}
-                onUserSelect={handleUserSelect}
-                onSelectAll={handleSelectAll}
-                onUserAction={handleUserAction}
-                onBulkAction={handleBulkAction}
-                onClearError={() => setError(null)}
-                onClearActionError={() => setActionError(null)}
-                onClearSelection={() => setSelectedUsers(new Set())}
-              />
+              {/* User Management Section */}
+              <div>
+                {/* Filter Bar */}
+                <UserFilterBar
+                  filters={filters}
+                  onSearchChange={onSearchChange}
+                  onSortChange={onSortChange}
+                  onProviderChange={onProviderChange}
+                  onReset={onReset}
+                />
+
+                {/* User Table */}
+                <UserManagement
+                  users={users}
+                  selectedUsers={selectedUsers}
+                  isLoadingUsers={isLoadingUsers}
+                  actionLoadingUsers={actionLoadingUsers}
+                  error={usersError}
+                  actionError={actionError}
+                  onUserSelect={handleUserSelect}
+                  onSelectAll={handleSelectAll}
+                  onUserAction={handleUserAction}
+                  onPlanChange={async (userId, planType) => {
+                    await upgradeSubscription(userId, planType as 'pro' | 'ultimate', 30);
+                  }}
+                  onBulkAction={handleBulkAction}
+                  onClearError={() => {}} // Handled by hook
+                  onClearActionError={() => setActionError(null)}
+                  onClearSelection={() => setSelectedUsers(new Set())}
+                />
+
+                {/* Pagination - Positioned at bottom */}
+                <div className="mt-8">
+                  <UserPagination
+                    currentPage={filters.page || 1}
+                    totalPages={Math.max(1, Math.ceil((stats?.total_users || 0) / 50))}
+                    onPageChange={onPageChange}
+                    isLoading={isLoadingUsers}
+                  />
+                </div>
+              </div>
 
             </div>
           </div>
@@ -339,6 +331,8 @@ export default function AdminLayout() {
         onConfirm={confirmBulkAction}
         onCancel={() => setShowConfirmationModal(false)}
       />
+
+
       
     </div>
   );
