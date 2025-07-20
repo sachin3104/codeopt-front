@@ -143,6 +143,30 @@ export const getUserStats = () =>
   api.get<UserStatsResponse>('/api/admin/users/stats');
 
 /**
+ * Export user data as CSV/Excel
+ * @param params - Optional query parameters for filtering (same as getUsers)
+ */
+export const exportUsers = (params?: GetUsersParams) => {
+  const qp = new URLSearchParams();
+
+  if (params?.search?.trim()) qp.append('search', params.search.trim());
+
+  // only local or google
+  if (params?.auth_provider && params.auth_provider !== 'all') {
+    qp.append('auth_provider', params.auth_provider);
+  }
+
+  // only created_at or last_login
+  if (params?.sort_by)    qp.append('sort_by',    params.sort_by);
+  if (params?.sort_order) qp.append('sort_order', params.sort_order);
+
+  const qs = qp.toString();
+  return api.get(`/api/admin/users/export${qs ? `?${qs}` : ''}`, {
+    responseType: 'blob'
+  });
+};
+
+/**
  * Admin Management Endpoints (Super Admin Only)
  */
 

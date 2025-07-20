@@ -7,13 +7,14 @@ import {
   rejectUser, 
   toggleUserActiveStatus, 
   bulkApproveUsers,
-  fetchCurrentAdmin
+  fetchCurrentAdmin,
+  exportUsers
 } from '@/api/admin';
 import type { AdminUser, RegularUser } from '@/types/admin';
 import { UserActionType, BulkActionData } from '@/types/admin';
 import { UserX } from 'lucide-react';
+import { toast } from 'sonner';
 import {
-  WelcomeMessage,
   UserStatistics,
   AdminInfo,
   UserManagement,
@@ -34,6 +35,7 @@ export default function AdminLayout() {
   const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set());
   const [actionLoadingUsers, setActionLoadingUsers] = useState<Set<string>>(new Set());
   const [actionError, setActionError] = useState<string | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   // Use the new admin users hook
   const {
@@ -210,6 +212,52 @@ export default function AdminLayout() {
     }
   }, [pendingAction]);
 
+  // Handle export users - downloads user data as CSV/Excel file
+  // Uses current filters (search, auth provider, sort) to export filtered data
+  const handleExportUsers = useCallback(async () => {
+    try {
+      setIsExporting(true);
+      setActionError(null);
+
+      const response = await exportUsers(filters);
+      
+      // Create a blob from the response data
+      const blob = new Blob([response.data], { 
+        type: response.headers['content-type'] || 'application/octet-stream' 
+      });
+      
+      // Create download link
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      
+      // Set filename from response headers or use default
+      const contentDisposition = response.headers['content-disposition'];
+      let filename = 'users-export.csv';
+      if (contentDisposition) {
+        const filenameMatch = contentDisposition.match(/filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/);
+        if (filenameMatch && filenameMatch[1]) {
+          filename = filenameMatch[1].replace(/['"]/g, '');
+        }
+      }
+      
+      link.download = filename;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('User data exported successfully!');
+      
+    } catch (err: any) {
+      const errorMessage = err.response?.data?.message || 'Failed to export users';
+      setActionError(errorMessage);
+      toast.error(errorMessage);
+    } finally {
+      setIsExporting(false);
+    }
+  }, [filters]);
+
   // Show loading state
   if (isLoading) {
     return (
@@ -259,9 +307,6 @@ export default function AdminLayout() {
             <div className="backdrop-blur-md bg-gradient-to-br from-black/40 via-black/30 to-black/20 border border-white/20 rounded-2xl shadow-2xl overflow-hidden">
             <div className="p-6 sm:p-8 space-y-8">
               
-              {/* Welcome Message */}
-              <WelcomeMessage admin={admin} />
-
               {/* User Statistics */}
               <UserStatistics stats={stats} />
 
@@ -277,6 +322,8 @@ export default function AdminLayout() {
                   onSortChange={onSortChange}
                   onProviderChange={onProviderChange}
                   onReset={onReset}
+                  onExport={handleExportUsers}
+                  isExporting={isExporting}
                 />
 
                 {/* User Table */}

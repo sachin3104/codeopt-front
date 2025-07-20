@@ -34,6 +34,9 @@ export const getAuthErrorMessage = (error: AuthError): string => {
       if (message?.toLowerCase().includes('invalid')) {
         return 'Invalid input. Please check your information and try again.';
       }
+      if (message?.toLowerCase().includes('otp')) {
+        return 'Invalid OTP code. Please check the 6-digit code and try again.';
+      }
       return 'Please check your information and try again.';
       
     case 401:
@@ -42,6 +45,9 @@ export const getAuthErrorMessage = (error: AuthError): string => {
       }
       if (message?.toLowerCase().includes('unauthorized')) {
         return 'Invalid username or password. Please check your credentials and try again.';
+      }
+      if (message?.toLowerCase().includes('otp')) {
+        return 'Invalid OTP code. Please check the 6-digit code and try again.';
       }
       return 'Invalid username or password. Please check your credentials and try again.';
       
@@ -64,9 +70,15 @@ export const getAuthErrorMessage = (error: AuthError): string => {
       if (message?.toLowerCase().includes('validation')) {
         return 'Please check your information and ensure all fields are filled correctly.';
       }
+      if (message?.toLowerCase().includes('otp')) {
+        return 'Invalid OTP code. Please check the 6-digit code and try again.';
+      }
       return 'Invalid information provided. Please check your details and try again.';
       
     case 429:
+      if (message?.toLowerCase().includes('otp')) {
+        return 'Too many OTP attempts. Please wait a few minutes before requesting a new code.';
+      }
       return 'Too many attempts. Please wait a few minutes before trying again.';
       
     case 500:
@@ -84,14 +96,26 @@ export const getAuthErrorMessage = (error: AuthError): string => {
         return 'Request timed out. Please try again.';
       }
       if (message?.toLowerCase().includes('otp')) {
+        if (message?.toLowerCase().includes('expired')) {
+          return 'OTP code has expired. Please request a new code.';
+        }
+        if (message?.toLowerCase().includes('invalid')) {
+          return 'Invalid OTP code. Please check the 6-digit code and try again.';
+        }
+        if (message?.toLowerCase().includes('not found')) {
+          return 'OTP verification failed. Please request a new code.';
+        }
         return 'OTP verification failed. Please check your code and try again.';
       }
       if (message?.toLowerCase().includes('google')) {
         return 'Google authentication failed. Please try again or use email signup.';
       }
+      if (message?.toLowerCase().includes('pending otp')) {
+        return 'Please complete the signup process first.';
+      }
       
       // Return the original message if it's user-friendly, otherwise provide a generic message
-      if (message && !message.includes('Error') && !message.includes('error')) {
+      if (message && !message.includes('Error') && !message.includes('error') && !message.includes('status code')) {
         return message;
       }
       
@@ -151,5 +175,68 @@ export const getLoginErrorMessage = (error: AuthError): string => {
       
     default:
       return getAuthErrorMessage(error);
+  }
+}; 
+
+export const getOtpErrorMessage = (error: AuthError): string => {
+  const status = error.status || error.response?.status;
+  const message = error.message || error.response?.data?.message || error.response?.data?.error;
+
+  // Handle specific OTP errors
+  switch (status) {
+    case 400:
+      if (message?.toLowerCase().includes('invalid')) {
+        return 'Invalid OTP code. Please check the 6-digit code and try again.';
+      }
+      if (message?.toLowerCase().includes('expired')) {
+        return 'OTP code has expired. Please request a new code.';
+      }
+      return 'Invalid OTP code. Please check the 6-digit code and try again.';
+      
+    case 401:
+      return 'Invalid OTP code. Please check the 6-digit code and try again.';
+      
+    case 404:
+      return 'OTP verification failed. Please request a new code.';
+      
+    case 422:
+      return 'Invalid OTP code. Please check the 6-digit code and try again.';
+      
+    case 429:
+      return 'Too many OTP attempts. Please wait a few minutes before requesting a new code.';
+      
+    case 500:
+    case 502:
+    case 503:
+    case 504:
+      return 'Server error. Please try again in a few moments.';
+      
+    default:
+      // Handle specific error messages
+      if (message?.toLowerCase().includes('expired')) {
+        return 'OTP code has expired. Please request a new code.';
+      }
+      if (message?.toLowerCase().includes('invalid')) {
+        return 'Invalid OTP code. Please check the 6-digit code and try again.';
+      }
+      if (message?.toLowerCase().includes('not found')) {
+        return 'OTP verification failed. Please request a new code.';
+      }
+      if (message?.toLowerCase().includes('pending otp')) {
+        return 'Please complete the signup process first.';
+      }
+      if (message?.toLowerCase().includes('network')) {
+        return 'Network error. Please check your internet connection and try again.';
+      }
+      if (message?.toLowerCase().includes('timeout')) {
+        return 'Request timed out. Please try again.';
+      }
+      
+      // Return the original message if it's user-friendly, otherwise provide a generic message
+      if (message && !message.includes('Error') && !message.includes('error') && !message.includes('status code')) {
+        return message;
+      }
+      
+      return 'OTP verification failed. Please try again.';
   }
 }; 

@@ -11,6 +11,7 @@ export interface AuthContextType {
   login: (params: LoginParams) => Promise<void>
   signup: (params: SignupParams) => Promise<void>
   verifySignupOtp: (otpCode: string) => Promise<void>
+  resendOtp: () => Promise<void>
   loginWithGoogle: () => Promise<void>
   logout: () => Promise<void>
   refreshUser: () => Promise<boolean>
@@ -47,6 +48,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setIsAuthenticated(false)
     setPendingOtp(null)
     sessionStorage.clear()
+    sessionStorage.removeItem('pendingOtpData') // Clear pending OTP data
     navigate('/login', { replace: true })
   }
 
@@ -65,6 +67,18 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         setIsAuthenticated(false)
         setLoading(false)
         return
+      }
+
+      // Restore pending OTP data from sessionStorage if available
+      const pendingOtpData = sessionStorage.getItem('pendingOtpData')
+      if (pendingOtpData && !pendingOtp) {
+        try {
+          const data = JSON.parse(pendingOtpData)
+          setPendingOtp(data)
+        } catch (error) {
+          console.error('Failed to parse pending OTP data:', error)
+          sessionStorage.removeItem('pendingOtpData')
+        }
       }
 
       try {
@@ -109,11 +123,16 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     if ('next_step' in result) {
       // stash the info and redirect
-      setPendingOtp({
+      const pendingOtpData = {
         email: result.data.email,
         endpoint: result.data.verification_endpoint,
         extra: { username: params.username, password: params.password }
-      })
+      }
+      setPendingOtp(pendingOtpData)
+      
+      // Store in sessionStorage for page refresh resilience
+      sessionStorage.setItem('pendingOtpData', JSON.stringify(pendingOtpData))
+      
       navigate('/auth/verify-otp', { state: { purpose: 'registration' } })
     } else {
       setUser(result)
@@ -138,7 +157,21 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     setUser(current)
     setIsAuthenticated(true)
     setPendingOtp(null)
+    
+    // Clear sessionStorage after successful verification
+    sessionStorage.removeItem('pendingOtpData')
+    
     setLoading(false)
+  }
+
+  const resendOtp = async () => {
+    if (!pendingOtp) {
+      console.error('No pending OTP data found')
+      throw new Error('No pending OTP verification')
+    }
+
+    console.log('Resending OTP to:', pendingOtp.email)
+    await auth.requestOtp(pendingOtp.email)
   }
 
   const loginWithGoogle = async () => {
@@ -174,6 +207,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
         login, 
         signup, 
         verifySignupOtp,
+        resendOtp,
         loginWithGoogle, 
         logout,
         refreshUser

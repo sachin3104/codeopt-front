@@ -9,6 +9,7 @@ import { IconBrandGoogle } from '@tabler/icons-react';
 import { Background } from '@/components/common/background';
 import { useValidation } from '@/hooks/useValidation';
 import { getSignupErrorMessage } from '@/utils/errorHandlers';
+import { toast } from 'sonner';
 
 const SignupPage: React.FC = () => {
   const { signup, loginWithGoogle } = useAuth();
@@ -42,8 +43,9 @@ const SignupPage: React.FC = () => {
     
     try {
       await signup({ username, email, password, use_otp: true });
+      toast.success('OTP sent to your email! Please check your inbox and verify your account.');
       // Navigation will be handled by the AuthContext based on OTP flow
-    } catch (err: any) {
+    } catch (err: unknown) {
       const userFriendlyError = getSignupErrorMessage(err);
       setError(userFriendlyError);
     } finally {
@@ -57,7 +59,7 @@ const SignupPage: React.FC = () => {
     
     try {
       await loginWithGoogle();
-    } catch (err: any) {
+    } catch (err: unknown) {
       const userFriendlyError = getSignupErrorMessage(err);
       setError(userFriendlyError);
     } finally {

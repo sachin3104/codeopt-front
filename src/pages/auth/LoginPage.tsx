@@ -32,7 +32,7 @@ const LoginPage: React.FC = () => {
     try {
       await login({ username, password });
       navigate('/'); // protected home
-    } catch (err: any) {
+    } catch (err: unknown) {
       const userFriendlyError = getLoginErrorMessage(err);
       setError(userFriendlyError);
     } finally {
@@ -46,7 +46,7 @@ const LoginPage: React.FC = () => {
     
     try {
       await loginWithGoogle();
-    } catch (err: any) {
+    } catch (err: unknown) {
       const userFriendlyError = getLoginErrorMessage(err);
       setError(userFriendlyError);
     } finally {

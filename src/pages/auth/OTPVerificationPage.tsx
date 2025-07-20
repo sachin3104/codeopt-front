@@ -1,16 +1,48 @@
-import React, { useState, FormEvent } from 'react'
+import React, { useState, FormEvent, useEffect } from 'react'
 import { useLocation, useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '@/hooks/use-auth'
 import { Background } from '@/components/common/background'
-import { Shield, ArrowLeft, AlertCircle, CheckCircle } from 'lucide-react'
+import { Shield, ArrowLeft, AlertCircle, CheckCircle, RefreshCw } from 'lucide-react'
+import { toast } from 'sonner'
+import { getOtpErrorMessage } from '@/utils/errorHandlers'
 
 export const OTPVerificationPage: React.FC = () => {
-  const { verifySignupOtp } = useAuth()
+  const { verifySignupOtp, resendOtp } = useAuth()
   const { state } = useLocation() as { state: { purpose: 'registration' } }
   const [code, setCode] = useState('')
   const [error, setError] = useState<string | null>(null)
   const [isVerifying, setIsVerifying] = useState(false)
+  const [isResending, setIsResending] = useState(false)
+  const [resendCooldown, setResendCooldown] = useState(0)
   const navigate = useNavigate()
+
+  // Check if user has pending OTP data, if not redirect to signup
+  useEffect(() => {
+    // If no state or purpose is not registration, redirect to signup
+    if (!state || state.purpose !== 'registration') {
+      toast.error('Please complete the signup process first.')
+      navigate('/signup', { replace: true })
+      return
+    }
+  }, [state, navigate])
+
+  // Handle countdown timer for resend cooldown
+  useEffect(() => {
+    let interval: NodeJS.Timeout
+    if (resendCooldown > 0) {
+      interval = setInterval(() => {
+        setResendCooldown(prev => {
+          if (prev <= 1) {
+            return 0
+          }
+          return prev - 1
+        })
+      }, 1000)
+    }
+    return () => {
+      if (interval) clearInterval(interval)
+    }
+  }, [resendCooldown])
 
   const handleVerify = async (e: FormEvent) => {
     e.preventDefault()
@@ -21,11 +53,28 @@ export const OTPVerificationPage: React.FC = () => {
     
     try {
       await verifySignupOtp(code)
+      toast.success('Email verified successfully! Welcome to CodeOpt!')
       navigate('/') // success - redirect to home
-    } catch (err: any) {
-      setError(err.message || 'OTP verification failed')
+    } catch (err: unknown) {
+      const userFriendlyError = getOtpErrorMessage(err)
+      setError(userFriendlyError)
+      toast.error(userFriendlyError)
     } finally {
       setIsVerifying(false)
+    }
+  }
+
+  const handleResendOtp = async () => {
+    setIsResending(true)
+    try {
+      await resendOtp()
+      toast.success('New OTP sent to your email!')
+      setResendCooldown(30) // Start 30-second cooldown
+    } catch (err: unknown) {
+      const userFriendlyError = getOtpErrorMessage(err)
+      toast.error(userFriendlyError)
+    } finally {
+      setIsResending(false)
     }
   }
 
@@ -110,13 +159,20 @@ export const OTPVerificationPage: React.FC = () => {
               <p>Didn't receive the code?</p>
               <button 
                 type="button"
-                className="text-white hover:text-white/80 transition-colors underline"
-                onClick={() => {
-                  // TODO: Implement resend OTP functionality
-                  alert('Resend functionality will be implemented')
-                }}
+                disabled={resendCooldown > 0 || isResending}
+                className={`text-white hover:text-white/80 transition-colors underline disabled:text-white/40 disabled:cursor-not-allowed flex items-center justify-center gap-1 mx-auto mt-1`}
+                onClick={handleResendOtp}
               >
-                Resend code
+                {isResending ? (
+                  <>
+                    <RefreshCw className="h-3 w-3 animate-spin" />
+                    <span>Resending...</span>
+                  </>
+                ) : resendCooldown > 0 ? (
+                  <span>Resend code in {resendCooldown}s</span>
+                ) : (
+                  <span>Resend code</span>
+                )}
               </button>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React from 'react'
+import { Download, Loader2 } from 'lucide-react'
 import type { GetUsersParams } from '@/types/admin'
 
 interface Props {
@@ -7,6 +8,8 @@ interface Props {
   onSortChange: (sort_by: 'created_at'|'last_login', sort_order: 'asc'|'desc') => void
   onProviderChange: (auth_provider: 'local'|'google'|'all') => void
   onReset: () => void
+  onExport: () => void
+  isExporting: boolean
 }
 
 export default function UserFilterBar({
@@ -15,6 +18,8 @@ export default function UserFilterBar({
   onSortChange,
   onProviderChange,
   onReset,
+  onExport,
+  isExporting,
 }: Props) {
   return (
     <div className="backdrop-blur-sm bg-white/5 border border-white/10 rounded-xl p-4 mb-4">
@@ -80,6 +85,27 @@ export default function UserFilterBar({
             className="w-full px-3 py-2 text-sm font-medium text-white/70 bg-white/10 border border-white/20 rounded-lg hover:bg-white/20 hover:text-white focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-colors"
           >
             Reset
+          </button>
+        </div>
+
+        {/* Export Button */}
+        <div className="min-w-[120px]">
+          <button
+            onClick={onExport}
+            disabled={isExporting}
+            className="w-full px-3 py-2 text-sm font-medium text-green-400 bg-green-500/20 border border-green-500/30 rounded-lg hover:bg-green-500/30 hover:text-green-300 focus:outline-none focus:ring-2 focus:ring-green-500/50 focus:border-green-500/50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {isExporting ? (
+              <>
+                <Loader2 size={16} className="animate-spin" />
+                Exporting...
+              </>
+            ) : (
+              <>
+                <Download size={16} />
+                Export
+              </>
+            )}
           </button>
         </div>
       </div>

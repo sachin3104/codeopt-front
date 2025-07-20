@@ -59,10 +59,10 @@ api.interceptors.response.use(
       // Ignore 401 on auth endpoint (expected behavior)
     }
     else if (status === 403) {
-      toast.error('Access denied.')
+      // Don't show generic toast - let components handle with user-friendly messages
     }
     else if (status === 404) {
-      toast.error('Resource not found.')
+      // Don't show generic toast - let components handle with user-friendly messages
     }
     else if (status === 429) {
       toast.error(
@@ -71,7 +71,7 @@ api.interceptors.response.use(
       )
     }
     else if (status >= 500) {
-      toast.error('Server error. Try again later.')
+      toast.error('Server error. Please try again later.')
     }
 
     return Promise.reject(error)
