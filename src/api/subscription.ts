@@ -14,14 +14,18 @@ import type {
   ConsultationCheckoutResponse,
   ConsultationBookingStatusResponse,
   ConsultationBookingsResponse,
-  ConsultationBooking
+  ConsultationBooking,
+  PlansResponse,
+  SubscriptionStatusResponse
 } from '../types/subscription'
 
 // Plan types available in the system
 export enum PlanType {
-  FREE = 'optqo_free',
-  DEVELOPER = 'optqo_pro',
-  PROFESSIONAL = 'optqo_ultimate',
+  FREE = 'FREE',
+  PRO = 'PRO',
+  ULTIMATE = 'ULTIMATE',
+  ENTERPRISE = 'ENTERPRISE',
+  CALL_WITH_EXPERT = 'CALL_WITH_EXPERT',
 }
 
 // Subscription API wrapper
@@ -31,7 +35,10 @@ export const subscriptionService = {
    */
   async getPlans(): Promise<Plan[]> {
     try {
-      const response = await api.get<{ plans: Plan[] }>('/api/subscription/plans')
+      const response = await api.get<PlansResponse>('/api/subscription/plans')
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to fetch plans')
+      }
       return response.data.plans
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
@@ -43,7 +50,10 @@ export const subscriptionService = {
    */
   async getSubscriptionStatus(): Promise<Subscription> {
     try {
-      const response = await api.get<{ subscription: Subscription }>('/api/subscription/status')
+      const response = await api.get<SubscriptionStatusResponse>('/api/subscription/status')
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to fetch subscription status')
+      }
       return response.data.subscription
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
@@ -60,6 +70,9 @@ export const subscriptionService = {
         '/api/subscription/create-checkout',
         { plan_type: planType }
       )
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to create checkout session')
+      }
       return response.data.checkout_url
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
@@ -81,6 +94,9 @@ export const subscriptionService = {
         '/api/subscription/create',
         payload
       )
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to create subscription')
+      }
       return response.data.subscription
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
@@ -96,6 +112,9 @@ export const subscriptionService = {
         '/api/subscription/update',
         { plan_type: planType }
       )
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to update subscription')
+      }
       return response.data.subscription
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
@@ -112,6 +131,9 @@ export const subscriptionService = {
         '/api/subscription/cancel',
         { immediate }
       )
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to cancel subscription')
+      }
       return response.data.subscription
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
@@ -130,6 +152,9 @@ export const subscriptionService = {
       const response = await api.get<UsageHistoryResponse>('/api/subscription/usage', {
         params: { days, page, per_page: perPage },
       })
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to fetch usage history')
+      }
       return response.data
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
@@ -142,6 +167,9 @@ export const subscriptionService = {
   async openBillingPortal(): Promise<{ portal_url: string }> {
     try {
       const response = await api.post<BillingPortalResponse>('/api/subscription/billing-portal')
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to open billing portal')
+      }
       return response.data
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
@@ -157,10 +185,13 @@ export const subscriptionService = {
    */
   async getConsultationPlans(): Promise<Plan[]> {
     try {
-      const { data } = await api.get<ConsultationPlansResponse>(
+      const response = await api.get<ConsultationPlansResponse>(
         '/api/subscription/consultation/plans'
       )
-      return data.consultation_plans
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to fetch consultation plans')
+      }
+      return response.data.consultation_plans
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
     }
@@ -175,7 +206,7 @@ export const subscriptionService = {
     description?: string
   ): Promise<ConsultationCheckoutResponse> {
     try {
-      const { data } = await api.post<ConsultationCheckoutResponse>(
+      const response = await api.post<ConsultationCheckoutResponse>(
         '/api/subscription/consultation/create-checkout',
         {
           consultation_type: consultationType,
@@ -183,7 +214,10 @@ export const subscriptionService = {
           description
         }
       )
-      return data
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to create consultation checkout')
+      }
+      return response.data
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
     }
@@ -196,10 +230,13 @@ export const subscriptionService = {
     bookingId: number
   ): Promise<ConsultationBooking> {
     try {
-      const { data } = await api.get<ConsultationBookingStatusResponse>(
+      const response = await api.get<ConsultationBookingStatusResponse>(
         `/api/subscription/consultation/booking/${bookingId}/status`
       )
-      return data.booking
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to fetch consultation booking status')
+      }
+      return response.data.booking
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
     }
@@ -213,11 +250,14 @@ export const subscriptionService = {
     perPage = 20
   ): Promise<ConsultationBookingsResponse> {
     try {
-      const { data } = await api.get<ConsultationBookingsResponse>(
+      const response = await api.get<ConsultationBookingsResponse>(
         '/api/subscription/consultation/bookings',
         { params: { page, per_page: perPage } }
       )
-      return data
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to fetch consultation bookings')
+      }
+      return response.data
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
     }
@@ -230,10 +270,13 @@ export const subscriptionService = {
     bookingId: number
   ): Promise<ConsultationBooking> {
     try {
-      const { data } = await api.post<ConsultationBookingStatusResponse>(
+      const response = await api.post<ConsultationBookingStatusResponse>(
         `/api/subscription/consultation/booking/${bookingId}/simulate-payment`
       )
-      return data.booking
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to simulate consultation payment')
+      }
+      return response.data.booking
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
     }
@@ -248,10 +291,13 @@ export const subscriptionService = {
    */
   async reactivateSubscription(): Promise<Subscription> {
     try {
-      const { data } = await api.post<SubscriptionActionResponse>(
+      const response = await api.post<SubscriptionActionResponse>(
         '/api/subscription/reactivate'
       )
-      return data.subscription
+      if (response.data.status === 'error') {
+        throw new Error(response.data.message || 'Failed to reactivate subscription')
+      }
+      return response.data.subscription
     } catch (err: any) {
       throw err as AxiosError<ApiErrorResponse>
     }

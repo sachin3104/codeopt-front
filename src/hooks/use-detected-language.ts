@@ -41,6 +41,6 @@ export const clearLanguageCache = () => {
     clearCache()
   } catch (error) {
     // If context is not available, just log a warning
-    console.warn('Language detection context not available for cache clearing')
+
   }
 }

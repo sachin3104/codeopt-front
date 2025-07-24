@@ -71,7 +71,7 @@ export function getPlanDisplayInfo(subscription?: any) {
   if (!subscription?.plan) {
     return {
       name: 'OPTQO FREE',
-      type: 'optqo_free',
+      type: 'FREE',
       actionType: 'subscribe',
       hasUnlimitedChars: true,
       limit: 0

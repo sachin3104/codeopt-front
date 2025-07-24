@@ -39,10 +39,9 @@ const SyncCodeEditors: React.FC<SyncCodeEditorsProps> = ({
       const targetScrollTop = scrollPercentage * (targetScrollInfo.height - targetScrollInfo.clientHeight);
       
       targetEditor.scrollTo(0, targetScrollTop);
-    } catch (error) {
-      // Silently handle any scroll errors
-      console.warn('Scroll synchronization error:', error);
-    }
+          } catch (error) {
+        // Silently handle any scroll errors
+      }
   };
 
   // Set up scroll event listeners
@@ -67,12 +66,12 @@ const SyncCodeEditors: React.FC<SyncCodeEditorsProps> = ({
               rightEditor.off('scroll', handleRightScroll);
             }
           } catch (error) {
-            console.warn('Error cleaning up scroll listeners:', error);
+            // Silently handle cleanup errors
           }
         };
-      } catch (error) {
-        console.warn('Error setting up scroll listeners:', error);
-      }
+              } catch (error) {
+          // Silently handle setup errors
+        }
     }
   }, []);
 

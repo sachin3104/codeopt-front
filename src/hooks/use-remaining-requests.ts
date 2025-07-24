@@ -27,7 +27,7 @@ export function useRemainingRequests(): RemainingRequestsInfo {
 
     const { plan } = subscription
     const { current_usage, plan_limits } = usageData
-    const isFreePlan = plan.plan_type === 'optqo_free'
+    const isFreePlan = plan.plan_type === 'FREE'
     
     const periodType: 'daily' | 'monthly' = isFreePlan ? 'daily' : 'monthly'
     const usedRequests = isFreePlan ? current_usage.daily_usage : current_usage.monthly_usage

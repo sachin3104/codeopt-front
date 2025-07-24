@@ -51,7 +51,7 @@ export const auth = {
    * Request OTP for signup verification
    */
   requestOtp: (email: string) => {
-    console.log('Making request to /api/auth/otp/generate with email:', email)
+
     return api.post('/api/auth/otp/generate', { email, purpose: 'registration' })
   },
 

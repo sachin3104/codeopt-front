@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PlanType, subscriptionService } from '@/api/subscription';
 import type { Plan } from '@/types/subscription';
 import { useSubscription } from '@/hooks/use-subscription';
+import { useAuth } from '@/hooks/use-auth';
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/types/subscription';
 import ExpertConsultationModal from './ExpertConsultationModal';
@@ -9,6 +11,8 @@ import EnterpriseContactModal from './EnterpriseContactModal';
 import { Check, Mail, Calendar } from 'lucide-react';
 
 const PremiumPlans: React.FC = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const {
     consultationPlans,
     fetchingConsultationPlans,
@@ -50,6 +54,11 @@ const PremiumPlans: React.FC = () => {
   }, [fetchConsultationPlans]);
 
   const handleSelect = async (plan: Plan) => {
+    if (!isAuthenticated) {
+      navigate('/login');
+      return;
+    }
+    
     setSelectedPlan(plan.plan_type as PlanType);
     try {
       switch (plan.action_type) {

@@ -63,7 +63,7 @@ const AuthSuccessPage: React.FC = () => {
         }
 
       } catch (error) {
-        console.error('Auth success error:', error);
+
         setStatus('error');
         setMessage('Authentication failed. Please try again.');
 

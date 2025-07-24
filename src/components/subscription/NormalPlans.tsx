@@ -1,12 +1,17 @@
 import React, { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { PlanType,subscriptionService } from '@/api/subscription';
 import type { Plan } from '@/types/subscription';
 import { useSubscription } from '@/hooks/use-subscription';
+import { useAuth } from '@/hooks/use-auth';
 import type { AxiosError } from 'axios';
 import type { ApiErrorResponse } from '@/types/subscription';
 import { Check, MoveRight } from 'lucide-react';
+import { toast } from '@/components/ui/sonner';
 
 const NormalPlans: React.FC = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated } = useAuth();
   const {
     subscription,
     createSubscription,
@@ -36,34 +41,46 @@ const NormalPlans: React.FC = () => {
   }, []);
 
   const handleSelect = async (plan: Plan) => {
+    if (!isAuthenticated) {
+      toast.error('You must be logged in to subscribe.');
+      navigate('/login');
+      return;
+    }
+
     setSelectedPlan(plan.plan_type);
-    
+
     try {
-      // Map the API plan types to the expected enum values
-      let enumPlanType: PlanType;
-      switch (plan.plan_type) {
-        case 'optqo_free':
-          enumPlanType = PlanType.FREE;
-          break;
-        case 'optqo_pro':
-          enumPlanType = PlanType.DEVELOPER;
-          break;
-        case 'optqo_ultimate':
-          enumPlanType = PlanType.PROFESSIONAL;
-          break;
-        default:
-          throw new Error(`Unknown plan type: ${plan.plan_type}`);
-      }
-  
-      if (plan.plan_type === 'optqo_free') {
-        // Always use createSubscription for free plan
-        await createSubscription(enumPlanType);
+      if (plan.plan_type === 'FREE') {
+        await createSubscription(PlanType.FREE);
+        toast.success('You are now on the Free plan!');
       } else {
-        // Use checkout for all paid plans
-        await startCheckout(enumPlanType);
+        // For paid plans, call the checkout API directly with the plan type
+        const checkoutUrl = await subscriptionService.createCheckoutSession(plan.plan_type as PlanType);
+        toast.success('Redirecting to payment...');
+        // Redirect to Stripe checkout
+        window.location.href = checkoutUrl;
       }
-    } catch (error) {
-      // Error is handled by the context
+    } catch (error: any) {
+      let message = 'An error occurred. Please try again.';
+      
+      // Handle specific error cases
+      if (error?.response?.status === 400) {
+        const errorMessage = error.response.data.message;
+        if (errorMessage?.includes('already has an active')) {
+          message = 'You already have an active subscription';
+        } else if (errorMessage?.includes('Cannot downgrade')) {
+          message = 'Cannot downgrade from current plan';
+        } else {
+          message = errorMessage || 'Invalid request';
+        }
+      } else if (error?.response?.status === 401) {
+        message = 'Please log in to continue';
+        navigate('/login');
+      } else if (error?.message) {
+        message = error.message;
+      }
+      
+      toast.error(message);
     } finally {
       setSelectedPlan(null);
     }
@@ -72,12 +89,16 @@ const NormalPlans: React.FC = () => {
   // Helper function to get plan hierarchy level based on actual plan types
   const getPlanLevel = (planType: string): number => {
     switch (planType) {
-      case 'optqo_free':
+      case 'FREE':
         return 0;
-      case 'optqo_pro':
+      case 'PRO':
         return 1;
-      case 'optqo_ultimate':
+      case 'ULTIMATE':
         return 2;
+      case 'ENTERPRISE':
+        return 3;
+      case 'CALL_WITH_EXPERT':
+        return 4;
       default:
         return -1;
     }
@@ -132,7 +153,7 @@ const NormalPlans: React.FC = () => {
       return 'Not Available';
     }
     
-    if (plan.plan_type === 'optqo_free') return 'Get Started';
+    if (plan.plan_type === 'FREE') return 'Get Started';
     return 'Subscribe Now';
   };
 

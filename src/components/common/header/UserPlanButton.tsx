@@ -67,7 +67,7 @@ const UserPlanButton: React.FC<UserPlanButtonProps> = ({ onLogoutClick }) => {
 
   // Extract plan information from the subscription response
   const plan = subscription.plan;
-  const isFreePlan = plan.plan_type === 'optqo_free';
+  const isFreePlan = plan.plan_type === 'FREE';
   
   // Get plan display name
   const getPlanDisplayName = () => {

@@ -50,7 +50,7 @@ const DetailedSubscriptionInfo: React.FC = () => {
   }
 
   const { plan, status, current_period_end, cancel_at_period_end, days_until_renewal } = subscription;
-  const isFreePlan = plan.plan_type === 'optqo_free';
+  const isFreePlan = plan.plan_type === 'FREE';
 
   // Get usage data from context
   const currentUsage = usageData?.current_usage;

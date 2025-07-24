@@ -194,9 +194,20 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
       setCheckoutError(null)
       try {
         const url = await subscriptionService.createCheckoutSession(plan)
-        await redirectToStripeCheckout(url)
+        window.location.href = url
       } catch (err: any) {
         setCheckoutError(err)
+        // Handle specific error cases
+        if (err?.response?.status === 400) {
+          const errorMessage = err.response.data.message
+          if (errorMessage?.includes('already has an active')) {
+            // User already has an active subscription
+          } else if (errorMessage?.includes('Cannot downgrade')) {
+            // Cannot downgrade from current plan
+          }
+        } else if (err?.response?.status === 401) {
+          // Authentication required
+        }
       } finally {
         setCheckoutLoading(false)
       }
@@ -214,6 +225,17 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
         setSubscription(sub)
       } catch (err: any) {
         setCreateError(err)
+        // Handle specific error cases
+        if (err?.response?.status === 400) {
+          const errorMessage = err.response.data.message
+          if (errorMessage?.includes('already has an active')) {
+            // User already has an active subscription
+          } else if (errorMessage?.includes('Cannot downgrade')) {
+            // Cannot downgrade from current plan
+          }
+        } else if (err?.response?.status === 401) {
+          // Authentication required
+        }
       } finally {
         setCreateLoading(false)
       }
@@ -294,9 +316,15 @@ export const SubscriptionProvider: React.FC<{ children: ReactNode }> = ({ childr
           selectedDate,
           description
         )
-        await redirectToStripeCheckout(response.checkout_url)
+        window.location.href = response.checkout_url
       } catch (err: any) {
         setConsultationCheckoutError(err)
+        // Handle specific error cases
+        if (err?.response?.status === 400) {
+          // Invalid consultation request
+        } else if (err?.response?.status === 401) {
+          // Authentication required for consultation booking
+        }
       } finally {
         setConsultationCheckoutLoading(false)
       }

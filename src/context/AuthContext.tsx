@@ -76,7 +76,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
           const data = JSON.parse(pendingOtpData)
           setPendingOtp(data)
         } catch (error) {
-          console.error('Failed to parse pending OTP data:', error)
+    
           sessionStorage.removeItem('pendingOtpData')
         }
       }
@@ -166,11 +166,11 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
   const resendOtp = async () => {
     if (!pendingOtp) {
-      console.error('No pending OTP data found')
+      
       throw new Error('No pending OTP verification')
     }
 
-    console.log('Resending OTP to:', pendingOtp.email)
+    
     await auth.requestOtp(pendingOtp.email)
   }
 
@@ -193,7 +193,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
       }
       return false;
     } catch (error) {
-      console.error('Failed to refresh user:', error);
+      
       return false;
     }
   };

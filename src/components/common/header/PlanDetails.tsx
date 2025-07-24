@@ -45,7 +45,7 @@ const PlanDetails: React.FC = () => {
   }
 
   const { plan } = subscription;
-  const isFreePlan = plan.plan_type === 'optqo_free';
+  const isFreePlan = plan.plan_type === 'FREE';
   
   // Get action type display info based on backend data
   const getActionTypeInfo = () => {

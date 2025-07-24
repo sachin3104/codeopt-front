@@ -108,9 +108,9 @@ export default function UserRow({
       await navigator.clipboard.writeText(text);
       setCopiedField(fieldName);
       setTimeout(() => setCopiedField(null), 2000); // Reset after 2 seconds
-    } catch (err) {
-      console.error('Failed to copy to clipboard:', err);
-    }
+          } catch (err) {
+        // Silently handle copy errors
+      }
   }, []);
 
   // Get status badge component

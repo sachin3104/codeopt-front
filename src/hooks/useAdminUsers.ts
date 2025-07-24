@@ -158,11 +158,11 @@ export function useAdminUsers() {
     try {
       const res = await getSubscriptionPlans()
       if (res.data.status === 'success') {
-        console.log('Loaded plans from API:', res.data.plans);
+
         setPlans(res.data.plans)
       }
     } catch (e: any) {
-      console.error('Failed to load plans:', e)
+      // Silently handle plan loading errors
     } finally {
       setIsLoadingPlans(false)
     }
@@ -170,14 +170,11 @@ export function useAdminUsers() {
 
   // Convert plan type to backend format
   const convertPlanTypeToBackend = (planType: string): 'pro' | 'ultimate' | 'free' => {
-    switch (planType.toLowerCase()) {
-      case 'pro':
+    switch (planType.toUpperCase()) {
       case 'PRO':
         return 'pro';
-      case 'ultimate':
       case 'ULTIMATE':
         return 'ultimate';
-      case 'free':
       case 'FREE':
         return 'free';
       default:
@@ -191,12 +188,7 @@ export function useAdminUsers() {
       try {
         // Ensure plan type is in correct format for backend
         const backendPlanType = convertPlanTypeToBackend(planType);
-        console.log('useAdminUsers - upgradeSubscription:', {
-          userId,
-          originalPlanType: planType,
-          backendPlanType,
-          days
-        });
+        
         await upgradeUserSubscription(userId, backendPlanType, days)
         // Re-fetch user list & stats to reflect new subscription
         await Promise.all([
@@ -204,7 +196,7 @@ export function useAdminUsers() {
           loadStats()
         ])
       } catch (e: any) {
-        console.error('useAdminUsers - upgradeSubscription error:', e);
+
         throw new Error(e.response?.data?.message || 'Failed to upgrade subscription')
       }
     },

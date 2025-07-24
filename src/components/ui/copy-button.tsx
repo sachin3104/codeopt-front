@@ -18,9 +18,9 @@ const CopyButton = React.forwardRef<HTMLButtonElement, CopyButtonProps>(
         await navigator.clipboard.writeText(text);
         setCopied(true);
         setTimeout(() => setCopied(false), 2000);
-      } catch (err) {
-        console.error('Failed to copy text:', err);
-      }
+              } catch (err) {
+          // Silently handle copy errors
+        }
     };
 
     return (

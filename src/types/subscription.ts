@@ -3,7 +3,7 @@
 
 export interface Plan {
   id: number;
-  plan_type: 'optqo_free' | 'optqo_pro' | 'optqo_ultimate';
+  plan_type: 'FREE' | 'PRO' | 'ULTIMATE' | 'ENTERPRISE' | 'CALL_WITH_EXPERT';
   name: string;
   description: string;
   price: number;
@@ -52,7 +52,7 @@ export interface UsageData {
 }
 
 export interface SubscriptionStatusResponse {
-  status: string;
+  status: 'success' | 'error';
   subscription: Subscription;
   usage: UsageData;
   plan_limits: {
@@ -65,21 +65,25 @@ export interface SubscriptionStatusResponse {
     customer_data: any;
     created_at: string;
   } | null;
+  message?: string;
 }
 
 export interface PlansResponse {
-  status: string;
+  status: 'success' | 'error';
   plans: Plan[];
+  message?: string;
 }
 
 export interface CheckoutResponse {
-  status: string;
+  status: 'success' | 'error';
   checkout_url: string;
+  message?: string;
 }
 
 export interface BillingPortalResponse {
-  status: string;
+  status: 'success' | 'error';
   portal_url: string;
+  message?: string;
 }
 
 export interface UsageRecord {
@@ -93,7 +97,7 @@ export interface UsageRecord {
 }
 
 export interface UsageHistoryResponse {
-  status: string;
+  status: 'success' | 'error';
   current_usage: {
     daily_usage: number;
     monthly_usage: number;
@@ -116,11 +120,12 @@ export interface UsageHistoryResponse {
     max_daily_usage: number | null;
     max_monthly_usage: number | null;
   };
+  message?: string;
 }
 
 export interface SubscriptionActionResponse {
-  status: string;
-  message: string;
+  status: 'success' | 'error';
+  message?: string;
   subscription: Subscription;
 }
 
@@ -154,24 +159,27 @@ export interface ConsultationBooking {
 
 // Responses for consultation endpoints
 export interface ConsultationPlansResponse {
-  status: string;
+  status: 'success' | 'error';
   consultation_plans: Plan[];
+  message?: string;
 }
 
 export interface ConsultationCheckoutResponse {
-  status: string;
+  status: 'success' | 'error';
   booking_id: number;
   checkout_url: string;
   booking: ConsultationBooking;
+  message?: string;
 }
 
 export interface ConsultationBookingStatusResponse {
-  status: string;
+  status: 'success' | 'error';
   booking: ConsultationBooking;
+  message?: string;
 }
 
 export interface ConsultationBookingsResponse {
-  status: string;
+  status: 'success' | 'error';
   bookings: ConsultationBooking[];
   pagination: {
     page: number;
@@ -181,4 +189,5 @@ export interface ConsultationBookingsResponse {
     has_next: boolean;
     has_prev: boolean;
   };
+  message?: string;
 } 

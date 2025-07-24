@@ -64,14 +64,11 @@ export default function SubscriptionUpgradeModal({
 
   // Convert plan type to backend format
   const convertPlanTypeToBackend = (planType: string): 'pro' | 'ultimate' | 'free' => {
-    switch (planType.toLowerCase()) {
-      case 'pro':
+    switch (planType.toUpperCase()) {
       case 'PRO':
         return 'pro';
-      case 'ultimate':
       case 'ULTIMATE':
         return 'ultimate';
-      case 'free':
       case 'FREE':
         return 'free';
       default:
@@ -98,15 +95,11 @@ export default function SubscriptionUpgradeModal({
       setError(null);
       
       const backendPlanType = convertPlanTypeToBackend(selectedPlan);
-      console.log('Upgrading subscription:', {
-        originalPlan: selectedPlan,
-        convertedPlan: backendPlanType,
-        duration: durationDays
-      });
+      
       await onUpgrade(backendPlanType, durationDays);
       onClose();
     } catch (err: any) {
-      console.error('Subscription upgrade error:', err);
+
       setError(err.message || 'Failed to upgrade subscription');
     } finally {
       setIsSubmitting(false);

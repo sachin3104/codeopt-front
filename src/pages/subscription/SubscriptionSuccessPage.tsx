@@ -53,10 +53,14 @@ const SubscriptionSuccessPage: React.FC = () => {
 
   const getPlanDisplayName = (planType: string) => {
     switch (planType) {
-      case 'optqo_pro':
+      case 'PRO':
         return 'OPTQO Pro'
-      case 'optqo_ultimate':
+      case 'ULTIMATE':
         return 'OPTQO Ultimate'
+      case 'ENTERPRISE':
+        return 'OPTQO Enterprise'
+      case 'CALL_WITH_EXPERT':
+        return 'OPTQO Expert'
       default:
         return planType
     }
